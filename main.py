@@ -7,7 +7,7 @@ Notes for members:
     1. Naviate to your project directory:
         cd path\to\your\project
     2. Make sure you have created a virtual environment by running:
-        python -m venv venv
+        python3 -m venv venv
     3. Install required dependicies by running:
         pip install -r requirements.txt
 
