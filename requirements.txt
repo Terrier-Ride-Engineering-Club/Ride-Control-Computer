@@ -1,0 +1,3 @@
+pycrc==0.10.0
+pyserial==3.5
+roboclaw==1.0.0.dev1
