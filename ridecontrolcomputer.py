@@ -104,3 +104,6 @@ class RideControlComputer():
             self.log.info(f'Changed from {self._state.name} to {new_state.name}')
             self._state = new_state  # Update state
 
+
+    
+
