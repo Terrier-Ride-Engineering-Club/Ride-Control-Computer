@@ -25,13 +25,24 @@ Notes for members:
 '''
 
 # Native modules
-import threading
 import logging
 # from roboclaw import RoboClaw
 # Custom modules
 from ridecontrolcomputer import RideControlComputer
 from web.backend.webserver import RideWebServer
 
+# --- Configure Logging ---
+LOG_FORMAT = "%(asctime)s %(levelname)s [%(name)s]: %(message)s"
+LOG_FILE = "ride_control.log"
+
+logging.basicConfig(
+    level=logging.WARNING,  # Change to DEBUG for more details
+    format=LOG_FORMAT,
+    handlers=[
+        logging.FileHandler(LOG_FILE),  # Log to a file
+        logging.StreamHandler()  # Log to the console
+    ]
+)
 
 # Initialize RCC
 rcc = RideControlComputer()

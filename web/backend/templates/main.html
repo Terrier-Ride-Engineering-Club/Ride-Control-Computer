@@ -20,38 +20,86 @@
     <div class="row">
       <!-- Status Card -->
       <div class="col-md-6 mb-4">
-        <div class="card border-primary">
+        <div class="card border-primary shadow">
           <div class="card-header bg-primary text-white">
-            System Status
+            <h5 class="mb-0">System Status</h5>
           </div>
           <div class="card-body">
-            <h5 class="card-title" id="statusState">State: Unknown</h5>
+            <h5 class="card-title">
+              Ride State: <span id="statusState" class="badge bg-secondary">Unknown</span>
+            </h5>
             <p class="card-text">
-              ESTOP: <span id="statusEstop">N/A</span><br />
-              OnSwitchActive: <span id="statusOnSwitch">N/A</span><br />
-              ResetSwitchActive: <span id="statusResetSwitch">N/A</span>
+              Connection Status: <span id="connectionStatus" class="badge bg-warning">Unknown</span>
             </p>
-            <button id="refreshStatus" class="btn btn-outline-primary">
+
+            <table class="table table-bordered mt-3">
+              <thead class="table-light">
+                <tr>
+                  <th>Status</th>
+                  <th>Indicator</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><i class="fas fa-exclamation-triangle text-danger"></i> ESTOP</td>
+                  <td><span id="statusEstop" class="badge bg-danger">N/A</span></td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-hand-paper text-warning"></i> Stop</td>
+                  <td><span id="statusStop" class="badge bg-danger">N/A</span></td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-flag-checkered text-success"></i> Dispatch</td>
+                  <td><span id="statusDispatch" class="badge bg-danger">N/A</span></td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-power-off text-dark"></i> Ride Off</td>
+                  <td><span id="statusRideOff" class="badge bg-danger">N/A</span></td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-redo text-primary"></i> Restart</td>
+                  <td><span id="statusRestart" class="badge bg-danger">N/A</span></td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-toggle-on text-success"></i> On Switch</td>
+                  <td><span id="statusOnSwitch" class="badge bg-danger">N/A</span></td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-sync text-info"></i> Reset Switch</td>
+                  <td><span id="statusResetSwitch" class="badge bg-danger">N/A</span></td>
+                </tr>
+              </tbody>
+            </table>
+            <button id="refreshStatus" type="button" class="btn btn-outline-primary">
               Refresh Status
             </button>
           </div>
         </div>
       </div>
-
-      <!-- Control Card -->
-      <div class="col-md-6 mb-4">
-        <div class="card border-secondary">
-          <div class="card-header bg-secondary text-white">
-            Controls
-          </div>
-          <div class="card-body">
-            <button id="startRide" class="btn btn-success me-2">
-              Start Ride
-            </button>
-            <button id="triggerEstop" class="btn btn-danger">
-              Trigger ESTOP
-            </button>
-            <div id="controlMessage" class="mt-3"></div>
+        <!-- Control Card -->
+        <div class="col-md-6 mb-4">
+          <div class="card border-secondary">
+            <div class="card-header bg-secondary text-white">
+              Controls
+            </div>
+            <div class="card-body">
+              <button id="triggerEstop" type="button" class="btn btn-danger">
+                Emergency Stop (ESTOP)
+              </button>
+              <button id="stopRide" type="button" class="btn btn-warning">
+                Stop Ride (Controlled)
+              </button>
+              <button id="dispatchRide" type="button" class="btn btn-success">
+                Dispatch Ride
+              </button>
+              <button id="rideOff" type="button" class="btn btn-dark">
+                Ride Off (Power Down)
+              </button>
+              <button id="restartRide" type="button" class="btn btn-primary">
+                Restart Ride
+              </button>
+              <div id="controlMessage" class="mt-3"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -61,61 +109,93 @@
   <!-- JavaScript to interact with the API -->
   <script>
     const apiBase = "http://localhost:23843";
+
+    // Function to send POST requests to the backend for ride control actions
+    async function sendRideCommand(endpoint, successMessage) {
+      try {
+        const response = await fetch(`${apiBase}/${endpoint}`, { method: 'POST' });
+        const data = await response.json();
+        const msgDiv = document.getElementById('controlMessage');
+        if (response.ok) {
+          msgDiv.innerHTML = `<div class="alert alert-success" role="alert">${successMessage}</div>`;
+        } else {
+          msgDiv.innerHTML = `<div class="alert alert-danger" role="alert">${data.error}</div>`;
+        }
+        updateStatus();
+      } catch (error) {
+        console.error(`Error executing ${endpoint}:`, error);
+      }
+    }
+
+    // Button Event Listeners
+    document.getElementById('triggerEstop').addEventListener('click', () => {
+      sendRideCommand("estop", "Emergency Stop activated!");
+    });
+
+    document.getElementById('stopRide').addEventListener('click', () => {
+      sendRideCommand("stop", "Ride is stopping in a controlled manner.");
+    });
+
+    document.getElementById('dispatchRide').addEventListener('click', () => {
+      sendRideCommand("dispatch", "Ride dispatched successfully!");
+    });
+
+    document.getElementById('rideOff').addEventListener('click', () => {
+      sendRideCommand("ride_off", "Ride power has been turned off.");
+    });
+
+    document.getElementById('restartRide').addEventListener('click', () => {
+      sendRideCommand("restart", "Ride restarted and ready for operation.");
+    });
+
     // Function to update status by fetching from /status endpoint
     async function updateStatus() {
+      const connectionStatus = document.getElementById('connectionStatus');
       try {
         const response = await fetch(`${apiBase}/status`);
         if (!response.ok) throw new Error('Network error');
         const data = await response.json();
 
-        document.getElementById('statusState').innerText = 'State: ' + data.state;
-        document.getElementById('statusEstop').innerText = data.ESTOP;
-        document.getElementById('statusOnSwitch').innerText = data.OnSwitchActive;
-        document.getElementById('statusResetSwitch').innerText = data.ResetSwitchActive;
+        // Update connection status
+        connectionStatus.innerText = "Connected";
+        connectionStatus.classList.remove("bg-danger", "bg-warning");
+        connectionStatus.classList.add("bg-success");
+
+        // Update Ride State
+        document.getElementById('statusState').innerText = data.state;
+        document.getElementById('statusState').classList.remove("bg-secondary");
+        document.getElementById('statusState').classList.add(data.state === "RUNNING" ? "bg-success" : "bg-secondary");
+
+        // Function to update badges based on boolean values
+        function updateBadge(elementId, value) {
+          const element = document.getElementById(elementId);
+          element.innerText = value ? "Active" : "Inactive";
+          element.classList.remove("bg-danger", "bg-success");
+          element.classList.add(value ? "bg-success" : "bg-danger");
+        }
+
+        // Update individual system states
+        updateBadge('statusEstop', data.ESTOP);
+        updateBadge('statusStop', data.STOP);
+        updateBadge('statusDispatch', data.DISPATCH);
+        updateBadge('statusRideOff', data.RIDE_OFF);
+        updateBadge('statusRestart', data.RESTART);
+        updateBadge('statusOnSwitch', data.OnSwitchActive);
+        updateBadge('statusResetSwitch', data.ResetSwitchActive);
       } catch (error) {
         console.error('Error updating status:', error);
+        connectionStatus.innerText = "Disconnected";
+        connectionStatus.classList.remove("bg-success", "bg-warning");
+        connectionStatus.classList.add("bg-danger");
       }
     }
+
 
     // Event listener for refresh button
     document.getElementById('refreshStatus').addEventListener('click', updateStatus);
 
-    // Event listener for starting the ride
-    document.getElementById('startRide').addEventListener('click', async () => {
-      try {
-        const response = await fetch(`${apiBase}/status`, { method: 'POST' });
-        const data = await response.json();
-        const msgDiv = document.getElementById('controlMessage');
-        if (response.ok) {
-          msgDiv.innerHTML = '<div class="alert alert-success" role="alert">' + data.message + '</div>';
-        } else {
-          msgDiv.innerHTML = '<div class="alert alert-danger" role="alert">' + data.error + '</div>';
-        }
-        updateStatus();
-      } catch (error) {
-        console.error('Error starting ride:', error);
-      }
-    });
-
-    // Event listener for triggering ESTOP
-    document.getElementById('triggerEstop').addEventListener('click', async () => {
-      try {
-        const response = await fetch(`${apiBase}/status`, { method: 'POST' });
-        const data = await response.json();
-        const msgDiv = document.getElementById('controlMessage');
-        if (response.ok) {
-          msgDiv.innerHTML = '<div class="alert alert-warning" role="alert">' + data.message + '</div>';
-        } else {
-          msgDiv.innerHTML = '<div class="alert alert-danger" role="alert">' + data.error + '</div>';
-        }
-        updateStatus();
-      } catch (error) {
-        console.error('Error triggering ESTOP:', error);
-      }
-    });
-
-    // Update status automatically every 5 seconds
-    setInterval(updateStatus, 5000);
+    // Update status automatically every .1 seconds
+    setInterval(updateStatus, 1000);
     updateStatus();
   </script>
 
