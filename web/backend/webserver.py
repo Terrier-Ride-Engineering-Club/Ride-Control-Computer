@@ -1,5 +1,5 @@
 import threading
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS  # Import the extension
 from ridecontrolcomputer import RideControlComputer, State
 
@@ -16,9 +16,14 @@ class RideWebServer:
         self.web_thread = None
 
         # Define routes
+        self.app.add_url_rule('/', 'index', self.index, methods=['GET'])
         self.app.add_url_rule('/status', 'status', self.status, methods=['GET'])
         self.app.add_url_rule('/start', 'start_ride', self.start_ride, methods=['POST'])
         self.app.add_url_rule('/estop', 'trigger_estop', self.trigger_estop, methods=['POST'])
+
+    def index(self):
+        """Serve the HTML dashboard."""
+        return render_template('main.html')
 
     def status(self):
         """Return the current status of the ride system."""
