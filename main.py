@@ -27,15 +27,22 @@ Notes for members:
 # Native modules
 import threading
 import logging
-from roboclaw import RoboClaw
+# from roboclaw import RoboClaw
 # Custom modules
 from ridecontrolcomputer import RideControlComputer
+from web.backend.webserver import RideWebServer
 
 
-# Initialize Ride Control Computer
-RCC = RideControlComputer()
-RCC.initialize()
-RCC.start()
+# Initialize RCC
+rcc = RideControlComputer()
+rcc.initialize()
+
+# Start Web Server
+web_server = RideWebServer(rcc)
+web_server.run()
+
+# Start RCC Main Loop
+rcc.start()  # This will keep running while the web server runs in parallel
 
 
 # Start the RCC Thread

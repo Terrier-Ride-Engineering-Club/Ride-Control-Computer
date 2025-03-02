@@ -1,9 +1,13 @@
 # Ride Control Computer class for TREC's REC Ride Control Computer
-# Made by Jackson Justus (jackjust@bu.edu)
+    # Contibuters:
+    # Jackson Justus (jackjust@bu.edu)
+    # Aryan Kumar 
 
 import logging
 from enum import Enum
 from Backend.iocontroller import IOController
+from Backend.faults import Fault, FaultManager, FaultSeverity
+from Backend.ridemotioncontroller import RideMotionController
 
 class State(Enum):
     IDLE = 1
@@ -11,34 +15,6 @@ class State(Enum):
     ESTOPPED = 3
     RESETTING = 4
 
-class FaultSeverity(Enum):
-    LOW = 1      # Warning, does not stop ride
-    MEDIUM = 2   # Requires operator intervention
-    HIGH = 3     # Stops ride immediately (ESTOP)
-
-class Fault:
-    def __init__(self, code, message, severity: FaultSeverity):
-        self.code = code
-        self.message = message
-        self.severity = severity
-
-    def __str__(self):
-        return f"[{self.severity.name}] Fault {self.code}: {self.message}"
-
-class FaultManager:
-    def __init__(self):
-        self.active_faults = []
-
-    def log_fault(self, fault: Fault):
-        print(f"FAULT OCCURRED: {fault}")
-        self.active_faults.append(fault)
-
-        if fault.severity == FaultSeverity.HIGH:
-            print("EMERGENCY STOP TRIGGERED!")
-            # Trigger ESTOP behavior here
-
-    def clear_faults(self):
-        self.active_faults.clear()
 
 class RideControlComputer():
     '''
@@ -64,6 +40,7 @@ class RideControlComputer():
         self.OnSwitchActive = False
         self.ResetSwitchActive = False
         self._state = State.IDLE
+        self.initialized = False
 
         # Get logger
         self.log = logging.getLogger('RCC')
@@ -79,10 +56,18 @@ class RideControlComputer():
         # Initialize I/O
         self.io = IOController()
 
+        # Initialize Ride Motion Controller
+        self.rmc = RideMotionController()
+
+        self.initialized = True
+
     def start(self):
         '''
         Starts the update loop for the RCC
         '''
+        if not self.initialized:
+            raise Exception('RCC Hasn\'t been initalized; Can\'t start.')
+        
         while True:
             self.update()
 
@@ -92,14 +77,13 @@ class RideControlComputer():
         It should be called as often as possible.
         '''
         # Read inputs from I/O controller
-        self.ESTOP = self.io.read_estop()
+        self.ESTOP = self.is_estop_active()
         self.OnSwitchActive = self.io.read_on_switch()
         self.ResetSwitchActive = self.io.read_reset_switch()
 
         # Transition logic
         if self.ESTOP:
             self.state = State.ESTOPPED
-            self.fault_manager.log_fault(Fault(101, "Emergency Stop Activated", FaultSeverity.HIGH))
         elif self.state == State.ESTOPPED and self.ResetSwitchActive:
             self.state = State.RESETTING
         elif self.state == State.RESETTING and not self.ResetSwitchActive:
@@ -113,8 +97,31 @@ class RideControlComputer():
         elif self.state == State.RUNNING:
             self.io.enable_safety_mechanisms()
             self.io.enable_motors()
+            self.run_ride()
         elif self.state == State.IDLE:
             self.io.disable_motors()
+        else:
+            self.io.disable_motors()
+
+
+    def is_estop_active(self) -> bool:
+        ''' Returns True if any ESTOP condition is active '''
+        return (
+            self.io.read_estop() or  # Hardware ESTOP
+            self.fault_manager.faultRequiresEStop # Faults requiring an ESTOP
+        )
+    
+    def run_ride():
+        '''
+        This will run the ride under normal conditions.
+        '''
+
+        dt = 0.1  # time delta, for example
+        instruction = rmc.update(dt)
+        if instruction is not None:
+            # Pass the instruction to the IO controller for execution.
+            io_controller.execute_instruction(instruction)
+
 
     # State Getter/Setters
     @property

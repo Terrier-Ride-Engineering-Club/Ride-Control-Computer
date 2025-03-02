@@ -1,0 +1,7 @@
+{
+    "ride_phases": [
+        {"name": "Accelerate", "duration": 5, "motor_speed": 1.0},
+        {"name": "Cruise", "duration": 10, "motor_speed": 0.8},
+        {"name": "Decelerate", "duration": 5, "motor_speed": 0.0}
+    ]
+}

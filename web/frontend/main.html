@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ride Control Dashboard</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#">Ride Control Dashboard</a>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <div class="container my-5">
+    <div class="row">
+      <!-- Status Card -->
+      <div class="col-md-6 mb-4">
+        <div class="card border-primary">
+          <div class="card-header bg-primary text-white">
+            System Status
+          </div>
+          <div class="card-body">
+            <h5 class="card-title" id="statusState">State: Unknown</h5>
+            <p class="card-text">
+              ESTOP: <span id="statusEstop">N/A</span><br />
+              OnSwitchActive: <span id="statusOnSwitch">N/A</span><br />
+              ResetSwitchActive: <span id="statusResetSwitch">N/A</span>
+            </p>
+            <button id="refreshStatus" class="btn btn-outline-primary">
+              Refresh Status
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Control Card -->
+      <div class="col-md-6 mb-4">
+        <div class="card border-secondary">
+          <div class="card-header bg-secondary text-white">
+            Controls
+          </div>
+          <div class="card-body">
+            <button id="startRide" class="btn btn-success me-2">
+              Start Ride
+            </button>
+            <button id="triggerEstop" class="btn btn-danger">
+              Trigger ESTOP
+            </button>
+            <div id="controlMessage" class="mt-3"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript to interact with the API -->
+  <script>
+    const apiBase = "http://localhost:23843";
+    // Function to update status by fetching from /status endpoint
+    async function updateStatus() {
+      try {
+        const response = await fetch(`${apiBase}/status`);
+        if (!response.ok) throw new Error('Network error');
+        const data = await response.json();
+
+        document.getElementById('statusState').innerText = 'State: ' + data.state;
+        document.getElementById('statusEstop').innerText = data.ESTOP;
+        document.getElementById('statusOnSwitch').innerText = data.OnSwitchActive;
+        document.getElementById('statusResetSwitch').innerText = data.ResetSwitchActive;
+      } catch (error) {
+        console.error('Error updating status:', error);
+      }
+    }
+
+    // Event listener for refresh button
+    document.getElementById('refreshStatus').addEventListener('click', updateStatus);
+
+    // Event listener for starting the ride
+    document.getElementById('startRide').addEventListener('click', async () => {
+      try {
+        const response = await fetch(`${apiBase}/status`, { method: 'POST' });
+        const data = await response.json();
+        const msgDiv = document.getElementById('controlMessage');
+        if (response.ok) {
+          msgDiv.innerHTML = '<div class="alert alert-success" role="alert">' + data.message + '</div>';
+        } else {
+          msgDiv.innerHTML = '<div class="alert alert-danger" role="alert">' + data.error + '</div>';
+        }
+        updateStatus();
+      } catch (error) {
+        console.error('Error starting ride:', error);
+      }
+    });
+
+    // Event listener for triggering ESTOP
+    document.getElementById('triggerEstop').addEventListener('click', async () => {
+      try {
+        const response = await fetch(`${apiBase}/status`, { method: 'POST' });
+        const data = await response.json();
+        const msgDiv = document.getElementById('controlMessage');
+        if (response.ok) {
+          msgDiv.innerHTML = '<div class="alert alert-warning" role="alert">' + data.message + '</div>';
+        } else {
+          msgDiv.innerHTML = '<div class="alert alert-danger" role="alert">' + data.error + '</div>';
+        }
+        updateStatus();
+      } catch (error) {
+        console.error('Error triggering ESTOP:', error);
+      }
+    });
+
+    // Update status automatically every 5 seconds
+    setInterval(updateStatus, 5000);
+    updateStatus();
+  </script>
+
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
