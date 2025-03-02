@@ -14,6 +14,7 @@ class State(Enum):
     RUNNING = 2
     ESTOPPED = 3
     RESETTING = 4
+    OFF = 5
 
 
 class RideControlComputer():
@@ -26,9 +27,9 @@ class RideControlComputer():
 
     # Ride controllers
     _state: State
-    ESTOP: bool
+    EStop: bool
     OnSwitchActive: bool
-    ResetSwitchActive: bool
+    Reset: bool
 
     def __init__(self):
         '''
@@ -36,9 +37,9 @@ class RideControlComputer():
         Should NOT initialize any functions. This is left for the initialize() func.
         '''
         # Init vars to safe position
-        self.ESTOP = False
+        self.EStop = False
         self.OnSwitchActive = False
-        self.ResetSwitchActive = False
+        self.Reset = False
         self._state = State.IDLE
         self.initialized = False
 
@@ -77,25 +78,41 @@ class RideControlComputer():
         It should be called as often as possible.
         '''
         # Read inputs from I/O controller
-        self.ESTOP = self.is_estop_active()
-        self.OnSwitchActive = self.io.read_on_switch()
-        self.ResetSwitchActive = self.io.read_reset_switch()
+        self.EStop = self.is_estop_active()
+        self.Stop = self.io.read_stop()
+        self.RideOff = self.io.read_ride_off()
+        self.Reset = self.io.read_restart()
+        self.Dispatch = self.io.read_dispatch()
+
 
         # Transition logic
-        if self.ESTOP:
+        if self.EStop:
             self.state = State.ESTOPPED
-        elif self.state == State.ESTOPPED and self.ResetSwitchActive:
-            self.state = State.RESETTING
-        elif self.state == State.RESETTING and not self.ResetSwitchActive:
+        elif self.Stop:
             self.state = State.IDLE
-        elif self.state == State.IDLE and self.OnSwitchActive:
-            self.state = State.RUNNING
+        else:
+            if self.state == State.ESTOPPED:
+                if self.Reset:
+                    self.state = State.RESETTING
+            elif self.state == State.RESETTING:
+                if not self.Reset:
+                    self.state = State.IDLE
+            elif self.state == State.OFF:
+                if self.Reset:
+                    self.state = State.RESETTING
+            elif self.state == State.IDLE:
+                if self.RideOff:
+                    self.state = State.OFF
+                elif self.Dispatch:
+                    self.state = State.RUNNING
+            elif self.state == State.RUNNING:
+                if self.Stop:
+                    self.state = State.IDLE
 
         # Execute state-specific actions
         if self.state == State.ESTOPPED:
             self.io.terminate_power()
         elif self.state == State.RUNNING:
-            self.io.enable_safety_mechanisms()
             self.io.enable_motors()
             self.run_ride()
         elif self.state == State.IDLE:
@@ -111,16 +128,17 @@ class RideControlComputer():
             self.fault_manager.faultRequiresEStop # Faults requiring an ESTOP
         )
     
-    def run_ride():
+    def run_ride(self):
         '''
         This will run the ride under normal conditions.
+        TODO: Implement
         '''
 
         dt = 0.1  # time delta, for example
-        instruction = rmc.update(dt)
+        instruction = self.rmc.update(dt)
         if instruction is not None:
             # Pass the instruction to the IO controller for execution.
-            io_controller.execute_instruction(instruction)
+            ...
 
 
     # State Getter/Setters
