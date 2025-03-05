@@ -128,7 +128,7 @@
 
   <!-- JavaScript to interact with the API -->
   <script>
-    const apiBase = "http://localhost:23843";
+    const apiBase = `${window.location.protocol}//${window.location.hostname}:23843`;
 
     // Function to send POST requests to the backend for ride control actions
     async function sendRideCommand(endpoint) {
