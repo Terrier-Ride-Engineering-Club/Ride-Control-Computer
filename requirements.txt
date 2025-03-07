@@ -9,6 +9,7 @@ Jinja2==3.1.5
 MarkupSafe==3.0.2
 pycrc==0.10.0
 pyserial==3.5
+pythoncrc==1.21
 roboclaw==1.0.0.dev1
 setuptools==75.8.2
 Werkzeug==3.1.3
