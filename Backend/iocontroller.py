@@ -4,7 +4,7 @@
 import platform
 import logging
 from gpiozero import Device
-from gpiozero.pins.lgpio import LGPIOFactory
+from gpiozero.pins.pigpio import PiGPIOFactory
 
 # Use MockFactory for non-Raspberry Pi platforms.
 if platform.system() != 'Linux':
@@ -12,7 +12,7 @@ if platform.system() != 'Linux':
     Device.pin_factory = MockFactory()
     logging.getLogger('IOController').warning(f'Current platform [{platform.system()}] ≠ Linux. IO Running in mock mode')
 else:
-    Device.pin_factory = LGPIOFactory()
+    Device.pin_factory = PiGPIOFactory()
 
 from gpiozero import Button
 import threading
