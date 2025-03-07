@@ -26,23 +26,26 @@ Notes for members:
 
 # Native modules
 import logging
-# from roboclaw import RoboClaw
-# Custom modules
-from ridecontrolcomputer import RideControlComputer
-from web.backend.webserver import RideWebServer
 
 # --- Configure Logging ---
 LOG_FORMAT = "%(asctime)s %(levelname)s [%(name)s]: %(message)s"
 LOG_FILE = "ride_control.log"
 
 logging.basicConfig(
-    level=logging.WARNING,  # Change to DEBUG for more details
+    level=logging.DEBUG,
     format=LOG_FORMAT,
     handlers=[
         logging.FileHandler(LOG_FILE),  # Log to a file
         logging.StreamHandler()  # Log to the console
     ]
 )
+
+
+# --- Import Custom Modules ---
+from ridecontrolcomputer import RideControlComputer
+from web.backend.webserver import RideWebServer
+
+
 
 # Initialize RCC
 rcc = RideControlComputer()
@@ -54,9 +57,4 @@ web_server.run()
 
 # Start RCC Main Loop
 rcc.start()  # This will keep running while the web server runs in parallel
-
-
-# Start the RCC Thread
-# rccThread = threading.Thread(target=RCC.start, daemon=True) #daemon=quit once main program stops
-# rccThread.start()
 
