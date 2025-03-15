@@ -4,22 +4,7 @@
 import logging
 import threading
 import time
-# import roboclaw
-
-class IOController():
-    '''
-    This class handles all the I/O operations for the RCC.
-    '''
-    def __init__(self):
-        self._estop = False
-        self._stop = False
-        self._dispatch = False
-        self._ride_off = False
-        self._restart = False
-        self._on_switch = False
-        self._reset_switch = False
-
-        self.log = logging.getLogger('IOController')
+import roboclaw
 
 # IOController class for TREC's REC Ride Control Computer
 # Made by Jackson Justus (jackjust@bu.edu)
