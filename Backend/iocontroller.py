@@ -6,6 +6,7 @@ import logging
 from gpiozero import Device
 from gpiozero.pins.native import NativeFactory
 from gpiozero.pins.lgpio import LGPIOFactory
+from gpiozero.pins.pigpio import PiGPIOFactory
 
 # Use MockFactory for non-Raspberry Pi platforms.
 if platform.system() != 'Linux':
