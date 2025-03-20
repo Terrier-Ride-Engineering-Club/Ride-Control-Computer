@@ -4,22 +4,25 @@
 import platform
 import logging
 from gpiozero import Device
-from gpiozero.pins.native import NativeFactory
-from gpiozero.pins.lgpio import LGPIOFactory
-from gpiozero.pins.pigpio import PiGPIOFactory
 
-# Use MockFactory for non-Raspberry Pi platforms.
-if platform.system() != 'Linux':
+# Configure gpiozero by making a pin factory. On non RPi platforms, default to mock factory.
+try:
+    from gpiozero.pins.lgpio import LGPIOFactory
+    Device.pin_factory = LGPIOFactory()
+except ModuleNotFoundError as e:
+    log = logging.getLogger("IOControllerSetup")
+    if platform.system() == 'Linux':
+        log.critical(f"GPIOZero failed to init: {e}")
+    else:
+        log.warning(f"Failed to init proper gpio factory: {e} Ignore if not running on a RPi.")
+        log.warning("Program will continue with a virtual pin setup.")
     from gpiozero.pins.mock import MockFactory
     Device.pin_factory = MockFactory()
-    logging.getLogger('IOController').warning(f'Current platform [{platform.system()}] ≠ Linux. IO Running in mock mode')
-else:
-    Device.pin_factory = LGPIOFactory(chip=4)
+
 
 from gpiozero import Button
 import threading
 import time
-
 from roboclaw import RoboClaw
 
 class IOController():
