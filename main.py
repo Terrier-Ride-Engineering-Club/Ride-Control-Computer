@@ -4,8 +4,9 @@
 r'''
 Notes for members:
     INITIAL SETUP:
-    1. Make sure you have the most recent version of python installed
-        python3 --version => make sure it says 3.13.2
+    1. Make sure you have the correct version of python installed
+        python3 --version => make sure it says 3.11.2 
+        https://www.python.org/downloads/release/python-3112/
     2. Naviate to your project directory:
         cd path\to\your\project
     3. Make sure you have created a virtual environment by running:
