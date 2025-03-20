@@ -1,3 +1,6 @@
+# RCC Webserver for TREC's REC Ride Control Computer
+    # Made by Jackson Justus (jackjust@bu.edu)
+
 import threading
 from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS  # Import the extension
