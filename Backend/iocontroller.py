@@ -3,7 +3,13 @@
 
 import platform
 import logging
+import serial
 from gpiozero import Device
+import serial.serialutil
+
+ROBOCLAW_SERIAL_PORT = "/dev/ttyS0"
+ROBOCLAW_SERIAL_ADDRESS = 38400
+SELECTED_MOTOR = 1
 
 # Configure gpiozero by making a pin factory. On non RPi platforms, default to mock factory.
 try:
@@ -73,6 +79,107 @@ class IOController(ABC):
         """Immediately cut power (e.g., during ESTOP conditions)."""
         pass
 
+    @abstractmethod
+    def set_speed(self, speed):
+        """Sets the speed of the motor"""
+        pass
+
+    @abstractmethod
+    def drive_to_position_raw(self, accel, speed, deccel, position, buffer):
+        """Drive to a position expressed as a percentage of the full range of the motor"""
+        pass
+
+    @abstractmethod
+    def drive_to_position(self, accel, speed, deccel, position, buffer):
+        """Sets the speed of the motor"""
+        pass
+
+    @abstractmethod
+    def drive_motor(self, speed):
+        """Assert -64 <= speed <= 63"""
+        pass
+
+    @abstractmethod
+    def stop_motor(self):
+        """Stops the motor"""
+        pass
+
+    @abstractmethod
+    def read_encoder(self):
+        """
+        Reads the motor encoder.
+        NOTE: Currently, this function doesn't check over/underflow, which is fine since we're using pots.
+        """
+        pass
+
+    @abstractmethod
+    def reset_quad_encoders(self):
+        """Resets the encoder to 0."""
+        pass
+
+    @abstractmethod
+    def read_range(self):
+        """
+        Unsure what this one does.
+        TODO: Read manual.
+        """
+        pass
+
+    @abstractmethod
+    def read_position(self):
+        """Returns position as a percentage across the full set range of the motor"""
+        pass
+
+    @abstractmethod
+    def read_status(self):
+        """Gets the status of the MC."""
+        pass
+
+    @abstractmethod
+    def read_temp_sensor(self, sensor):
+        """Reads temp from specified sensor (1 or 2)"""
+        pass
+
+    @abstractmethod
+    def read_voltages(self) -> tuple:
+        """Returns a tuple with [0]: main battery. [1]: logic battery."""
+        pass
+
+    @abstractmethod
+    def read_motor_current(self):
+        """Gets motor current"""
+        pass
+
+    @abstractmethod
+    def read_motor_pwm(self):
+        """Reads motor pwm"""
+        pass
+
+    @abstractmethod
+    def read_input_pin_modes(self) -> tuple:
+        """
+        Reads what input pins are set to (s3-s5)
+        [0]: S3
+        [1]: S4
+        [2]: S5
+        """
+        pass
+    
+    @abstractmethod
+    def read_max_speed(self):
+        """Reads max speed of the motor"""
+        pass
+
+    @abstractmethod
+    def read_speed(self):
+        """
+        Reads the current speed of the motor
+        Returns velocity as a percentage of max speed
+        """
+        pass
+
+
+
 # --- Hardware IO Controller ---
 class HardwareIOController(IOController):
     """
@@ -98,9 +205,14 @@ class HardwareIOController(IOController):
         self.ride_off_button = Button(self.pin_map['ride_off'], pull_up=False)
         self.restart_button = Button(self.pin_map['restart'], pull_up=False)
 
-        # Set up event callbacks for logging
-        self.estop_button.when_pressed = lambda: self.log.info("ESTOP Activated")
-        self.estop_button.when_released = lambda: self.log.info("ESTOP Released")
+        # Init RoboClaw
+        self.log.info(f"Starting Serial communication with RoboClaw on {ROBOCLAW_SERIAL_PORT}: {ROBOCLAW_SERIAL_ADDRESS}")
+        try:
+            self.mc = RoboClaw(ROBOCLAW_SERIAL_PORT, ROBOCLAW_SERIAL_ADDRESS)
+        except serial.serialutil.SerialException as e:
+            self.log.error(f"Failed to start RoboClaw: {e}")
+
+        
 
         self.log.info("Finished Initializing Hardware IOController!")
 
@@ -136,9 +248,46 @@ class HardwareIOController(IOController):
         # self.log.info("Motors disabled.")
         # Insert hardware-specific logic here
 
+    # --- Motor Control Methods ---
+    def set_speed(self, speed): self.mc.set_speed(SELECTED_MOTOR, speed)
+
+    def drive_to_position_raw(self, accel, speed, deccel, position, buffer): self.mc.drive_to_position_raw(SELECTED_MOTOR, accel, speed, deccel, position, buffer)
+    
+    def drive_to_position(self, accel, speed, deccel, position, buffer): self.mc.drive_to_position(SELECTED_MOTOR, accel, speed, deccel, position, buffer)
+
+    def drive_motor(self, speed): self.mc.drive_motor(SELECTED_MOTOR, speed)
+
+    def stop_motor(self): self.mc.stop_motor(SELECTED_MOTOR)
+
+    def read_encoder(self): return self.mc.read_encoder(SELECTED_MOTOR)
+
+    def reset_quad_encoders(self): self.mc.reset_quad_encoders()
+
+    def read_range(self): return self.mc.read_range(SELECTED_MOTOR)
+
+    def read_position(self): return self.mc.read_position(SELECTED_MOTOR)
+
+    def read_status(self): return self.mc.read_status()
+
+    def read_temp_sensor(self, sensor): return self.mc.read_temp_sensor(sensor)
+
+    def read_voltages(self) -> tuple: return self.mc.read_voltages()
+
+    def read_motor_current(self): return self.mc.read_motor_current(SELECTED_MOTOR)
+
+    def read_motor_pwm(self): return self.mc.read_motor_pwm(SELECTED_MOTOR)
+
+    def read_input_pin_modes(self) -> tuple: return self.mc.read_input_pin_modes()
+
+    def read_max_speed(self): return self.mc.read_max_speed(SELECTED_MOTOR)
+
+    def read_speed(self): return self.mc.read_speed(SELECTED_MOTOR)
+
+
+
 
 # --- Simulation Controller ---
-class WebIOController:
+class WebIOController(IOController):
     """
     Encapsulates simulation and testing actions for the ride control computer.
     This class manages internal simulated states and mimics button presses without affecting the hardware.
@@ -219,3 +368,38 @@ class WebIOController:
             self._restart = False
             self.log.info("Simulated RESTART released.")
         threading.Thread(target=press_and_release, daemon=True).start()
+
+    # --- Motor Control Methods ---
+    def set_speed(self, speed): return None
+
+    def drive_to_position_raw(self, accel, speed, deccel, position, buffer): return None
+
+    def drive_to_position(self, accel, speed, deccel, position, buffer): return None
+
+    def drive_motor(self, speed): return None
+
+    def stop_motor(self): return None
+
+    def read_encoder(self): return 12345
+
+    def reset_quad_encoders(self): return None
+
+    def read_range(self): return (0, 100000)
+
+    def read_position(self): return 50.0
+
+    def read_status(self): return "Normal"
+
+    def read_temp_sensor(self, sensor): return 42.0
+
+    def read_voltages(self) -> tuple: return (24.5, 5.1)
+
+    def read_motor_current(self): return 1.25
+
+    def read_motor_pwm(self): return 0.75
+
+    def read_input_pin_modes(self) -> tuple: return ("Default", "Emergency Stop", "Disabled")
+
+    def read_max_speed(self): return 100000
+
+    def read_speed(self): return 32.5

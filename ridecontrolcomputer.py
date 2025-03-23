@@ -152,8 +152,8 @@ class RideControlComputer():
         return self._state
 
     @state.setter
-    def state(self, new_state):
+    def state(self, new_state: State):
         ''' Setter for the state, detects changes and runs transition logic '''
-        if new_state != self._state:
+        if new_state.name != self._state.name:
             self.log.info(f'Changed from {self._state.name} to {new_state.name}')
             self._state = new_state  # Update state
