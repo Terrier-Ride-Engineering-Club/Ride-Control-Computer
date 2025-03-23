@@ -2,10 +2,18 @@
     # Made by Jackson Justus (jackjust@bu.edu)
 
 import threading
+import logging
+import sys
 from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS  # Import the extension
 from ridecontrolcomputer import RideControlComputer, State
 from Backend.iocontroller import HardwareIOController
+
+class DowngradeToDebugFilter(logging.Filter):
+    def filter(self, record):
+        record.levelno = logging.DEBUG
+        record.levelname = 'DEBUG'
+        return True
 
 class RideWebServer:
     def __init__(self, rcc: RideControlComputer, host="0.0.0.0", port=23843):
@@ -14,6 +22,12 @@ class RideWebServer:
         """
         self.rcc = rcc
         self.app = Flask(__name__)
+        self.app.name = "RCCWebserver"
+        # Configure flask logging to just be debug level using a filter
+        werkzeug_logger = logging.getLogger('werkzeug')
+        werkzeug_logger.setLevel(logging.DEBUG)
+        werkzeug_logger.addFilter(DowngradeToDebugFilter())
+
         CORS(self.app, resources={r"/*": {"origins": "http://127.0.0.1:23843"}})
         self.host = host
         self.port = port
