@@ -5,7 +5,7 @@ import threading
 from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS  # Import the extension
 from ridecontrolcomputer import RideControlComputer, State
-from Backend.iocontroller import IOController
+from Backend.iocontroller import HardwareIOController
 
 class RideWebServer:
     def __init__(self, rcc: RideControlComputer, host="0.0.0.0", port=23843):
@@ -36,6 +36,7 @@ class RideWebServer:
     def status(self):
         """Return the current status of the ride system, including all button states."""
         return jsonify({
+            'webControlEnabled': self.rcc.useWebIOController,
             'state': self.rcc.state.name,
             'ESTOP': self.rcc.io.read_estop(),
             'STOP': self.rcc.io.read_stop(),
@@ -53,27 +54,27 @@ class RideWebServer:
 
     def trigger_estop(self):
         """Manually trigger an emergency stop via the web API."""
-        self.rcc.io.toggle_estop()  # Call the method in IOController
+        self.rcc.io.simulate_estop()  # Call the method in IOController
         return jsonify({'message': 'ESTOP triggered'}), 200
 
     def stop_ride(self):
         """Stop ride safely while prioritizing rider comfort."""
-        self.rcc.io.toggle_stop()  # Call the method in IOController
+        self.rcc.io.simulate_stop()  # Call the method in IOController
         return jsonify({'message': 'Ride stopping safely'}), 200
 
     def dispatch_ride(self):
         """Start the ride when dispatch conditions are met."""
-        self.rcc.io.trigger_dispatch()  # Call the method in IOController
+        self.rcc.io.simulate_dispatch()  # Call the method in IOController
         return jsonify({'message': 'Ride dispatched'}), 200
 
     def ride_off(self):
         """Power down the ride safely."""
-        self.rcc.io.trigger_ride_off()  # Call the method in IOController
+        self.rcc.io.simulate_ride_off()  # Call the method in IOController
         return jsonify({'message': 'Ride powered off'}), 200
 
     def restart_ride(self):
         """Return ride to operation mode after ESTOP or stop."""
-        self.rcc.io.trigger_restart()  # Call the method in IOController
+        self.rcc.io.simulate_restart()  # Call the method in IOController
         return jsonify({'message': 'Ride restarted and ready'}), 200
 
     def run(self):

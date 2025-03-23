@@ -5,7 +5,7 @@
 
 import logging
 from enum import Enum
-from Backend.iocontroller import IOController
+from Backend.iocontroller import IOController, HardwareIOController, WebIOController
 from Backend.faults import Fault, FaultManager, FaultSeverity
 from Backend.ridemotioncontroller import RideMotionController
 
@@ -31,7 +31,7 @@ class RideControlComputer():
     OnSwitchActive: bool
     Reset: bool
 
-    def __init__(self):
+    def __init__(self, useWebIOController=False):
         '''
         Creates a RideControlComputer object.
         Should NOT initialize any functions. This is left for the initialize() func.
@@ -42,6 +42,7 @@ class RideControlComputer():
         self.Reset = False
         self._state = State.IDLE
         self.initialized = False
+        self.useWebIOController = useWebIOController
 
         # Get logger
         self.log = logging.getLogger('RCC')
@@ -55,7 +56,10 @@ class RideControlComputer():
         Carries out the actions detailed in the theory of operations.
         '''
         # Initialize I/O
-        self.io = IOController()
+        if not self.useWebIOController:
+            self.io = HardwareIOController()
+        else:
+            self.io = WebIOController()
 
         # Initialize Ride Motion Controller
         self.rmc = RideMotionController()

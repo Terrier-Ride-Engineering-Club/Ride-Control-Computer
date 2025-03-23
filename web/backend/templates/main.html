@@ -91,6 +91,9 @@
               <h5 class="mb-0">Ride Controls</h5>
             </div>
             <div class="card-body text-center">
+              <div id="webControlFlag" class="alert alert-info text-center" role="alert">
+                Web Controls: Unknown
+              </div>
               <div class="row g-3">
                 <div class="col-6">
                   <button id="triggerEstop" type="button" class="btn btn-danger btn-lg w-100 py-3">
@@ -213,6 +216,27 @@
         updateBadge('statusRestart', data.RESTART);
         updateBadge('statusOnSwitch', data.OnSwitchActive);
         updateBadge('statusResetSwitch', data.ResetSwitchActive);
+
+        const webControlFlag = document.getElementById('webControlFlag');
+        if (webControlFlag) {
+          webControlFlag.innerText = data.webControlEnabled ? "Web Controls: Enabled" : "Web Controls: Disabled";
+          webControlFlag.classList.remove("alert-info", "alert-success", "alert-danger");
+          webControlFlag.classList.add(data.webControlEnabled ? "alert-success" : "alert-danger");
+        }
+        // Disable or enable ride control buttons based on webControlEnabled flag
+        const controlButtons = [
+          'triggerEstop',
+          'stopRide',
+          'dispatchRide',
+          'rideOff',
+          'restartRide'
+        ];
+        controlButtons.forEach(id => {
+          const button = document.getElementById(id);
+          if (button) {
+            button.disabled = !data.webControlEnabled;
+          }
+        });
       } catch (error) {
         console.error('Error updating status:', error);
         connectionStatus.innerText = "Disconnected";
