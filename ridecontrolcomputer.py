@@ -42,7 +42,7 @@ class RideControlComputer():
         self.Reset = False
         self._state = State.IDLE
         self.initialized = False
-        self.useWebIOController = useWebIOController
+        self.ioControllerType = 'web' if useWebIOController else 'hardware'
 
         # Get logger
         self.log = logging.getLogger('RCC')
@@ -56,7 +56,7 @@ class RideControlComputer():
         Carries out the actions detailed in the theory of operations.
         '''
         # Initialize I/O
-        if not self.useWebIOController:
+        if not self.ioControllerType:
             self.io = HardwareIOController()
         else:
             self.io = WebIOController()
@@ -145,6 +145,37 @@ class RideControlComputer():
         if instruction is not None:
             # Pass the instruction to the IO controller for execution.
             ...
+
+    def change_io_controller(self, controller_type: str):
+        """
+        Switches the IO controller to a new implementation at runtime.
+        
+        Parameters:
+            controller_type (str): A string specifying which IO controller to use. Accepted values are "hardware" or "web".
+        """
+        if controller_type.lower() == "hardware":
+            self.io = HardwareIOController()
+        elif controller_type.lower() == "web":
+            self.io = WebIOController()
+        else:
+            raise ValueError(f"Invalid IO controller type: {controller_type}")
+        self.log.info(f'Switched IO controller to: {self.io.__class__.__name__}')
+
+    def toggle_io_controller(self) -> str:
+        """
+        Toggles the IO controller between hardware and web implementations.
+
+        Returns:
+            str: The type of control that was switched to.
+        """
+        if isinstance(self.io, HardwareIOController):
+            self.ioControllerType = "web"
+        elif isinstance(self.io, WebIOController):
+            self.ioControllerType = "hardware"
+        else:
+            raise ValueError("Current IO controller is not recognized. Cannot toggle.")
+        self.change_io_controller(self.ioControllerType)
+        return self.ioControllerType
 
 
     # State Getter/Setters

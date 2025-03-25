@@ -4,7 +4,7 @@
 import platform
 import logging
 import serial
-from gpiozero import Device
+from gpiozero import Device, Servo
 import serial.serialutil
 
 ROBOCLAW_SERIAL_PORT = "/dev/ttyS0"
@@ -195,7 +195,8 @@ class HardwareIOController(IOController):
             'stop': 17,
             'dispatch': 27,
             'ride_off': 22,
-            'restart': 23
+            'restart': 23,
+            'servo1': 12
         }
 
         # Initialize GPIO inputs as buttons (pull-down enabled by default)
@@ -204,13 +205,20 @@ class HardwareIOController(IOController):
         self.dispatch_button = Button(self.pin_map['dispatch'], pull_up=False)
         self.ride_off_button = Button(self.pin_map['ride_off'], pull_up=False)
         self.restart_button = Button(self.pin_map['restart'], pull_up=False)
+        self.servo1 = Servo(pin=self.pin_map['servo1'])
 
         # Init RoboClaw
         self.log.info(f"Starting Serial communication with RoboClaw on {ROBOCLAW_SERIAL_PORT}: {ROBOCLAW_SERIAL_ADDRESS}")
         try:
             self.mc = RoboClaw(ROBOCLAW_SERIAL_PORT, ROBOCLAW_SERIAL_ADDRESS)
         except serial.serialutil.SerialException as e:
-            self.log.error(f"Failed to start RoboClaw: {e}")
+            self.log.critical(f"Failed to start RoboClaw: {e}")
+            self.log.critical("Creating a mock RoboClaw and ignoring any future calls.")
+            class NullRoboClaw:
+                def __getattr__(self, name):
+                    # Return a lambda that does nothing for any attribute
+                    return lambda *args, **kwargs: None
+            self.mc = NullRoboClaw()
 
         
 
@@ -403,3 +411,16 @@ class WebIOController(IOController):
     def read_max_speed(self): return 100000
 
     def read_speed(self): return 32.5
+
+
+
+
+if __name__ == "__main__":
+
+    io = HardwareIOController()
+
+    while True:
+        io.servo1.min()
+        time.sleep(1)
+        io.servo1.max()
+        time.sleep(1)
