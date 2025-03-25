@@ -429,8 +429,10 @@ if __name__ == "__main__":
 
     while True:
         io.servo1.min()
+        io.servo2.min()
         print('min')
         time.sleep(2)
         io.servo1.max()
+        io.servo2.max()
         print('max')
         time.sleep(2)
