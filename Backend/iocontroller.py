@@ -131,7 +131,7 @@ class IOController(ABC):
         pass
 
     @abstractmethod
-    def read_status(self):
+    def read_status(self) -> str:
         """Gets the status of the MC."""
         pass
 
