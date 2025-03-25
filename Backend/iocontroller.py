@@ -196,7 +196,8 @@ class HardwareIOController(IOController):
             'dispatch': 27,
             'ride_off': 22,
             'restart': 23,
-            'servo1': "GPIO12"
+            'servo1': "GPIO12",
+            'servo2': "GPIO13"
         }
 
         # Initialize GPIO inputs as buttons (pull-down enabled by default)
@@ -205,7 +206,14 @@ class HardwareIOController(IOController):
         self.dispatch_button = Button(self.pin_map['dispatch'], pull_up=False)
         self.ride_off_button = Button(self.pin_map['ride_off'], pull_up=False)
         self.restart_button = Button(self.pin_map['restart'], pull_up=False)
-        self.servo1 = Servo(pin=self.pin_map['servo1'])
+        self.servo1 = Servo(pin=self.pin_map['servo1'],
+                    min_pulse_width=600/1_000_000,   # 0.0006
+                    max_pulse_width=2400/1_000_000,  # 0.0024
+                    frame_width=20/1000)             # 0.02 (20 ms standard servo frame)
+        self.servo2 = Servo(pin=self.pin_map['servo2'],
+                    min_pulse_width=600/1_000_000,   # 0.0006
+                    max_pulse_width=2400/1_000_000,  # 0.0024
+                    frame_width=20/1000)             # 0.02 (20 ms standard servo frame)
 
         # Init RoboClaw
         self.log.info(f"Starting Serial communication with RoboClaw on {ROBOCLAW_SERIAL_PORT}: {ROBOCLAW_SERIAL_ADDRESS}")
