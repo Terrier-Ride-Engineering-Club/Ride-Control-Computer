@@ -196,7 +196,7 @@ class HardwareIOController(IOController):
             'dispatch': 27,
             'ride_off': 22,
             'restart': 23,
-            'servo1': 12
+            'servo1': 32
         }
 
         # Initialize GPIO inputs as buttons (pull-down enabled by default)
