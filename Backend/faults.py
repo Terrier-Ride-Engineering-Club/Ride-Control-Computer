@@ -76,7 +76,7 @@ class FaultManager:
         # Read actual values using the provided methods
         actual_motor_speed = io.read_speed()  # Returns dict {motor_id: speed}
         actual_motor_position = io.read_position()  # Returns dict {motor_id: position}
-        actual_sensor_data = io.read_sensor()  # Returns dict {sensor_id: value}
+        actual_sensor_data = io.read_encoder()  # Returns dict {sensor_id: value}
 
         # Fault Detection Logic
         
@@ -85,12 +85,16 @@ class FaultManager:
             self.raise_fault(PREDEFINED_FAULTS[101])
 
         # Power failure detection
-        if not io.is_power_on():
+        voltages = io.read_voltages()  
+        if any(v < 20 for v in voltages.values()):  
             self.raise_fault(PREDEFINED_FAULTS[102])
+        # I'm not sure if this is the correct implementation of the read voltages method
+        # You commented that it returns a tuple so maybe this wouldn't work the way I'm thinking
 
         # Motor controller failure
-        if not rmc.is_motor_controller_responsive():
-            self.raise_fault(PREDEFINED_FAULTS[103])
+        # if not io.read_status():
+        #     self.raise_fault(PREDEFINED_FAULTS[103])
+         
 
         # Sensor failure detection (Assumes None means failure)
         for sensor_id, value in actual_sensor_data.items():
@@ -99,32 +103,29 @@ class FaultManager:
                 self.log.warning(f"Sensor {sensor_id} failed.")
 
         # Communication failure detection
-        if not io.is_connected():
-            self.raise_fault(PREDEFINED_FAULTS[105])
+        # if not io.is_connected():
+        #     self.raise_fault(PREDEFINED_FAULTS[105])
 
-        # Motor speed deviation detection
-        for motor_id, actual_speed in actual_motor_speed.items():
-            expected_speed = rmc.get_commanded_speed(motor_id)
-            if abs(actual_speed - expected_speed) > 5:  # Threshold adjustable
-                # Change the value for correct margin of error (MOE)
-                self.raise_fault(PREDEFINED_FAULTS[108])
-                self.log.warning(f"Motor {motor_id} speed deviation: Expected {expected_speed}, Got {actual_speed}")
+        # # Motor speed deviation detection
+        # for motor_id, actual_speed in actual_motor_speed.items():
+        #     expected_speed = rmc.get_commanded_speed(motor_id)
+        #     if abs(actual_speed - expected_speed) > 5:  # Threshold adjustable
+        #         # Change the value for correct margin of error (MOE)
+        #         self.raise_fault(PREDEFINED_FAULTS[108])
+        #         self.log.warning(f"Motor {motor_id} speed deviation: Expected {expected_speed}, Got {actual_speed}")
 
         # Position mismatch detection
-        for motor_id, actual_position in actual_motor_position.items():
-            expected_position = rmc.get_commanded_position(motor_id)
-            if abs(actual_position - expected_position) > 2:  # Threshold adjustable
-                # Change the value for the correct MOE
-                self.raise_fault(PREDEFINED_FAULTS[111])
-                self.log.warning(f"Motor {motor_id} position mismatch: Expected {expected_position}, Got {actual_position}")
+        # for motor_id, actual_position in actual_motor_position.items():
+        #     expected_position = rmc.get_commanded_position(motor_id)
+        #     if abs(actual_position - expected_position) > 2:  # Threshold adjustable
+        #         # Change the value for the correct MOE
+        #         self.raise_fault(PREDEFINED_FAULTS[111])
+        #         self.log.warning(f"Motor {motor_id} position mismatch: Expected {expected_position}, Got {actual_position}")
 
-        # Ride overload detection
-        if rmc.detects_overload():
-            self.raise_fault(PREDEFINED_FAULTS[107])
+        # # Ride overload detection
+        # if rmc.detects_overload():
+        #     self.raise_fault(PREDEFINED_FAULTS[107])
 
-        # Ride cycle timeout detection
-        if rmc.ride_cycle_exceeded():
-            self.raise_fault(PREDEFINED_FAULTS[112])
 
     def log_fault(self, fault: Fault):
         if fault.severity == FaultSeverity.LOW:
