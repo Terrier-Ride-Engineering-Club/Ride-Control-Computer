@@ -79,7 +79,7 @@ class RideControlComputer():
     def update(self):
         '''
         Main logic update loop.
-        It should be called as often as possible.
+        It should be called as often as possible
         '''
         # Read inputs from I/O controller
         self.EStop = self.is_estop_active()
@@ -88,6 +88,8 @@ class RideControlComputer():
         self.Reset = self.io.read_restart()
         self.Dispatch = self.io.read_dispatch()
 
+        # **Check for faults using sensor and encoder comparisons**
+        self.fault_manager.check_faults(self.io, self.rmc)
 
         # Transition logic
         if self.EStop:
@@ -113,7 +115,7 @@ class RideControlComputer():
                 if self.Stop:
                     self.state = State.IDLE
 
-        # Execute state-specific actions
+        # **Execute state-specific actions**
         if self.state == State.ESTOPPED:
             self.io.terminate_power()
         elif self.state == State.RUNNING:
@@ -123,7 +125,7 @@ class RideControlComputer():
             self.io.disable_motors()
         else:
             self.io.disable_motors()
-
+            
 
     def is_estop_active(self) -> bool:
         ''' Returns True if any ESTOP condition is active '''
