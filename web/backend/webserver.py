@@ -4,7 +4,7 @@
 import threading
 import logging
 import sys
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, redirect, url_for
 from flask_cors import CORS  # Import the extension
 from ridecontrolcomputer import RideControlComputer, State
 from Backend.iocontroller import HardwareIOController
@@ -34,23 +34,43 @@ class RideWebServer:
         self.web_thread = None
 
         # Define routes
-        self.app.add_url_rule('/', 'index', self.index, methods=['GET'])
-        self.app.add_url_rule('/status', 'status', self.status, methods=['GET'])
-        self.app.add_url_rule('/start', 'start_ride', self.start_ride, methods=['POST'])
-        self.app.add_url_rule('/estop', 'trigger_estop', self.trigger_estop, methods=['POST'])
-        self.app.add_url_rule('/stop', 'stop_ride', self.stop_ride, methods=['POST'])
-        self.app.add_url_rule('/dispatch', 'dispatch_ride', self.dispatch_ride, methods=['POST'])
-        self.app.add_url_rule('/ride_off', 'ride_off', self.ride_off, methods=['POST'])
-        self.app.add_url_rule('/restart', 'restart_ride', self.restart_ride, methods=['POST'])
+        self.app.add_url_rule('/', 'index', self.index, methods=['GET']) # Redirect to control
+        self.app.add_url_rule('/control', 'control', self.control, methods=['GET'])
+        self.app.add_url_rule('/maintenance', 'maintenance', self.maintenance, methods=['GET'])
+        self.app.add_url_rule('/api/status', 'status', self.status, methods=['GET'])
+        self.app.add_url_rule('/api/start', 'start_ride', self.start_ride, methods=['POST'])
+        self.app.add_url_rule('/api/estop', 'trigger_estop', self.trigger_estop, methods=['POST'])
+        self.app.add_url_rule('/api/stop', 'stop_ride', self.stop_ride, methods=['POST'])
+        self.app.add_url_rule('/api/dispatch', 'dispatch_ride', self.dispatch_ride, methods=['POST'])
+        self.app.add_url_rule('/api/ride_off', 'ride_off', self.ride_off, methods=['POST'])
+        self.app.add_url_rule('/api/restart', 'restart_ride', self.restart_ride, methods=['POST'])
+        self.app.add_url_rule('/api/toggle_webcontrols','toggle_web_controls', self.toggle_webserver_control, methods=['POST'])
 
+    # --- Run Methods ---
+    def run(self):
+        """Run the Flask app in a separate thread."""
+        self.web_thread = threading.Thread(target=self._run_server, daemon=True)
+        self.web_thread.start()
+
+    def _run_server(self):
+        """Internal method to start the Flask server."""
+        self.app.run(host=self.host, port=self.port)
+
+    # --- Webserver Routes ---
     def index(self):
         """Serve the HTML dashboard."""
-        return render_template('main.html')
+        return redirect(url_for('control'))
+    
+    def control(self):
+        return render_template('control.html')
+    
+    def maintenance(self):
+        return render_template('maintenance.html')
 
     def status(self):
         """Return the current status of the ride system, including all button states."""
         return jsonify({
-            'webControlEnabled': self.rcc.useWebIOController,
+            'controlType': self.rcc.ioControllerType,
             'state': self.rcc.state.name,
             'ESTOP': self.rcc.io.read_estop(),
             'STOP': self.rcc.io.read_stop(),
@@ -90,16 +110,8 @@ class RideWebServer:
         """Return ride to operation mode after ESTOP or stop."""
         self.rcc.io.simulate_restart()  # Call the method in IOController
         return jsonify({'message': 'Ride restarted and ready'}), 200
-
-    def run(self):
-        """Run the Flask app in a separate thread."""
-        self.web_thread = threading.Thread(target=self._run_server, daemon=True)
-        self.web_thread.start()
-
-    def _run_server(self):
-        """Internal method to start the Flask server."""
-        self.app.run(host=self.host, port=self.port)
-
-    def stop(self):
-        """Gracefully stop the web server."""
-        print("Stopping web server (not implemented yet).")
+    
+    def toggle_webserver_control(self):
+        """Toggles the IO Controller from webserver control to hardware control."""
+        new_type = self.rcc.toggle_io_controller()
+        return jsonify({'message': f'Webserver control switched to: {new_type}'}), 200

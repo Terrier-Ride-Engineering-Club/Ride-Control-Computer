@@ -13,7 +13,7 @@
   </style>
 </head>
 <body>
-  <!-- Navigation Bar -->
+  <!-- Header Bar -->
   <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
     <div class="container">
       <a class="navbar-brand text-white" href="#">
@@ -21,6 +21,16 @@
         <h2 class="h5">RCC Dashboard</h2>
       </a>
     </div>
+  </nav>
+
+  <!-- Navbar -->
+  <nav aria-label="...">
+    <ul class="pagination pagination-lg my-1 justify-content-center">
+      <li class="page-item active" aria-current="page">
+        <span class="page-link"√>Controls</span>
+      </li>
+      <li class="page-item"><a class="page-link" href="#">Maintenance</a></li>
+    </ul>
   </nav>
 
   <!-- Main Container -->
@@ -43,8 +53,8 @@
             <table class="table table-bordered mt-3">
               <thead class="table-light">
                 <tr>
+                  <th>Input Name</th>
                   <th>Status</th>
-                  <th>Indicator</th>
                 </tr>
               </thead>
               <tbody>
@@ -61,20 +71,12 @@
                   <td><span id="statusDispatch" class="badge bg-danger">N/A</span></td>
                 </tr>
                 <tr>
-                  <td><i class="fas fa-power-off text-dark"></i> Ride Off</td>
+                  <td><i class="fas fa-power-off text-dark"></i> Ride On/Off</td>
                   <td><span id="statusRideOff" class="badge bg-danger">N/A</span></td>
                 </tr>
                 <tr>
                   <td><i class="fas fa-redo text-primary"></i> Restart</td>
                   <td><span id="statusRestart" class="badge bg-danger">N/A</span></td>
-                </tr>
-                <tr>
-                  <td><i class="fas fa-toggle-on text-success"></i> On Switch</td>
-                  <td><span id="statusOnSwitch" class="badge bg-danger">N/A</span></td>
-                </tr>
-                <tr>
-                  <td><i class="fas fa-sync text-info"></i> Reset Switch</td>
-                  <td><span id="statusResetSwitch" class="badge bg-danger">N/A</span></td>
                 </tr>
               </tbody>
             </table>
@@ -91,8 +93,17 @@
               <h5 class="mb-0">Ride Controls</h5>
             </div>
             <div class="card-body text-center">
-              <div id="webControlFlag" class="alert alert-info text-center" role="alert">
-                Web Controls: Unknown
+              <div class="container text-center">
+                <div class="row">
+                  <div class="col-6">
+                    <div id="webControlFlag" class="alert alert-info text-center me-3" role="alert">
+                      Web Controls: Unknown
+                    </div>
+                  </div>
+                  <div class="col">
+                    <button id="toggleWebControls" type="button" class="btn btn-outline-primary me-3">Toggle Web Controls</button>
+                  </div>
+                </div>
               </div>
               <div class="row g-3">
                 <div class="col-6">
@@ -131,7 +142,7 @@
 
   <!-- JavaScript to interact with the API -->
   <script>
-    const apiBase = `${window.location.protocol}//${window.location.hostname}:23843`;
+    const apiBase = `${window.location.protocol}//${window.location.hostname}:23843/api`;
 
     // Function to send POST requests to the backend for ride control actions
     async function sendRideCommand(endpoint) {
@@ -182,6 +193,19 @@
       sendRideCommand("restart");
     });
 
+    document.getElementById('toggleWebControls').addEventListener('click', async () => {
+      try {
+        const response = await fetch(`${apiBase}/toggle_webcontrols`, { method: 'POST' });
+        const data = await response.json();
+        if (!response.ok) {
+          console.error('Error toggling web controls:', data.error);
+        }
+        updateStatus();
+      } catch (error) {
+        console.error('Error toggling web controls:', error);
+      }
+    });
+
     // Function to update status by fetching from /status endpoint
     async function updateStatus() {
       const connectionStatus = document.getElementById('connectionStatus');
@@ -214,14 +238,13 @@
         updateBadge('statusDispatch', data.DISPATCH);
         updateBadge('statusRideOff', data.RIDE_OFF);
         updateBadge('statusRestart', data.RESTART);
-        updateBadge('statusOnSwitch', data.OnSwitchActive);
-        updateBadge('statusResetSwitch', data.ResetSwitchActive);
 
         const webControlFlag = document.getElementById('webControlFlag');
+        webControlEnabled = data.controlType == "web";
         if (webControlFlag) {
-          webControlFlag.innerText = data.webControlEnabled ? "Web Controls: Enabled" : "Web Controls: Disabled";
+          webControlFlag.innerText = webControlEnabled ? "Web Controls: Enabled" : "Web Controls: Disabled";
           webControlFlag.classList.remove("alert-info", "alert-success", "alert-danger");
-          webControlFlag.classList.add(data.webControlEnabled ? "alert-success" : "alert-danger");
+          webControlFlag.classList.add(webControlEnabled ? "alert-success" : "alert-danger");
         }
         // Disable or enable ride control buttons based on webControlEnabled flag
         const controlButtons = [
@@ -234,7 +257,7 @@
         controlButtons.forEach(id => {
           const button = document.getElementById(id);
           if (button) {
-            button.disabled = !data.webControlEnabled;
+            button.disabled = !webControlEnabled;
           }
         });
       } catch (error) {
