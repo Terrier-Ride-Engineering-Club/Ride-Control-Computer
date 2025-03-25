@@ -5,6 +5,7 @@
 from enum import Enum
 import logging
 from typing import List
+from Backend.iocontroller import IOController
 
 class FaultSeverity(Enum):
     LOW = 1      # Warning, does not stop ride
@@ -68,7 +69,7 @@ class FaultManager:
         if fault.severity == FaultSeverity.HIGH:
             self.faultRequiresEStop = True
 
-    def check_faults(self, io, rmc):
+    def check_faults(self, io: IOController, rmc):
         """
         Checks for various fault conditions by comparing actual sensor and motor encoder data.
         """
