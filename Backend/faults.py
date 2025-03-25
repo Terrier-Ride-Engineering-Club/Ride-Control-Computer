@@ -85,9 +85,9 @@ class FaultManager:
             self.raise_fault(PREDEFINED_FAULTS[101])
 
         # Power failure detection
-        voltages = io.read_voltages()  
-        if any(v < 20 for v in voltages.values()):  
-            self.raise_fault(PREDEFINED_FAULTS[102])
+        # voltages = io.read_voltages()  
+        # if any(v < 20 for v in voltages.values()):  
+        #     self.raise_fault(PREDEFINED_FAULTS[102])
         # I'm not sure if this is the correct implementation of the read voltages method
         # You commented that it returns a tuple so maybe this wouldn't work the way I'm thinking
 
