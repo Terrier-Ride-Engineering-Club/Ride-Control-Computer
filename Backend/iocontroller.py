@@ -429,6 +429,8 @@ if __name__ == "__main__":
 
     while True:
         io.servo1.min()
-        time.sleep(1)
+        print('min')
+        time.sleep(2)
         io.servo1.max()
-        time.sleep(1)
+        print('max')
+        time.sleep(2)
