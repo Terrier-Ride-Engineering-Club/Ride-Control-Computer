@@ -192,7 +192,7 @@ class RoboClaw:
     def read_status(self):
         cmd = Cmd.GETERROR
         raw = self._read(cmd, '>BBBB')
-        status = raw[0]
+        status = (raw[0] << 24) | (raw[1] << 16) | (raw[2] << 8) | raw[3]
         print(f"RETURNED: {raw}")
         return {
             0x00000000: 'Normal',
