@@ -7,7 +7,7 @@ RoboClaw tutorial: https://resources.basicmicro.com/packet-serial-with-the-raspb
 """
 
 
-from roboclaw import RoboClaw
+from .roboclaw import RoboClaw
 from time import sleep
 
 if __name__ == "__main__":
