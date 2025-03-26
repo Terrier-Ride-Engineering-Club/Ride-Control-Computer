@@ -14,7 +14,7 @@ logger.setLevel(logging.WARNING)
 
 class RoboClaw:
     def __init__(self, port, address, auto_recover=False, **kwargs):
-        self.port = serial.Serial(baudrate=9600, timeout=0.1, interCharTimeout=0.01)
+        self.port = serial.Serial(baudrate=38400, timeout=0.1, interCharTimeout=0.01)
         self.port.port = port
         self.address = address
         self.serial_lock = Lock()
