@@ -361,6 +361,21 @@ class RoboClaw:
             speed *= -1
         return speed
 
+    def write_settings_to_eeprom(self):
+        """
+        Writes all current settings to non-volatile EEPROM.
+        """
+        cmd = 94
+        self._write(cmd, '', *[])
+
+    def read_settings_from_eeprom(self):
+        """
+        Reads all settings from non-volatile EEPROM.
+        Returns: (Enc1Mode, Enc2Mode)
+        """
+        cmd = 95
+        return self._read(cmd, '>BB')
+
 
 class CRCException(Exception):
     pass
