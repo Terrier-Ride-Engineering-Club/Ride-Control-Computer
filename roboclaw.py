@@ -375,6 +375,71 @@ class RoboClaw:
         """
         cmd = 95
         return self._read(cmd, '>BB')
+    
+    def read_standard_config(self):
+        """
+        Reads standard configuration bitmask from the controller.
+        Returns: Config bitmask as an integer.
+        """
+        cmd = 99
+        config, = self._read(cmd, '>H')
+        return self.decode_standard_config(config)
+    
+    def decode_standard_config(self, config):
+        """
+        Decodes a 16-bit standard config value into a dict of boolean settings.
+        
+        :param config: The 16-bit configuration bitmask.
+        :return: A dict with keys for each option and boolean values.
+        """
+        result = {}
+        # Group 1: Serial Mode (bits 0-1)
+        serial_mode = config & 0x0003
+        result["RC Mode"] = (serial_mode == 0x0000)
+        result["Analog Mode"] = (serial_mode == 0x0001)
+        result["Simple Serial Mode"] = (serial_mode == 0x0002)
+        result["Packet Serial Mode"] = (serial_mode == 0x0003)
+
+        # Group 2: Battery Mode (bits 2-4)
+        battery_mode = config & 0x001C
+        result["Battery Mode Off"] = (battery_mode == 0x0000)
+        result["Battery Mode Auto"] = (battery_mode == 0x0004)
+        result["Battery Mode 2 Cell"] = (battery_mode == 0x0008)
+        result["Battery Mode 3 Cell"] = (battery_mode == 0x000C)
+        result["Battery Mode 4 Cell"] = (battery_mode == 0x0010)
+        result["Battery Mode 5 Cell"] = (battery_mode == 0x0014)
+        result["Battery Mode 6 Cell"] = (battery_mode == 0x0018)
+        result["Battery Mode 7 Cell"] = (battery_mode == 0x001C)
+
+        # Group 3: BaudRate (bits 5-7)
+        baud_rate = config & 0x00E0
+        result["BaudRate 2400"] = (baud_rate == 0x0000)
+        result["BaudRate 9600"] = (baud_rate == 0x0020)
+        result["BaudRate 19200"] = (baud_rate == 0x0040)
+        result["BaudRate 38400"] = (baud_rate == 0x0060)
+        result["BaudRate 57600"] = (baud_rate == 0x0080)
+        result["BaudRate 115200"] = (baud_rate == 0x00A0)
+        result["BaudRate 230400"] = (baud_rate == 0x00C0)
+        result["BaudRate 460800"] = (baud_rate == 0x00E0)
+
+        # Group 4: FlipSwitch (bit 8)
+        result["FlipSwitch"] = bool(config & 0x0100)
+
+        # Group 5: Packet Address (bits 8-10)
+        # Extract the field (shift right by 8 bits and mask with 0x07)
+        packet_address_field = (config & 0x0700) >> 8
+        for i in range(8):
+            key = f"Packet Address 0x{0x80 + i:02X}"
+            result[key] = (packet_address_field == i)
+
+        # Remaining flags (each a single bit)
+        result["Slave Mode"] = bool(config & 0x0800)
+        result["Relay Mode"] = bool(config & 0x1000)
+        result["Swap Encoders"] = bool(config & 0x2000)
+        result["Swap Buttons"] = bool(config & 0x4000)
+        result["Multi-Unit Mode"] = bool(config & 0x8000)
+
+        return result
 
 
 class CRCException(Exception):
