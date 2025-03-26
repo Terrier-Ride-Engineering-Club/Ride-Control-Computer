@@ -192,6 +192,7 @@ class RoboClaw:
     def read_status(self):
         cmd = Cmd.GETERROR
         status = self._read(cmd, '>BBBB')[0]
+        print(f"RETURNED: {status}")
         return {
             0x00000000: 'Normal',
             0x00000001: 'E-Stop',
