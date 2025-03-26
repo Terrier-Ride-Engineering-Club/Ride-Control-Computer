@@ -14,7 +14,7 @@ logger.setLevel(logging.WARNING)
 
 class RoboClaw:
     def __init__(self, port, address, auto_recover=False, **kwargs):
-        self.port = serial.Serial(baudrate=9600, timeout=5, interCharTimeout=0.01)
+        self.port = serial.Serial(baudrate=9600, timeout=0.1, interCharTimeout=0.01)
         self.port.port = port
         self.address = address
         self.serial_lock = Lock()
@@ -32,15 +32,12 @@ class RoboClaw:
     def _read(self, cmd, fmt):
         cmd_bytes = struct.pack('>BB', self.address, cmd)
         try:
-            self.port.reset_input_buffer()  # TODO: potential bug?
+            # self.port.reset_input_buffer()  # TODO: potential bug?
             with self.serial_lock:
-                print(f"WRITE: {cmd_bytes.hex()}", end=" == ")
                 self.port.write(cmd_bytes)
                 return_bytes = self.port.read(struct.calcsize(fmt) + 2)
-                print(f"READ: {return_bytes.hex()}", end=" == ")
-            crc_actual = CRCCCITT().calculate(cmd_bytes)
+            crc_actual = CRCCCITT().calculate(cmd_bytes + return_bytes[:-2])
             crc_expect = struct.unpack('>H', return_bytes[-2:])[0]
-            print(f"CRC EXP: {crc_expect}, CRC ACT: {crc_actual}")
             if crc_actual != crc_expect:
                 logger.error('read crc failed')
                 raise CRCException('CRC failed')
@@ -59,11 +56,9 @@ class RoboClaw:
         crc_bytes = struct.pack('>H', write_crc)
         try:
             with self.serial_lock:
-                print(f"WRITE: {cmd_bytes + data_bytes + crc_bytes}")
                 self.port.write(cmd_bytes + data_bytes + crc_bytes)
                 self.port.flush()
                 verification = self.port.read(1)
-                print(f"VERIFICATION: {verification}")
             if 0xff != struct.unpack('>B', verification)[0]:
                 logger.error('write crc failed')
                 raise CRCException('CRC failed')
@@ -154,9 +149,6 @@ class RoboClaw:
         # returns position as a percentage across the full set range of the motor
         encoder = self.read_encoder(motor)
         range = self.read_range(motor)
-        # Prevent div by 0
-        if range[0] == range[1]:
-            return 0
         return ((encoder - range[0]) / float(range[1] - range[0])) * 100.
 
     def read_status(self):
@@ -259,8 +251,6 @@ class RoboClaw:
         else:
             cmd = Cmd.GETM2SPEED
         max_speed = self.read_max_speed(motor)
-        if max_speed == 0:
-            return 0
         speed_vals = self._read(cmd, '>IB')
         speed = (speed_vals[0] / max_speed) * 100.
         if speed_vals[1]:
