@@ -57,9 +57,11 @@ class RoboClaw:
         crc_bytes = struct.pack('>H', write_crc)
         try:
             with self.serial_lock:
+                print(f"WRITE: {cmd_bytes + data_bytes + crc_bytes}")
                 self.port.write(cmd_bytes + data_bytes + crc_bytes)
                 self.port.flush()
                 verification = self.port.read(1)
+                print(f"VERIFICATION: {verification}")
             if 0xff != struct.unpack('>B', verification)[0]:
                 logger.error('write crc failed')
                 raise CRCException('CRC failed')
