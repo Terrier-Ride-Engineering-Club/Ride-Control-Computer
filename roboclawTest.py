@@ -33,6 +33,7 @@ if __name__ == "__main__":
             print(f"VOLTAGES (Main, Logic): {mc.read_voltages()}")
             # print(f"STOP ALL!!: {mc.stop_all()}")
             print(f"SET CURRENT: {mc.set_m2_max_current_limit(2000)}")
+            print(f"READ CURRENT: {mc.read_m2_max_current_limit()}")
             # print(f"STOP ALL!!: {mc.drive_motor(1,50)}")
             # print(f"CURRENT VALUES: {mc.read_currents()}")
             # print(f"MOTOR CURRENT M1: {mc.read_motor_current(1)}")
