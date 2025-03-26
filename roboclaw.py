@@ -247,6 +247,15 @@ class RoboClaw:
         cmd = 134
         # The protocol requires padding with 4 zero bytes after the 4-byte current value
         self._write(cmd, '>IBBBB', max_current, 0, 0, 0, 0)
+
+    def read_m2_max_current_limit(self):
+        """
+        Read Motor 2 Maximum Current Limit.
+        :return: Maximum current in 10mA units (e.g. 1000 = 10A).
+        """
+        cmd = 136
+        max_current, _ = self._read(cmd, '>II')
+        return max_current
         
     def read_version(self):
         """
