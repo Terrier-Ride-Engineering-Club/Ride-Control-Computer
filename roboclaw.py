@@ -255,6 +255,8 @@ class RoboClaw:
         else:
             cmd = Cmd.GETM2SPEED
         max_speed = self.read_max_speed(motor)
+        if max_speed == 0:
+            return 0
         speed_vals = self._read(cmd, '>IB')
         speed = (speed_vals[0] / max_speed) * 100.
         if speed_vals[1]:
