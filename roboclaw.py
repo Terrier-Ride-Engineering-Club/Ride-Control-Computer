@@ -193,23 +193,31 @@ class RoboClaw:
         cmd = Cmd.GETERROR
         status = self._read(cmd, '>BBBB')[0]
         return {
-            0x0000: 'Normal',
-            0x0001: 'Warning: High Current - Motor 1',
-            0x0002: 'Warning: High Current - Motor 2',
-            0x0004: 'Emergency Stop Triggered',
-            0x0008: 'Error: High Temperature - Sensor 1',
-            0x0010: 'Error: High Temperature - Sensor 2',
-            0x0020: 'Error: High Voltage - Main Battery',
-            0x0040: 'Error: High Voltage - Logic Battery',
-            0x0080: 'Error: Low Voltage - Logic Battery',
-            0x0100: 'Driver Fault - Motor 1 Driver',
-            0x0200: 'Driver Fault - Motor 2 Driver',
-            0x0400: 'Warning: High Voltage - Main Battery',
-            0x0800: 'Warning: Low Voltage - Main Battery',
-            0x1000: 'Warning: High Temperature - Sensor 1',
-            0x2000: 'Warning: High Temperature - Sensor 2',
-            0x4000: 'Home - Motor 1',
-            0x8000: 'Home - Motor 2'
+            0x000000: 'Normal',
+            0x000001: 'E-Stop',
+            0x000002: 'Temperature Error',
+            0x000004: 'Temperature 2 Error',
+            0x000008: 'Main Voltage High Error',
+            0x000010: 'Logic Voltage High Error',
+            0x000020: 'Logic Voltage Low Error',
+            0x000040: 'M1 Driver Fault Error',
+            0x000080: 'M2 Driver Fault Error',
+            0x000100: 'M1 Speed Error',
+            0x000200: 'M2 Speed Error',
+            0x000400: 'M1 Position Error',
+            0x000800: 'M2 Position Error',
+            0x001000: 'M1 Current Error',
+            0x002000: 'M2 Current Error',
+            0x010000: 'M1 Over Current Warning',
+            0x020000: 'M2 Over Current Warning',
+            0x040000: 'Main Voltage High Warning',
+            0x080000: 'Main Voltage Low Warning',
+            0x100000: 'Temperature Warning',
+            0x200000: 'Temperature 2 Warning',
+            0x400000: 'S4 Signal Triggered',
+            0x800000: 'S5 Signal Triggered',
+            0x01000000: 'Speed Error Limit Warning',
+            0x02000000: 'Position Error Limit Warning'
         }.get(status, 'Unknown Error')
 
     def read_temp_sensor(self, sensor):
