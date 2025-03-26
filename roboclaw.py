@@ -37,11 +37,11 @@ class RoboClaw:
                 self.port.write(cmd_bytes)
                 return_bytes = self.port.read(struct.calcsize(fmt) + 2)
                 print(f"READ: {return_bytes}", end=" == ")
-            # crc_actual = CRCCCITT().calculate(cmd_bytes + return_bytes[:-2])
-            # crc_expect = struct.unpack('>H', return_bytes[-2:])[0]
-            # if crc_actual != crc_expect:
-            #     logger.error('read crc failed')
-            #     raise CRCException('CRC failed')
+            crc_actual = CRCCCITT().calculate(cmd_bytes + return_bytes[:-2])
+            crc_expect = struct.unpack('>H', return_bytes[-2:])[0]
+            if crc_actual != crc_expect:
+                logger.error('read crc failed')
+                raise CRCException('CRC failed')
             return struct.unpack(fmt, return_bytes[:-2])
         except serial.serialutil.SerialException:
             if self.auto_recover:
