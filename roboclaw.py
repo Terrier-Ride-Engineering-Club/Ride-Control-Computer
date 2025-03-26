@@ -202,6 +202,50 @@ class RoboClaw:
             return self.read_currents()[0]
         else:
             return self.read_currents()[1]
+        
+    def read_version(self):
+        """
+        Read RoboClaw firmware version.
+        Returns up to 48 bytes (depending on the RoboClaw model) terminated by a line feed (10) and null (0) character.
+        Example response: b'RoboClaw 10.2A v4.1.11\n\x00' followed by 2 CRC bytes.
+        """
+        cmd = 21
+        cmd_bytes = struct.pack('>BB', self.address, cmd)
+        try:
+            with self.serial_lock:
+                # Send the command
+                self.port.write(cmd_bytes)
+                # Read response until termination sequence (LF and null) is encountered
+                response = bytearray()
+                start_time = time.time()
+                while True:
+                    byte = self.port.read(1)
+                    if not byte:
+                        # Check for timeout
+                        if time.time() - start_time > self.port.timeout:
+                            break
+                        continue
+                    response.extend(byte)
+                    # Termination: last two bytes are LF (10) and NULL (0)
+                    if len(response) >= 2 and response[-2:] == b'\x0a\x00':
+                        break
+                # Read the following 2 bytes for CRC
+                crc_bytes = self.port.read(2)
+            # Verify CRC: Calculate over the command and response (excluding CRC bytes)
+            crc_actual = CRCCCITT().calculate(cmd_bytes + response)
+            crc_expected = struct.unpack('>H', crc_bytes)[0]
+            if crc_actual != crc_expected:
+                logger.error('read version CRC failed')
+                raise CRCException('CRC failed')
+            # Decode the version string and strip termination characters
+            version_str = response.decode('utf-8', errors='ignore').rstrip('\n\x00')
+            return version_str
+        except serial.serialutil.SerialException:
+            if self.auto_recover:
+                self.recover_serial()
+            else:
+                logger.exception('roboclaw serial')
+                raise
 
     def read_motor_pwms(self):
         pwms = self._read(Cmd.GETPWMS, '>hh')

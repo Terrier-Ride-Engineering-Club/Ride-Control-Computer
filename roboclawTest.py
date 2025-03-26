@@ -18,6 +18,7 @@ if __name__ == "__main__":
     MODE = "DIAGNOSTIC"
     while True:
         if MODE == "DIAGNOSTIC":
+            print(f"VER: {mc.read_version()}")
             print(f"STATUS: {mc.read_status()}")
             # print(f"VOLTAGE: {mc.read_batt_voltage('main')}")
             print(f"ENCODER M1: {mc.read_encoder(1)}")
