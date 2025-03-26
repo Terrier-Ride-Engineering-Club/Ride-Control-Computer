@@ -440,6 +440,83 @@ class RoboClaw:
         result["Multi-Unit Mode"] = bool(config & 0x8000)
 
         return result
+    
+    def set_s_pin_modes(self, s3_mode, s4_mode, s5_mode):
+        """
+        Sets the modes for S3, S4 and S5.
+        
+        Parameters:
+            s3_mode, s4_mode, s5_mode: mode values (as integer) to be set.
+            
+        Command 74 - Set S3, S4 and S5 Modes:
+            Send: [Address, 74, S3mode, S4mode, S5mode, CRC(2 bytes)]
+            Receive: [0xFF]
+        """
+        cmd = 74
+        self._write(cmd, '>BBB', s3_mode, s4_mode, s5_mode)
+
+
+    def read_s_pin_modes(self):
+        """
+        Gets the modes for S3, S4 and S5.
+        
+        Command 75 - Get S3, S4 and S5 Modes:
+            Send: [Address, 75]
+            Receive: [S3mode, S4mode, S5mode, CRC(2 bytes)]
+        
+        Returns:
+            A dict with keys 'S3', 'S4', and 'S5' containing the mode descriptions.
+        """
+        cmd = 75
+        raw_modes = self._read(cmd, '>BBB')
+        s3_mode, s4_mode, s5_mode = raw_modes
+
+        # Mapping dictionaries based on your provided table.
+        # Note: Some mode values are only valid for S3; S4 and S5 have fewer options.
+        s3_mapping = {
+            0x00: "Default",
+            0x01: "E-Stop",
+            0x81: "E-Stop(Latching)",
+            0x14: "Voltage Clamp",
+            0x24: "RS485 Direction",
+            0x84: "Encoder toggle",
+            0x04: "Brake",
+            0xE2: "Home(Auto)",
+            0x62: "Home(User)",
+            0xF2: "Home(Auto)/Limit(Fwd)",
+            0x72: "Home(User)/Limit(Fwd)",
+            0x12: "Limit(Fwd)",
+            0x22: "Limit(Rev)",
+            0x32: "Limit(Both)"
+        }
+        s4_mapping = {
+            0x00: "Disabled",
+            0x01: "E-Stop",
+            0x81: "E-Stop(Latching)",
+            0x14: "Voltage Clamp",
+            0x04: "Brake",
+            0x62: "Home(User)",
+            0xF2: "Home(Auto)/Limit(Fwd)",
+            0x72: "Home(User)/Limit(Fwd)",
+            0x12: "Limit(Fwd)",
+            0x22: "Limit(Rev)",
+            0x32: "Limit(Both)"
+        }
+        s5_mapping = {
+            0x00: "Disabled",
+            0x01: "E-Stop",
+            0x81: "E-Stop(Latching)",
+            0x14: "Voltage Clamp",
+            0x62: "Home(User)",
+            0xF2: "Home(Auto)/Limit(Fwd)",
+            0x72: "Home(User)/Limit(Fwd)"
+        }
+
+        return {
+            "S3": s3_mapping.get(s3_mode, f"Unknown (0x{s3_mode:02X})"),
+            "S4": s4_mapping.get(s4_mode, f"Unknown (0x{s4_mode:02X})"),
+            "S5": s5_mapping.get(s5_mode, f"Unknown (0x{s5_mode:02X})")
+        }
 
 
 class CRCException(Exception):

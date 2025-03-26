@@ -34,6 +34,7 @@ if __name__ == "__main__":
             # print(f"STOP ALL!!: {mc.stop_all()}")
             print(f"SET CURRENT: {mc.set_m2_max_current_limit(2000)}")
             print(f"GET CONFIG: {mc.read_standard_config()}")
+            print(f"GET SPins: {mc.read_s_pin_modes()}")
             # print(f"SAVE CURRENT: {mc.write_settings_to_eeprom()}")
             # print(f"READ CURRENT: {mc.read_m2_max_current_limit()}")
             # print(f"STOP ALL!!: {mc.drive_motor(1,50)}")
