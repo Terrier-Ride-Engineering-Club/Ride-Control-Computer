@@ -13,7 +13,7 @@ from time import sleep
 if __name__ == "__main__":
     
     address = 0x80
-    roboclaw = RoboClaw(port="/dev/serial0",address=0x80)
+    roboclaw = RoboClaw(port='/dev/ttyAMA0',address=0x80)
     
     while True:
         
