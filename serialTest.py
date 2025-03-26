@@ -20,6 +20,6 @@ time.sleep(0.5)
 
 
 response = ser.read(64)  # Adjust the number of bytes based on your expected response
-print("Received:", response.decode())
+print("Received:", response)
 
 ser.close()
