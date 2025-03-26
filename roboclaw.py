@@ -148,7 +148,7 @@ class RoboClaw:
         # assert -64 <= speed <= 63
         write_speed = speed + 64
         if motor == 1:
-            cmd = Cmd.M17BIT
+            cmd = 0 #Cmd.M17BIT
         else:
             cmd = Cmd.M27BIT
         self._write(cmd, '>B', write_speed)
