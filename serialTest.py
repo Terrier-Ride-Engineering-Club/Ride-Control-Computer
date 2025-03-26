@@ -1,7 +1,7 @@
 import serial
 import time
 
-port = '/dev/ttyserial0'
+port = '/dev/serial0'
 baud = 9600
 
 try:
