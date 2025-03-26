@@ -15,7 +15,7 @@ time.sleep(2)  # Allow time for the port to initialize
 # Replace with a valid command for your device
 command = b'Y'
 ser.flush()
-ser.write(command.encode())
+ser.write(command)
 time.sleep(0.5)
 
 
