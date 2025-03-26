@@ -471,7 +471,7 @@ class RoboClaw:
         """
         cmd = 75
         raw_modes = self._read(cmd, '>BBBBB')
-        s3_mode, s4_mode, s5_mode = raw_modes
+        s3_mode, s4_mode, s5_mode, bad1, bad2 = raw_modes
 
         # Mapping dictionaries based on your provided table.
         # Note: Some mode values are only valid for S3; S4 and S5 have fewer options.
