@@ -51,6 +51,7 @@ if __name__ == "__main__":
             # print(f"SPEED M2: {mc.read_speed(2)}")
             sleep(2)
         elif MODE == "MOTOR TEST":
+            print(f"STATUS: {mc.read_status()}")
             mc.drive_motor(1,20)
             sleep(1)
             mc.drive_motor(1,0)
