@@ -36,7 +36,7 @@ class RoboClaw:
             with self.serial_lock:
                 self.port.write(cmd_bytes)
                 return_bytes = self.port.read(struct.calcsize(fmt) + 2)
-                print(f"READ!!: {return_bytes}")
+                print(f"READ: {return_bytes}", end=" == ")
             # crc_actual = CRCCCITT().calculate(cmd_bytes + return_bytes[:-2])
             # crc_expect = struct.unpack('>H', return_bytes[-2:])[0]
             # if crc_actual != crc_expect:
