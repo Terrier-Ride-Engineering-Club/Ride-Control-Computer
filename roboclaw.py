@@ -38,7 +38,7 @@ class RoboClaw:
                 self.port.write(cmd_bytes)
                 return_bytes = self.port.read(struct.calcsize(fmt) + 2)
                 print(f"READ: {return_bytes.hex()}", end=" == ")
-            crc_actual = CRCCCITT().calculate(return_bytes[:-2])
+            crc_actual = CRCCCITT().calculate(cmd_bytes)
             crc_expect = struct.unpack('>H', return_bytes[-2:])[0]
             print(f"CRC EXP: {crc_expect}, CRC ACT: {crc_actual}")
             if crc_actual != crc_expect:
