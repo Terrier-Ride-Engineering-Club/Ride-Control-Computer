@@ -39,6 +39,7 @@ class RoboClaw:
                 print(f"READ: {return_bytes}", end=" == ")
             crc_actual = CRCCCITT().calculate(cmd_bytes + return_bytes[:-2])
             crc_expect = struct.unpack('>H', return_bytes[-2:])[0]
+            print(f"CRC EXP: {crc_expect}, CRC ACT: {crc_actual}")
             if crc_actual != crc_expect:
                 logger.error('read crc failed')
                 raise CRCException('CRC failed')
