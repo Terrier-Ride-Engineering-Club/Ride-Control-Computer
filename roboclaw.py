@@ -189,7 +189,7 @@ class RoboClaw:
 
     def read_status(self):
         cmd = Cmd.GETERROR
-        status = self._read(cmd, '>B')[0]
+        status = self._read(cmd, '>BBBB')[0]
         return {
             0x0000: 'Normal',
             0x0001: 'Warning: High Current - Motor 1',
