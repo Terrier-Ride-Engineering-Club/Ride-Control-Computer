@@ -150,6 +150,9 @@ class RoboClaw:
         # returns position as a percentage across the full set range of the motor
         encoder = self.read_encoder(motor)
         range = self.read_range(motor)
+        # Prevent div by 0
+        if range[0] == range[1]:
+            return 0
         return ((encoder - range[0]) / float(range[1] - range[0])) * 100.
 
     def read_status(self):
