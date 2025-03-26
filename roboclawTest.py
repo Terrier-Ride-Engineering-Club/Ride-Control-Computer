@@ -17,8 +17,8 @@ if __name__ == "__main__":
     
     while True:
         
-        roboclaw.drive_motor(1,10)
+        print(roboclaw.read_status())
         sleep(2)
-        roboclaw.drive_motor(1,0)
-        sleep(2)
+        # roboclaw.drive_motor(1,0)
+        # sleep(2)
         
