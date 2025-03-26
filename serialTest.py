@@ -16,10 +16,10 @@ time.sleep(2)  # Allow time for the port to initialize
 command = b'Y'
 ser.flush()
 ser.write(command)
-time.sleep(0.5)
+# time.sleep(0.5)
 
 
 response = ser.read(64)  # Adjust the number of bytes based on your expected response
-print("Received:", response)
+print(f"Received: {response}")
 
 ser.close()
