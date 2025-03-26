@@ -34,10 +34,10 @@ class RoboClaw:
         try:
             # self.port.reset_input_buffer()  # TODO: potential bug?
             with self.serial_lock:
-                print(f"WRITE: {cmd_bytes}", end=" == ")
+                print(f"WRITE: {cmd_bytes.hex()}", end=" == ")
                 self.port.write(cmd_bytes)
                 return_bytes = self.port.read(struct.calcsize(fmt) + 2)
-                print(f"READ: {return_bytes}", end=" == ")
+                print(f"READ: {return_bytes.hex()}", end=" == ")
             crc_actual = CRCCCITT().calculate(cmd_bytes + return_bytes[:-2])
             crc_expect = struct.unpack('>H', return_bytes[-2:])[0]
             print(f"CRC EXP: {crc_expect}, CRC ACT: {crc_actual}")
