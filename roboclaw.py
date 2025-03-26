@@ -470,7 +470,7 @@ class RoboClaw:
             A dict with keys 'S3', 'S4', and 'S5' containing the mode descriptions.
         """
         cmd = 75
-        raw_modes = self._read(cmd, '>BBBBBBB')
+        raw_modes = self._read(cmd, '>BBBBBB')
         s3_mode, s4_mode, s5_mode = raw_modes
 
         # Mapping dictionaries based on your provided table.
