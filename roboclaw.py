@@ -68,7 +68,7 @@ class RoboClaw:
                 raise
 
     def _write(self, cmd, fmt, *data):
-        cmd_bytes = struct.pack('>B', self.address, cmd)
+        cmd_bytes = struct.pack('>BB', self.address, cmd)
         data_bytes = struct.pack(fmt, *data)
         message = cmd_bytes + data_bytes
         write_crc = CRCCCITT().calculate(message)
