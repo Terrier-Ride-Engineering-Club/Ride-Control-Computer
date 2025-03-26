@@ -43,7 +43,7 @@ if __name__ == "__main__":
             print(f"SPEED M2: {mc.read_speed(2)}")
             sleep(2)
         elif MODE == "MOTOR TEST":
-            mc.drive_motor(1,1)
+            mc.drive_motor(1,20)
             sleep(1)
             mc.drive_motor(1,0)
             sleep(1)
