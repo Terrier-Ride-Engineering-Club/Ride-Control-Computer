@@ -32,8 +32,9 @@ class RoboClaw:
     def _read(self, cmd, fmt):
         cmd_bytes = struct.pack('>BB', self.address, cmd)
         try:
-            self.port.reset_input_buffer()  # TODO: potential bug?
+            # self.port.reset_input_buffer()  # TODO: potential bug?
             with self.serial_lock:
+                print(f"WRITE: {cmd_bytes}", end=" == ")
                 self.port.write(cmd_bytes)
                 return_bytes = self.port.read(struct.calcsize(fmt) + 2)
                 print(f"READ: {return_bytes}", end=" == ")
