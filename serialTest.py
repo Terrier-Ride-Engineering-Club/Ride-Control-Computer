@@ -19,7 +19,7 @@ ser.write(command)
 # time.sleep(0.5)
 
 
-response = ser.read(64)  # Adjust the number of bytes based on your expected response
+response = ser.read(1)  # Adjust the number of bytes based on your expected response
 print(f"Received: {response}")
 
 ser.close()
