@@ -238,6 +238,15 @@ class RoboClaw:
             return self.read_currents()[0]
         else:
             return self.read_currents()[1]
+
+    def set_m2_max_current_limit(self, max_current):
+        """
+        Set Motor 2 Maximum Current Limit.
+        :param max_current: Maximum current in 10mA units (e.g. 1000 = 10A).
+        """
+        cmd = 134
+        # The protocol requires padding with 4 zero bytes after the 4-byte current value
+        self._write(cmd, '>IBBBB', max_current, 0, 0, 0, 0)
         
     def read_version(self):
         """
