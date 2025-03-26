@@ -13,11 +13,11 @@ except Exception as e:
 time.sleep(2)  # Allow time for the port to initialize
 
 # Replace with a valid command for your device
-command = b'YOUR_COMMAND_HERE\n'
-ser.write(command)
+command = 'YOUR_COMMAND_HERE\n'
+ser.write(command.encode())
 time.sleep(0.5)
 
 response = ser.read(64)  # Adjust the number of bytes based on your expected response
-print("Received:", response)
+print("Received:", response.decode())
 
 ser.close()
