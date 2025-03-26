@@ -31,17 +31,30 @@ class RoboClaw:
 
     def _read(self, cmd, fmt):
         cmd_bytes = struct.pack('>BB', self.address, cmd)
+        expected_length = struct.calcsize(fmt)
         try:
-            # self.port.reset_input_buffer()  # TODO: potential bug?
             with self.serial_lock:
                 self.port.write(cmd_bytes)
-                return_bytes = self.port.read(struct.calcsize(fmt) + 2)
-            crc_actual = CRCCCITT().calculate(cmd_bytes + return_bytes[:-2])
-            crc_expect = struct.unpack('>H', return_bytes[-2:])[0]
+                response = bytearray()
+                start_time = time.time()
+                # Read until we have the expected number of data bytes plus 2 CRC bytes
+                while len(response) < expected_length + 2:
+                    byte = self.port.read(1)
+                    if not byte:
+                        # Check for timeout
+                        if time.time() - start_time > self.port.timeout:
+                            break
+                        continue
+                    response.extend(byte)
+                if len(response) < expected_length + 2:
+                    logger.error(f"Incomplete read: expected {expected_length + 2} bytes, got {len(response)} bytes")
+                    raise Exception("Incomplete read")
+            crc_actual = CRCCCITT().calculate(cmd_bytes + response[:-2])
+            crc_expect = struct.unpack('>H', response[-2:])[0]
             if crc_actual != crc_expect:
                 logger.error('read crc failed')
                 raise CRCException('CRC failed')
-            return struct.unpack(fmt, return_bytes[:-2])
+            return struct.unpack(fmt, response[:-2])
         except serial.serialutil.SerialException:
             if self.auto_recover:
                 self.recover_serial()
@@ -52,13 +65,25 @@ class RoboClaw:
     def _write(self, cmd, fmt, *data):
         cmd_bytes = struct.pack('>BB', self.address, cmd)
         data_bytes = struct.pack(fmt, *data)
-        write_crc = CRCCCITT().calculate(cmd_bytes + data_bytes)
+        message = cmd_bytes + data_bytes
+        write_crc = CRCCCITT().calculate(message)
         crc_bytes = struct.pack('>H', write_crc)
         try:
             with self.serial_lock:
-                self.port.write(cmd_bytes + data_bytes + crc_bytes)
+                self.port.write(message + crc_bytes)
                 self.port.flush()
-                verification = self.port.read(1)
+                start_time = time.time()
+                verification = None
+                # Wait for the verification byte
+                while True:
+                    verification = self.port.read(1)
+                    if verification:
+                        break
+                    if time.time() - start_time > self.port.timeout:
+                        break
+                if not verification:
+                    logger.error("No verification byte received")
+                    raise Exception("No verification byte received")
             if 0xff != struct.unpack('>B', verification)[0]:
                 logger.error('write crc failed')
                 raise CRCException('CRC failed')
