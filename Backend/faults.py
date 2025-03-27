@@ -76,7 +76,7 @@ class FaultManager:
         # Read actual values using the provided methods
         actual_motor_speed = io.read_speed()  # Returns dict {motor_id: speed}
         actual_motor_position = io.read_position()  # Returns dict {motor_id: position}
-        actual_sensor_data = io.read_encoder()  # Returns dict {sensor_id: value}
+        actual_sensor_data = io.read_encoder()  # Returns int {encoder1 pos}
 
         # Fault Detection Logic
         
@@ -97,10 +97,9 @@ class FaultManager:
          
 
         # Sensor failure detection (Assumes None means failure)
-        for sensor_id, value in actual_sensor_data.items():
-            if value is None:
-                self.raise_fault(PREDEFINED_FAULTS[104])
-                self.log.warning(f"Sensor {sensor_id} failed.")
+        if actual_sensor_data is None:
+            self.raise_fault(PREDEFINED_FAULTS[104])
+            self.log.warning(f"Encoder 1 failed.")
 
         # Communication failure detection
         # if not io.is_connected():
