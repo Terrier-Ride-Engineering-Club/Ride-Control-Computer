@@ -151,7 +151,7 @@ class RoboClaw:
             cmd = 0 #Cmd.M17BIT
         else:
             cmd = Cmd.M27BIT
-        self._write(cmd, '>I', write_speed)
+        self._write(cmd, '>B', write_speed)
 
     def stop_motor(self, motor):
         if motor == 1:
