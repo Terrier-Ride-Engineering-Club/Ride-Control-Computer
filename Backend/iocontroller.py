@@ -1,17 +1,34 @@
 # IO Controller for TREC's REC Ride Control Computer
     # Made by Jackson Justus (jackjust@bu.edu)
 
+# RCC GPIO PINOUT
+ESTOP_PIN = 4
+STOP_PIN = 17
+DISPATCH_PIN = 27
+RIDE_OFF_PIN = 22
+RESTART_PIN = 23
+SERVO1_PIN = "GPIO12"
+SERVO2_PIN = "GPIO13"
+#UART_TX = 14
+#UART_RX = 15
+
 import platform
 import logging
 import serial
-from gpiozero import Device, Servo
 import serial.serialutil
+import threading
+import time
+from abc import ABC, abstractmethod
+from roboclaw import RoboClaw
+from gpiozero import Device, Servo, Button
 
 ROBOCLAW_SERIAL_PORT = "/dev/ttyS0"
 ROBOCLAW_SERIAL_ADDRESS = 38400
 SELECTED_MOTOR = 1
+USING_MOCK_PIN_FACTORY = False
 
-# Configure gpiozero by making a pin factory. On non RPi platforms, default to mock factory.
+# Configures gpiozero by making a pin factory using the lgpio library.
+# On non RPi platforms, use a mock factory to emulate functionality.
 try:
     from gpiozero.pins.lgpio import LGPIOFactory
     Device.pin_factory = LGPIOFactory()
@@ -22,14 +39,10 @@ except ModuleNotFoundError as e:
     else:
         log.warning(f"Failed to init proper gpio factory: {e} Ignore if not running on a RPi.")
         log.warning("Program will continue with a virtual pin setup.")
-    from gpiozero.pins.mock import MockFactory
-    Device.pin_factory = MockFactory()
-
-from gpiozero import Button
-import threading
-import time
-from abc import ABC, abstractmethod
-from roboclaw import RoboClaw
+    # Configuring the mock environment
+    USING_MOCK_PIN_FACTORY = True
+    from gpiozero.pins.mock import MockFactory, MockPWMPin
+    Device.pin_factory = MockFactory(pin_class=MockPWMPin) # Gives every pin PWM Functionality.
 
 
 # --- Abstract Base Class ---
@@ -191,13 +204,13 @@ class HardwareIOController(IOController):
 
         # Define GPIO pin mappings (using BCM numbering)
         self.pin_map = {
-            'estop': 4,
-            'stop': 17,
-            'dispatch': 27,
-            'ride_off': 22,
-            'restart': 23,
-            'servo1': "GPIO12",
-            'servo2': "GPIO13"
+            'estop': ESTOP_PIN,
+            'stop': STOP_PIN,
+            'dispatch': DISPATCH_PIN,
+            'ride_off': RIDE_OFF_PIN,
+            'restart': RESTART_PIN,
+            'servo1': SERVO1_PIN,
+            'servo2': SERVO2_PIN
         }
 
         # Initialize GPIO inputs as buttons (pull-down enabled by default)
