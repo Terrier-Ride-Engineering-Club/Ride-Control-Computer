@@ -76,10 +76,9 @@ class RoboClaw:
         write_crc = CRCCCITT().calculate(message)
         crc_bytes = struct.pack('>H', write_crc)
         
-        print(f"[_write] message: {message.hex()} CRC: {crc_bytes.hex()} ==> {(message + crc_bytes).hex()}")
-        
         try:
             with self.serial_lock:
+                print(f"[_write] message: {message.hex()} CRC: {crc_bytes.hex()} ==> {(message + crc_bytes).hex()}")
                 self.port.write(message + crc_bytes)
                 self.port.flush()
                 start_time = time.time()
@@ -87,6 +86,7 @@ class RoboClaw:
                 # Wait for the verification byte
                 while True:
                     verification = self.port.read(1)
+                    print(verification)
                     if verification:
                         break
                     if time.time() - start_time > self.port.timeout:
