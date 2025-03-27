@@ -231,8 +231,9 @@ class HardwareIOController(IOController):
         # Init RoboClaw
         self.log.info(f"Starting Serial communication with RoboClaw on {ROBOCLAW_SERIAL_PORT}: {ROBOCLAW_SERIAL_ADDRESS}")
         try:
-            self.mc = RoboClaw(ROBOCLAW_SERIAL_PORT, ROBOCLAW_SERIAL_ADDRESS)
-        except serial.serialutil.SerialException as e:
+            self.mc = RoboClaw(ROBOCLAW_SERIAL_PORT, ROBOCLAW_SERIAL_ADDRESS, auto_recover=False)
+        except (serial.serialutil.SerialException, FileNotFoundError, Exception) as e:
+            
             self.log.critical(f"Failed to start RoboClaw: {e}")
             self.log.critical("Creating a mock RoboClaw and ignoring any future calls.")
             class NullRoboClaw:
