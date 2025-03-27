@@ -62,12 +62,13 @@ class FaultManager:
             fault (Fault): The fault to be raised
         '''
 
-        self.active_faults.append(fault)
-        self.log_fault(fault)
+        if fault not in self.active_faults:
+            self.active_faults.append(fault)
+            self.log_fault(fault)
 
+            if fault.severity == FaultSeverity.HIGH:
+                self.faultRequiresEStop = True
 
-        if fault.severity == FaultSeverity.HIGH:
-            self.faultRequiresEStop = True
 
     def check_faults(self, io: IOController, rmc):
         """
@@ -83,6 +84,8 @@ class FaultManager:
         # Emergency stop detection
         if io.read_estop():
             self.raise_fault(PREDEFINED_FAULTS[101])
+        else:
+            self.clear_fault(PREDEFINED_FAULTS[101].code)
 
         # Power failure detection
         # voltages = io.read_voltages()  
@@ -99,7 +102,8 @@ class FaultManager:
         # Sensor failure detection (Assumes None means failure)
         if actual_sensor_data is None:
             self.raise_fault(PREDEFINED_FAULTS[104])
-            self.log.warning(f"Encoder 1 failed.")
+        else:
+            self.clear_fault(PREDEFINED_FAULTS[104].code)
 
         # Communication failure detection
         # if not io.is_connected():
@@ -128,11 +132,11 @@ class FaultManager:
 
     def log_fault(self, fault: Fault):
         if fault.severity == FaultSeverity.LOW:
-            self.log.warning(f"FAULT DETECTED: {fault}")
+            self.log.warning(f"{fault}")
         elif fault.severity == FaultSeverity.MEDIUM:
-            self.log.error(f"FAULT DETECTED: {fault}")
+            self.log.error(f"{fault}")
         elif fault.severity == FaultSeverity.HIGH:
-            self.log.critical(f"FAULT DETECTED: {fault}")
+            self.log.critical(f"{fault}")
 
     def clear_all_faults(self):
         self.active_faults.clear()
@@ -145,10 +149,16 @@ class FaultManager:
         Returns:
             bool: Whether the fault was successfully cleared.
         '''
+        # self.log.debug(f'Attempting to clear Fault #{faultCodeToClear}')
 
         for activeFault in self.active_faults[:]:  # Iterate over a copy
             if activeFault.code == faultCodeToClear:
                 self.active_faults.remove(activeFault)
                 self.log.info(f'Fault #{faultCodeToClear} Cleared')
+                if activeFault.severity == FaultSeverity.HIGH:
+                    # Check if any other HIGH severity faults remain
+                    if not any(f.severity == FaultSeverity.HIGH for f in self.active_faults):
+                        self.faultRequiresEStop = False
+
                 return True
         return False
