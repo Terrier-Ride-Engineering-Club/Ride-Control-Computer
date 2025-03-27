@@ -76,7 +76,7 @@ class RoboClaw:
         write_crc = CRCCCITT().calculate(message)
         crc_bytes = struct.pack('>H', write_crc)
         
-        print(f"[_write] message: {message.hex()} CRC: {crc_bytes.hex()} ==> {message + crc_bytes}")
+        print(f"[_write] message: {message.hex()} CRC: {crc_bytes.hex()} ==> {(message + crc_bytes).hex()}")
         
         try:
             with self.serial_lock:
