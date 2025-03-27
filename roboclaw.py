@@ -14,7 +14,7 @@ logger.setLevel(logging.WARNING)
 
 class RoboClaw:
     def __init__(self, port, address, auto_recover=False, **kwargs):
-        self.port = serial.Serial(baudrate=38400, timeout=0.1, interCharTimeout=0.01)
+        self.port = serial.Serial(baudrate=38400, timeout=1, interCharTimeout=0.01)
         self.port.port = port
         self.address = address
         self.serial_lock = Lock()
@@ -76,7 +76,7 @@ class RoboClaw:
         write_crc = CRCCCITT().calculate(message)
         crc_bytes = struct.pack('>H', write_crc)
         
-        print(f"[_write] message: {message.hex()} CRC: {crc_bytes.hex()}")
+        print(f"[_write] message: {message.hex()} CRC: {crc_bytes.hex()} ==> {message + crc_bytes}")
         
         try:
             with self.serial_lock:
