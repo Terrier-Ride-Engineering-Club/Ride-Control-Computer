@@ -68,7 +68,7 @@ class IOController(ABC):
         pass
 
     @abstractmethod
-    def read_ride_off(self) -> bool:
+    def read_ride_on_off(self) -> bool:
         """Return the state of the RIDE OFF input."""
         pass
 
@@ -256,7 +256,7 @@ class HardwareIOController(IOController):
     def read_dispatch(self) -> bool:
         return self.dispatch_button.is_pressed
 
-    def read_ride_off(self) -> bool:
+    def read_ride_on_off(self) -> bool:
         return self.ride_off_button.is_pressed
 
     def read_restart(self) -> bool:
@@ -343,7 +343,7 @@ class WebIOController(IOController):
     def read_dispatch(self) -> bool:
         return self._dispatch
 
-    def read_ride_off(self) -> bool:
+    def read_ride_on_off(self) -> bool:
         return self._ride_off
 
     def read_restart(self) -> bool:

@@ -75,7 +75,7 @@ class RideWebServer:
             'ESTOP': self.rcc.io.read_estop(),
             'STOP': self.rcc.io.read_stop(),
             'DISPATCH': self.rcc.io.read_dispatch(),
-            'RIDE_OFF': self.rcc.io.read_ride_off(),
+            'RIDE_OFF': self.rcc.io.read_ride_on_off(),
             'RESTART': self.rcc.io.read_restart(),
         })
 

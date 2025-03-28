@@ -16,12 +16,22 @@ class State():
     def on_event(self, event: Event) -> State:
         """
         Handle events that are delegated to this State.
-        Should be called by the state machine when an event occurs.
+        Should be called by the state machine when an event occurs (EX: an IO action).
+        
+        If a state transition is required by the event passed in, 
+        this method will call _on_exit() for this state, _on_enter() for the new state,
+        and then return the new state.
 
         Returns:
-            State - The state that we are entering.
+            State - The new state that we are entering. Self if no transition is required
         """
         raise NotImplementedError('Must Implement on_event in state subclass')
+    
+    def run(self):
+        """
+        Logic to run while the RCC is in this state.
+        """
+        pass
 
     def _transition(self, new_state: 'State') -> 'State':
         """
