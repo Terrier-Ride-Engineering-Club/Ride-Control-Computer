@@ -3,8 +3,39 @@
 {% block title %}Maintenance Mode{% endblock %}
 
 {% block content %}
-  <div class="my-5 text-center">
-    <h1>We'll be back soon!</h1>
-    <p>Our website is currently undergoing maintenance. Please check back later.</p>
-  </div>
+<nav aria-label="...">
+  <ul class="pagination pagination-lg my-1 justify-content-center">
+    <li class="page-item"><a id="maintenanceButton" class="page-link" href="/control">Controls</a>
+      <!-- <span class="page-link" href="/controls#">Controls</span> -->
+    </li>
+    <li class="page-item active">
+      <span class="page-link" aria-current="page">Maintenance</span>
+    </li>
+  </ul>
+</nav>
+<div class="container mt-4">
+   <h2>RCC Server Logs</h2>
+   <pre id="logContainer" style="background-color: #f8f9fa; padding: 1em; border: 1px solid #dee2e6; height: 300px; overflow-y: scroll;"></pre>
+</div>
+
+<script>
+  function fetchLogs() {
+    fetch('/api/logs')
+      .then(response => response.json())
+      .then(data => {
+         var logContainer = document.getElementById('logContainer');
+         var shouldScroll = logContainer.scrollTop + logContainer.clientHeight >= logContainer.scrollHeight - 50;
+         logContainer.textContent = data.logs.join('\n');
+         if (shouldScroll) {
+           logContainer.scrollTop = logContainer.scrollHeight;
+         }
+      })
+      .catch(error => {
+         console.error('Error fetching logs:', error);
+      });
+  }
+  // Fetch logs immediately and then every 5 seconds
+  fetchLogs();
+  setInterval(fetchLogs, 100);
+</script>
 {% endblock %}

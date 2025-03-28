@@ -29,7 +29,7 @@
       <li class="page-item active" aria-current="page">
         <span class="page-link"√>Controls</span>
       </li>
-      <li class="page-item"><a class="page-link" href="#">Maintenance</a></li>
+      <li class="page-item"><a id="maintenanceButton" class="page-link" href="/maintenance#">Maintenance</a></li>
     </ul>
   </nav>
 
@@ -204,6 +204,10 @@
       } catch (error) {
         console.error('Error toggling web controls:', error);
       }
+    });
+
+    document.getElementById('maintenanceButton').addEventListener('click', async () => {
+      console.log("Maintenance button clicked");
     });
 
     // Function to update status by fetching from /status endpoint
