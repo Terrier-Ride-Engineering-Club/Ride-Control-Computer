@@ -1,6 +1,10 @@
-from __future__ import annotations  # Ensures forward references work in Python 3.9+
+# State Machine class for TREC's REC Ride Control Computer
+    # Jackson Justus (jackjust@bu.edu)
 
-class State(object):
+from __future__ import annotations  # Ensures forward references work in Python 3.9+
+from event import Event
+
+class State():
     """
     We define a state object which provides some utility functions for the
     individual states within the state machine.
@@ -9,7 +13,7 @@ class State(object):
     def __init__(self):
         print(f'Processing current state: {str(self)}')
 
-    def on_event(self, event) -> State:
+    def on_event(self, event: Event) -> State:
         """
         Handle events that are delegated to this State.
 
@@ -31,66 +35,24 @@ class State(object):
         return self.__class__.__name__
 
 
-#mystates.py
-class OffState(State):
-    """
-    Description of state
-    """
 
-    def on_event(self, event):
-        if event == 'estop_pressed':
-            return EstoppedState()
-        return self
+# class RideControlComputerMachine(object):
+#     """ 
+#     A Ride Control Computer State Machine
+#     """
 
-class EstoppedState(State):
-    """
-    Description of state
-    """
-    def on_event(self, event):
-        pass
+#     def __init__(self):
+#         """ Initialize the components. """
 
-class IdleState(State):
-    """
-    Description of state
-    """
-    def on_event(self, event):
-        pass
-    
+#         # Start with a default state.
+#         self.state = OffState()
 
-class ResettingState(State):
-    """
-    Description of state
-    """
-    def on_event(self, event):
-        pass
+#     def on_event(self, event):
+#         """
+#         This is the bread and butter of the state machine. Incoming events are
+#         delegated to the given states which then handle the event. The result is
+#         then assigned as the new state.
+#         """
 
-class RunningState(State):
-    """
-    Description of state
-    """
-    def on_event(self, event):
-        pass
-
-    
-# simple_device.py
-
-class RideControlComputerMachine(object):
-    """ 
-    A Ride Control Computer State Machine
-    """
-
-    def __init__(self):
-        """ Initialize the components. """
-
-        # Start with a default state.
-        self.state = OffState()
-
-    def on_event(self, event):
-        """
-        This is the bread and butter of the state machine. Incoming events are
-        delegated to the given states which then handle the event. The result is
-        then assigned as the new state.
-        """
-
-        # The next state will be the result of the on_event function.
-        self.state = self.state.on_event(event)
+#         # The next state will be the result of the on_event function.
+#         self.state = self.state.on_event(event)

@@ -1,4 +1,13 @@
 {
     "liveServer.settings.multiRootWorkspaceName": "Ride-Control-Computer",
-    "liveServer.settings.port": 23844
+    "liveServer.settings.port": 23844,
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./tests",
+        "-p",
+        "test_*.py"
+    ],
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": true
 }
