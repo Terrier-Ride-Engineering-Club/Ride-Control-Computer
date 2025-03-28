@@ -38,7 +38,7 @@ class TestFaultManager(unittest.TestCase):
         fault = Fault(code=1, message="Low severity", severity=FaultSeverity.LOW)
         self.fm.raise_fault(fault)
         self.assertIn(fault, self.fm.active_faults)
-        self.fm.log.warning.assert_called_once_with(f"FAULT DETECTED: {fault}")
+        self.fm.log.warning.assert_called_once_with(f"{fault}")
         self.assertFalse(self.fm.faultRequiresEStop)
 
     def test_raise_fault_medium(self):
@@ -46,7 +46,7 @@ class TestFaultManager(unittest.TestCase):
         fault = Fault(code=2, message="Medium severity", severity=FaultSeverity.MEDIUM)
         self.fm.raise_fault(fault)
         self.assertIn(fault, self.fm.active_faults)
-        self.fm.log.error.assert_called_once_with(f"FAULT DETECTED: {fault}")
+        self.fm.log.error.assert_called_once_with(f"{fault}")
         self.assertFalse(self.fm.faultRequiresEStop)
 
     def test_raise_fault_high(self):
@@ -54,7 +54,7 @@ class TestFaultManager(unittest.TestCase):
         fault = Fault(code=3, message="High severity", severity=FaultSeverity.HIGH)
         self.fm.raise_fault(fault)
         self.assertIn(fault, self.fm.active_faults)
-        self.fm.log.critical.assert_called_once_with(f"FAULT DETECTED: {fault}")
+        self.fm.log.critical.assert_called_once_with(f"{fault}")
         self.assertTrue(self.fm.faultRequiresEStop)
 
     def test_clear_fault_success(self):
