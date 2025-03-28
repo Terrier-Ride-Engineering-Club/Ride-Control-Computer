@@ -5,7 +5,7 @@
 ESTOP_PIN = 4
 STOP_PIN = 17
 DISPATCH_PIN = 27
-RIDE_OFF_PIN = 22
+RIDE_ONOFF_PIN = 22
 RESTART_PIN = 23
 SERVO1_PIN = "GPIO12"
 SERVO2_PIN = "GPIO13"
@@ -51,6 +51,29 @@ class IOController(ABC):
     Abstract base class for IO Controllers.
     Defines the required methods for reading control states and performing system-level actions.
     """
+
+    estop_button: Button
+    stop_button: Button
+    dispatch_button: Button
+    ride_onoff_button: Button
+    reset_button: Button
+    servo1: Servo
+    servo2: Servo
+
+    def attach_on_press(self, button_name: str, func_call: callable):
+        """Attaches a function call to be called when a specified button is pressed."""
+        if button_name == "estop":
+            self.estop_button.when_activated = func_call
+        elif button_name == "stop":
+            self.stop_button.when_activated = func_call
+        elif button_name == "dispatch":
+            self.dispatch_button.when_activated = func_call
+        elif button_name == "rideonoff":
+            self.ride_onoff_button.when_activated = func_call
+        elif button_name == "reset":
+            self.reset_button.when_activated = func_call
+        else:
+            self.log.error(f"Button {button_name} not found for method attach_on_press().")
 
     @abstractmethod
     def read_estop(self) -> bool:
@@ -202,28 +225,17 @@ class HardwareIOController(IOController):
     def __init__(self):
         self.log = logging.getLogger('IOController')
 
-        # Define GPIO pin mappings (using BCM numbering)
-        self.pin_map = {
-            'estop': ESTOP_PIN,
-            'stop': STOP_PIN,
-            'dispatch': DISPATCH_PIN,
-            'ride_off': RIDE_OFF_PIN,
-            'restart': RESTART_PIN,
-            'servo1': SERVO1_PIN,
-            'servo2': SERVO2_PIN
-        }
-
         # Initialize GPIO inputs as buttons (pull-down enabled by default)
-        self.estop_button = Button(self.pin_map['estop'], pull_up=False)
-        self.stop_button = Button(self.pin_map['stop'], pull_up=False)
-        self.dispatch_button = Button(self.pin_map['dispatch'], pull_up=False)
-        self.ride_off_button = Button(self.pin_map['ride_off'], pull_up=False)
-        self.restart_button = Button(self.pin_map['restart'], pull_up=False)
-        self.servo1 = Servo(pin=self.pin_map['servo1'])
+        self.estop_button = Button(ESTOP_PIN, pull_up=False)
+        self.stop_button = Button(STOP_PIN, pull_up=False)
+        self.dispatch_button = Button(DISPATCH_PIN, pull_up=False)
+        self.ride_onoff_button = Button(RIDE_ONOFF_PIN, pull_up=False)
+        self.reset_button = Button(RESTART_PIN, pull_up=False)
+        self.servo1 = Servo(pin=SERVO1_PIN)
                     # min_pulse_width=600/1_000_000,   # 0.0006
                     # max_pulse_width=2400/1_000_000,  # 0.0024
                     # frame_width=20/1000)             # 0.02 (20 ms standard servo frame)
-        self.servo2 = Servo(pin=self.pin_map['servo2'])
+        self.servo2 = Servo(pin=SERVO2_PIN)
                     # min_pulse_width=600/1_000_000,   # 0.0006
                     # max_pulse_width=2400/1_000_000,  # 0.0024
                     # frame_width=20/1000)             # 0.02 (20 ms standard servo frame)
@@ -242,8 +254,6 @@ class HardwareIOController(IOController):
                     return lambda *args, **kwargs: None
             self.mc = NullRoboClaw()
 
-        
-
         self.log.info("Finished Initializing Hardware IOController!")
 
     # --- Hardware Read Methods ---
@@ -257,10 +267,10 @@ class HardwareIOController(IOController):
         return self.dispatch_button.is_pressed
 
     def read_ride_on_off(self) -> bool:
-        return self.ride_off_button.is_pressed
+        return self.ride_onoff_button.is_pressed
 
     def read_restart(self) -> bool:
-        return self.restart_button.is_pressed
+        return self.reset_button.is_pressed
 
     # --- System-Level Functions ---
     def terminate_power(self):
@@ -323,31 +333,22 @@ class WebIOController(IOController):
     This class manages internal simulated states and mimics button presses without affecting the hardware.
     Optionally, it can wrap an IOController instance to trigger real hardware actions when needed.
     """
-    def __init__(self, io_controller: HardwareIOController = None):
-        self.io_controller = io_controller  # Optional, if you want to delegate to hardware actions
-        self.log = logging.getLogger('IOControllerSimulator')
+    def __init__(self):
+        self.log = logging.getLogger('WebIOController')
+        mock = MockFactory(pin_class=MockPWMPin)
+        self.estop_button = Button(ESTOP_PIN, pull_up=False, pin_factory=mock)
+        self.stop_button = Button(STOP_PIN, pull_up=False, pin_factory=mock)
+        self.dispatch_button = Button(DISPATCH_PIN, pull_up=False, pin_factory=mock)
+        self.ride_onoff_button = Button(RIDE_ONOFF_PIN, pull_up=False, pin_factory=mock)
+        self.reset_button = Button(RESTART_PIN, pull_up=False, pin_factory=mock)
+        self.servo1 = Servo(pin=SERVO1_PIN, pin_factory=mock)
+        self.servo2 = Servo(pin=SERVO2_PIN, pin_factory=mock)
 
-        # Internal simulated states
-        self._estop = False
-        self._stop = False
-        self._dispatch = False
-        self._ride_off = False
-        self._restart = False
-
-    def read_estop(self) -> bool:
-        return self._estop
-
-    def read_stop(self) -> bool:
-        return self._stop
-
-    def read_dispatch(self) -> bool:
-        return self._dispatch
-
-    def read_ride_on_off(self) -> bool:
-        return self._ride_off
-
-    def read_restart(self) -> bool:
-        return self._restart
+    def read_estop(self) -> bool: return self.estop_button.is_active
+    def read_stop(self) -> bool: return self.stop_button.is_active
+    def read_dispatch(self) -> bool: return self.dispatch_button.is_active
+    def read_ride_on_off(self) -> bool: return self.ride_onoff_button.is_active
+    def read_restart(self) -> bool: return self.reset_button.is_active
     
     def enable_motors(self):
         pass
@@ -359,43 +360,49 @@ class WebIOController(IOController):
         pass
 
     # --- Simulation Methods ---
-    def simulate_estop(self):
+    def simulate_estop_toggle(self):
         """Simulate toggling the ESTOP for testing purposes."""
-        self._estop = not self._estop
-        self.log.info(f"Simulated ESTOP toggled to {self._estop}")
+        if self.estop_button.is_active:
+            self.estop_button.pin.drive_low()
+        else:
+            self.estop_button.pin.drive_high()
+        self.log.info(f"Simulated ESTOP pressed")
 
-    def simulate_stop(self):
+    def simulate_stop_toggle(self):
         """Simulate toggling the STOP for testing purposes."""
-        self._stop = not self._stop
-        self.log.info(f"Simulated STOP toggled to {self._stop}")
+        if self.stop_button.is_active:
+            self.stop_button.pin.drive_low()
+        else:
+            self.stop_button.pin.drive_high()
+        self.log.info(f"Simulated STOP pressed")
 
     def simulate_dispatch(self):
         """Simulate a dispatch press (active for one second)."""
         def press_and_release():
-            self._dispatch = True
+            self.dispatch_button.pin.drive_high()
             self.log.info("Simulated DISPATCH pressed.")
             time.sleep(1)
-            self._dispatch = False
+            self.dispatch_button.pin.drive_low()
             self.log.info("Simulated DISPATCH released.")
         threading.Thread(target=press_and_release, daemon=True).start()
 
     def simulate_ride_off(self):
         """Simulate a ride off press (active for one second)."""
         def press_and_release():
-            self._ride_off = True
+            self.ride_onoff_button.pin.drive_high()
             self.log.info("Simulated RIDE OFF pressed.")
             time.sleep(1)
-            self._ride_off = False
+            self.ride_onoff_button.pin.drive_low()
             self.log.info("Simulated RIDE OFF released.")
         threading.Thread(target=press_and_release, daemon=True).start()
 
-    def simulate_restart(self):
+    def simulate_reset(self):
         """Simulate a restart press (active for one second)."""
         def press_and_release():
-            self._restart = True
+            self.reset_button.pin.drive_high()
             self.log.info("Simulated RESTART pressed.")
             time.sleep(1)
-            self._restart = False
+            self.reset_button.pin.drive_low()
             self.log.info("Simulated RESTART released.")
         threading.Thread(target=press_and_release, daemon=True).start()
 
@@ -436,17 +443,26 @@ class WebIOController(IOController):
 
 
 
-
 if __name__ == "__main__":
+    from gpiozero import Button
+    from gpiozero.pins.mock import MockFactory
 
-    io = HardwareIOController()
+    # Create a mock pin factory
+    mock_factory = MockFactory()
 
-    while True:
-        io.servo1.min()
-        io.servo2.min()
-        print('min')
-        time.sleep(2)
-        io.servo1.max()
-        io.servo2.max()
-        print('max')
-        time.sleep(2)
+    # Create a mock button on pin 1 using the mock factory
+    button = Button(1, pin_factory=mock_factory)
+
+    # Check the initial state (usually not pressed)
+    print("Initial button state:", button.is_pressed)
+
+    button.when_activated = lambda: print("PRESSED")
+
+    # To simulate a button press, you can change the state of the underlying pin.
+    # For instance, if your button is active-low, you might drive the pin low to simulate a press:
+    button.pin.drive_low()  # simulate press
+    print("Button state after press simulation:", button.is_pressed)
+
+    # And then drive the pin high to simulate a release:
+    button.pin.drive_high()  # simulate release
+    print("Button state after release simulation:", button.is_pressed)

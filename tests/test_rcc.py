@@ -2,7 +2,7 @@
     # Made by Jackson Justus (jackjust@bu.edu)
 
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, PropertyMock, patch
 from ridecontrolcomputer import RideControlComputer, State
 from Backend.iocontroller import HardwareIOController, WebIOController
 from Backend.states import *
@@ -56,16 +56,15 @@ class TestRideControlComputer(unittest.TestCase):
         self.assertIsInstance(self.rcc.state, EstoppedState)
 
     def test_stop_input_sets_idle(self):
-        # Simulate Stop input and check that the state transitions to IDLE.
-        self.rcc.io.read_stop.return_value = True
         self.rcc.state = RunningState()
+        self.rcc.io.stop_button.when_activated()
         self.rcc.update()
         self.assertIsInstance(self.rcc.state, IdleState)
 
     def test_reset_logic_from_estopped(self):
         # From ESTOPPED, a Reset should transition to RESETTING.
         self.rcc.state = EstoppedState()
-        self.rcc.io.read_restart.return_value = True
+        self.rcc.io.reset_button.when_activated()
         self.rcc.update()
         self.assertIsInstance(self.rcc.state, ResettingState)
 
@@ -80,21 +79,21 @@ class TestRideControlComputer(unittest.TestCase):
     def test_ride_off_transitions_to_off(self):
         # In IDLE, if RideOff input is true, the state should transition to OFF.
         self.rcc.state = IdleState()
-        self.rcc.io.read_ride_on_off.return_value = True
+        self.rcc.io.ride_onoff_button.when_activated()
         self.rcc.update()
         self.assertIsInstance(self.rcc.state, OffState)
 
     def test_dispatch_transitions_to_running(self):
         # In IDLE, if Dispatch input is true, the state should transition to RUNNING.
         self.rcc.state = IdleState()
-        self.rcc.io.read_dispatch.return_value = True
+        self.rcc.io.dispatch_button.when_activated()
         self.rcc.update()
         self.assertIsInstance(self.rcc.state, RunningState)
 
     def test_running_to_idle_on_stop(self):
         # In RUNNING state, if Stop is activated, the state should revert to IDLE.
         self.rcc.state = RunningState()
-        self.rcc.io.read_stop.return_value = True
+        self.rcc.io.stop_button.when_activated()
         self.rcc.update()
         self.assertIsInstance(self.rcc.state, IdleState)
 

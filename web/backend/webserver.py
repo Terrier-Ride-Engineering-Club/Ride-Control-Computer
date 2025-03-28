@@ -88,12 +88,12 @@ class RideWebServer:
 
     def trigger_estop(self):
         """Manually trigger an emergency stop via the web API."""
-        self.rcc.io.simulate_estop()  # Call the method in IOController
+        self.rcc.io.simulate_estop_toggle()  # Call the method in IOController
         return jsonify({'message': 'ESTOP triggered'}), 200
 
     def stop_ride(self):
         """Stop ride safely while prioritizing rider comfort."""
-        self.rcc.io.simulate_stop()  # Call the method in IOController
+        self.rcc.io.simulate_stop_toggle()  # Call the method in IOController
         return jsonify({'message': 'Ride stopping safely'}), 200
 
     def dispatch_ride(self):
@@ -108,7 +108,7 @@ class RideWebServer:
 
     def restart_ride(self):
         """Return ride to operation mode after ESTOP or stop."""
-        self.rcc.io.simulate_restart()  # Call the method in IOController
+        self.rcc.io.simulate_reset()  # Call the method in IOController
         return jsonify({'message': 'Ride restarted and ready'}), 200
     
     def toggle_webserver_control(self):

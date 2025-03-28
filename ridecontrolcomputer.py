@@ -33,9 +33,6 @@ class RideControlComputer():
         Should NOT initialize any functions. This is left for the initialize() func.
         '''
         # Init vars to safe position
-        self.EStop = False
-        self.OnSwitchActive = False
-        self.Reset = False
         self.state = OffState()
         self.initialized = False
         self.ioControllerType = 'web' if useWebIOController else 'hardware'
@@ -57,10 +54,23 @@ class RideControlComputer():
         else:
             self.io = WebIOController()
 
+        # Attach callback methods to io funcs
+        def handle_io_estop(): self.state = self.state.on_event(EStopPressed())
+        def handle_io_stop(): self.state = self.state.on_event(StopPressed())
+        def handle_io_dispatch(): self.state = self.state.on_event(DispatchedPressed())
+        def handle_io_ride_on_off(): self.state = self.state.on_event(RideOnOffPressed())
+        def handle_io_reset(): self.state = self.state.on_event(ResetPressed())
+        self.io.attach_on_press("estop", handle_io_estop)
+        self.io.attach_on_press("stop", handle_io_stop)
+        self.io.attach_on_press("dispatch", handle_io_dispatch)
+        self.io.attach_on_press("rideonoff", handle_io_ride_on_off)
+        self.io.attach_on_press("reset", handle_io_reset)
+
         # Initialize Ride Motion Controller
         self.rmc = RideMotionController()
 
         self.initialized = True
+        self.log.info(f"Ride Control Computer Initialized!")
 
     def start(self):
         '''
@@ -75,29 +85,18 @@ class RideControlComputer():
     def update(self):
         '''
         Main logic update loop.
-        It should be called as often as possible
+        It should be called as often as possible.
+
+        NOTE: IO events automatically call their respective states when pressed. 
+        NOTE: See initialize() for more info.
         '''
-        # Read input flags
-        estop_active = self.is_estop_active()
-        stop_active = self.io.read_stop()
-        ride_on_off_active = self.io.read_ride_on_off()
-        reset_active = self.io.read_restart()
-        dispatch_active = self.io.read_dispatch()
 
         # **Check for faults using sensor and encoder comparisons**
         self.fault_manager.check_faults(self.io, self.rmc)
 
-        # Process events in fixed priority order: EStop, Stop, RideOnOff, Reset, Dispatch
-        if estop_active:
+        # Process non-io events.
+        if self.is_estop_active():
             self.state = self.state.on_event(EStopPressed())
-        if stop_active:
-            self.state = self.state.on_event(StopPressed())
-        if ride_on_off_active:
-            self.state = self.state.on_event(RideOnOffPressed())
-        if reset_active:
-            self.state = self.state.on_event(ResetPressed())
-        if dispatch_active:
-            self.state = self.state.on_event(DispatchedPressed())
 
         # **Execute state-specific actions**
         self.state.run()
