@@ -7,8 +7,10 @@ class OffState(State):
     """
 
     def on_event(self, event):
-        if event is RideOnOffPressed:
-            return IdleState()
+        print('yum')
+        if type(event) is RideOnOffPressed:
+            print('transiitonsing')
+            return self._transition(IdleState())
         return self
 
 class IdleState(State):
@@ -16,12 +18,12 @@ class IdleState(State):
     Description of state
     """
     def on_event(self, event):
-        if event is RideOnOffPressed:
-            return OffState()
-        if event is EStopPressed:
-            return EstoppedState()
-        if event is DispatchedPressed:
-            return RunningState()
+        if type(event) is RideOnOffPressed:
+            return self._transition(OffState())
+        if type(event) is EStopPressed:
+            return self._transition(EstoppedState())
+        if type(event) is DispatchedPressed:
+            return self._transition(RunningState())
         return self
     
 class EstoppedState(State):
@@ -29,8 +31,8 @@ class EstoppedState(State):
     EStopped State
     """
     def on_event(self, event):
-        if event is ResetPressed:
-            return ResettingState()
+        if type(event) is ResetPressed:
+            return self._transition(ResettingState())
         return self
 
 class ResettingState(State):
@@ -38,8 +40,8 @@ class ResettingState(State):
     Description of state
     """
     def on_event(self, event):
-        if event is EStopPressed:
-            return EstoppedState()
+        if type(event) is EStopPressed:
+            return self._transition(EstoppedState())
         return self
 
 class RunningState(State):
@@ -47,10 +49,15 @@ class RunningState(State):
     Description of state
     """
     def on_event(self, event):
-        if event is StopPressed:
-            return IdleState()
-        if event is EStopPressed:
-            return EstoppedState()
+        if type(event) is StopPressed:
+            return self._transition(IdleState())
+        if type(event) is EStopPressed:
+            return self._transition(EstoppedState())
         return self
 
     
+
+if __name__ == "__main__":
+    originalState = OffState()
+    newState = originalState.on_event(RideOnOffPressed())
+    print(f"{originalState} -> {newState}")

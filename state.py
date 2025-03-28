@@ -16,11 +16,34 @@ class State():
     def on_event(self, event: Event) -> State:
         """
         Handle events that are delegated to this State.
+        Should be called by the state machine when an event occurs.
 
         Returns:
             State - The state that we are entering.
         """
         raise NotImplementedError('Must Implement on_event in state subclass')
+
+    def _transition(self, new_state: 'State') -> 'State':
+        """
+        If transitioning to a new state, run the exit logic on the current
+        state and the enter logic on the new state.
+        """
+        if new_state is not self:
+            self._on_exit()
+            new_state._on_enter()
+        return new_state
+
+    def _on_enter(self):
+        """
+        Logic to execute when entering this state.
+        """
+        pass
+
+    def _on_exit(self):
+        """
+        Logic to execute when exiting this state.
+        """
+        pass
 
     def __repr__(self):
         """
