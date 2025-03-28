@@ -2,7 +2,7 @@
     # Jackson Justus (jackjust@bu.edu)
 
 from __future__ import annotations  # Ensures forward references work in Python 3.9+
-from event import Event
+from Backend.event import Event
 
 class State():
     """

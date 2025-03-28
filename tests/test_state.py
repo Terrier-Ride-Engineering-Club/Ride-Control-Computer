@@ -3,7 +3,7 @@ from unittest.mock import patch, call, MagicMock
 
 # Import states and events
 from Backend.states import OffState, IdleState, EstoppedState, ResettingState, RunningState
-from event import RideOnOffPressed, EStopPressed, DispatchedPressed, ResetPressed, StopPressed
+from Backend.event import RideOnOffPressed, EStopPressed, DispatchedPressed, ResetPressed, StopPressed
 
 class TestStateTransitions(unittest.TestCase):
 
