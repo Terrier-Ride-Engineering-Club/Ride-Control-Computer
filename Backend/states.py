@@ -7,9 +7,7 @@ class OffState(State):
     """
 
     def on_event(self, event):
-        print('yum')
         if type(event) is RideOnOffPressed:
-            print('transiitonsing')
             return self._transition(IdleState())
         return self
 

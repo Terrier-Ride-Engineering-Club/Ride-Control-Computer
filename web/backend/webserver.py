@@ -71,7 +71,7 @@ class RideWebServer:
         """Return the current status of the ride system, including all button states."""
         return jsonify({
             'controlType': self.rcc.ioControllerType,
-            'state': self.rcc.state.name,
+            'state': self.rcc.state.__str__(),
             'ESTOP': self.rcc.io.read_estop(),
             'STOP': self.rcc.io.read_stop(),
             'DISPATCH': self.rcc.io.read_dispatch(),

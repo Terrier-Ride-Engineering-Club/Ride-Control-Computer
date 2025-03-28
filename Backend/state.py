@@ -3,6 +3,8 @@
 
 from __future__ import annotations  # Ensures forward references work in Python 3.9+
 from Backend.event import Event
+import logging
+log = logging.getLogger('StateMachine')
 
 class State():
     """
@@ -11,7 +13,7 @@ class State():
     """
 
     def __init__(self):
-        print(f'Processing current state: {str(self)}')
+        pass
 
     def on_event(self, event: Event) -> State:
         """
@@ -39,6 +41,7 @@ class State():
         state and the enter logic on the new state.
         """
         if new_state is not self:
+            log.info(f'Transitioning from {self.get_name()} to {new_state.get_name()}')
             self._on_exit()
             new_state._on_enter()
         return new_state
@@ -54,6 +57,9 @@ class State():
         Logic to execute when exiting this state.
         """
         pass
+
+    def get_name(self):
+        return self.__class__.__name__
 
     def __repr__(self):
         """
