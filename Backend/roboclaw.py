@@ -239,6 +239,62 @@ class RoboClaw:
         cmd = 119
         self._write(cmd, '>iB', position, buffer)
 
+
+    def set_position_pid_constants(self, d=0, p=0, i=0, maxi=0, deadzone=0, min_pos=0, max_pos=0):
+        """
+        Set the Position PID constants used for the position control commands.
+
+        The Position PID system consists of seven constants:
+            - D: Derivative constant (4 bytes, unsigned)
+            - P: Proportional constant (4 bytes, unsigned)
+            - I: Integral constant (4 bytes, unsigned)
+            - MaxI: Maximum integral windup (4 bytes, unsigned)
+            - Deadzone: Deadzone in encoder counts (4 bytes, unsigned)
+            - MinPos: Minimum Position (4 bytes, signed)
+            - MaxPos: Maximum Position (4 bytes, signed)
+
+        Default values for all constants are 0.
+
+        Serial format:
+            Send: [Address, 61, D(4 bytes), P(4 bytes), I(4 bytes), MaxI(4 bytes),
+                   Deadzone(4 bytes), MinPos(4 bytes), MaxPos(4 bytes), CRC(2 bytes)]
+            Receive: [0xFF]
+        """
+        cmd = 61
+        # Format string: 5 unsigned ints followed by 2 signed ints.
+        self._write(cmd, '>IIIIIii', d, p, i, maxi, deadzone, min_pos, max_pos)
+    
+    def read_position_pid_constants(self):
+        """
+        Read Motor 1 Position PID Constants.
+    
+        Serial:
+            Send: [Address, 63]
+            Receive: [P(4 bytes), I(4 bytes), D(4 bytes), MaxI(4 bytes), Deadzone(4 bytes),
+                      MinPos(4 bytes), MaxPos(4 bytes), CRC(2 bytes)]
+    
+        Returns:
+            A dictionary containing the Position PID constants:
+                - "P": Proportional constant (4 bytes, unsigned)
+                - "I": Integral constant (4 bytes, unsigned)
+                - "D": Derivative constant (4 bytes, unsigned)
+                - "MaxI": Maximum Integral windup (4 bytes, unsigned)
+                - "Deadzone": Deadzone in encoder counts (4 bytes, unsigned)
+                - "MinPos": Minimum Position (4 bytes, signed)
+                - "MaxPos": Maximum Position (4 bytes, signed)
+        """
+        cmd = 63
+        pid_vals = self._read(cmd, '>IIIIIii')
+        return {
+            "P": pid_vals[0],
+            "I": pid_vals[1],
+            "D": pid_vals[2],
+            "MaxI": pid_vals[3],
+            "Deadzone": pid_vals[4],
+            "MinPos": pid_vals[5],
+            "MaxPos": pid_vals[6]
+        }
+
     def read_encoder(self, motor):
         # Currently, this function doesn't check over/underflow, which is fine since we're using pots.
         if motor == 1:

@@ -85,6 +85,10 @@ if __name__ == "__main__":
             print(f"STATUS: {mc.read_status()}")
             print(f"ENC POS: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
             print(f"READ RANGE: {mc.read_range(1)}")
+            print(f"READ PID: {mc.read_position_pid_constants()}")
+            print(f"SET PID...{mc.set_position_pid_constants(0,3.61849,0,0,0,0,10000)}")
+            print(f"READ PID: {mc.read_position_pid_constants()}")
+            print(f"READ RANGE: {mc.read_range(1)}")
             start_time = time()
             while time() - start_time < 10:
                 # mc.drive_to_position_with_speed_acceleration_deceleration(1, HOME_POSITION, FAST_SPEED_QPPS, FAST_SPEED_QPPS, SLOW_SPEED_QPPS)
