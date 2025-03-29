@@ -78,7 +78,7 @@ if __name__ == "__main__":
             print(f"STATUS: {mc.read_status()}")
             start_time = time()
             while time() - start_time < 2:
-                mc.set_speed_with_acceleration(1, SLOW_SPEED_QPPS, SLOW_SPEED_QPPS)
+                mc.set_speed_with_acceleration(1, -FAST_SPEED_QPPS, FAST_SPEED_QPPS)
                 sleep(0.1)
 
             print("Home - Fast/Slow")
