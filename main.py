@@ -48,7 +48,7 @@ from web.backend.webserver import RideWebServer
 
 
 # Initialize RCC
-rcc = RideControlComputer(useWebIOController=True)
+rcc = RideControlComputer()
 rcc.initialize()
 
 # Start Web Server
