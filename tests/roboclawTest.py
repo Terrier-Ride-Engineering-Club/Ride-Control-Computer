@@ -86,7 +86,7 @@ if __name__ == "__main__":
             print(f"ENC POS: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
             print(f"READ RANGE: {mc.read_range(1)}")
             print(f"READ PID: {mc.read_position_pid_constants()}")
-            print(f"SET PID...{mc.set_position_pid_constants(0,361849,0,0,0,0,10000)}")
+            print(f"SET PID...{mc.set_position_pid_constants(0,3618,0,0,0,0,10000)}")
             print(f"READ PID: {mc.read_position_pid_constants()}")
             print(f"READ RANGE: {mc.read_range(1)}")
             # start_time = time()
