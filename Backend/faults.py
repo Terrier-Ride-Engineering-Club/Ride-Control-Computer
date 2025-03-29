@@ -25,10 +25,10 @@ class Fault:
 # Predefined faults
 PREDEFINED_FAULTS = {
     101: Fault(101, "Emergency Stop Activated", FaultSeverity.HIGH),
-    103: Fault(102, "Motor Controller Failure", FaultSeverity.HIGH),
-    104: Fault(103, "Sensor Failure", FaultSeverity.MEDIUM),
-    108: Fault(104, "Speed Deviation Detected", FaultSeverity.MEDIUM),
-    111: Fault(105, "Sensor Mismatch", FaultSeverity.MEDIUM),
+    102: Fault(102, "Motor Controller Failure", FaultSeverity.HIGH),
+    103: Fault(103, "Sensor Failure", FaultSeverity.MEDIUM),
+    104: Fault(104, "Speed Deviation Detected", FaultSeverity.MEDIUM),
+    105: Fault(105, "Sensor Mismatch", FaultSeverity.MEDIUM),
 }
 
 class FaultManager:
@@ -100,7 +100,7 @@ class FaultManager:
         speed_deviation = abs(actual_speed) - max_speed
         if speed_deviation > 5:
             self.raise_fault(PREDEFINED_FAULTS[104])
-            self.log.warning(f"Speed deviation: Expected {"-63 to 64"}, Got {actual_speed}")
+            self.log.warning(f"Speed deviation: Expected -63 to 64, Got {actual_speed}")
 
 
         # Position mismatch detection
