@@ -53,17 +53,17 @@ if __name__ == "__main__":
         elif MODE == "MOTOR TEST":
             print(f"STATUS: {mc.read_status()}")
 
-            # Record start time
-            start_time = time()
-
             # Run first command repeatedly for 5 seconds
+            start_time = time()
             while time() - start_time < 5:
                 mc.set_speed_with_acceleration(1, MED_SPEED_QPPS, SLOW_SPEED_QPPS)
                 sleep(0.1)  # Adjust interval as needed
 
-            # Then send the second command once
-            mc.set_speed_with_acceleration(1, 0, SLOW_SPEED_QPPS)
-            sleep(0.4)
+            # Then run second command repeatedly for 5 seconds
+            start_time = time()
+            while time() - start_time < 5:
+                mc.set_speed_with_acceleration(1, 0, SLOW_SPEED_QPPS)
+                sleep(0.1)
         
         # roboclaw.drive_motor(1,0)
         # sleep(2)
