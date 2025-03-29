@@ -52,20 +52,20 @@ if __name__ == "__main__":
             sleep(2)
         elif MODE == "MOTOR TEST":
 
-            print("Forward - Med/Slow")
-            print(f"STATUS: {mc.read_status()}")
-            start_time = time()
-            while time() - start_time < 5:
-                mc.set_speed_with_acceleration(1, MED_SPEED_QPPS, SLOW_SPEED_QPPS)
-                sleep(0.1)  # Adjust interval as needed
+            # print("Forward - Med/Slow")
+            # print(f"STATUS: {mc.read_status()}")
+            # start_time = time()
+            # while time() - start_time < 5:
+            #     mc.set_speed_with_acceleration(1, MED_SPEED_QPPS, SLOW_SPEED_QPPS)
+            #     sleep(0.1)  # Adjust interval as needed
 
-            print("Stop - Slow")
-            print(f"STATUS: {mc.read_status()}")
-            start_time = time()
-            mc.reset_quad_encoders()
-            while time() - start_time < 2:
-                mc.set_speed_with_acceleration(1, 0, SLOW_SPEED_QPPS)
-                sleep(0.1)
+            # print("Stop - Slow")
+            # print(f"STATUS: {mc.read_status()}")
+            # start_time = time()
+            # mc.reset_quad_encoders()
+            # while time() - start_time < 2:
+            #     mc.set_speed_with_acceleration(1, 0, SLOW_SPEED_QPPS)
+            #     sleep(0.1)
 
             print("Forward - Fast/Fast")
             print(f"STATUS: {mc.read_status()}")
