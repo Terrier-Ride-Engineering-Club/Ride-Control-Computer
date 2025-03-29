@@ -83,14 +83,14 @@ if __name__ == "__main__":
 
             print("Home - Fast/Slow")
             print(f"STATUS: {mc.read_status()}")
-            print(f"ENC POS: {mc.read_encoder(1)}")
+            print(f"ENC POS: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
             print(f"READ RANGE: {mc.read_range(1)}")
             start_time = time()
             while time() - start_time < 10:
                 # mc.drive_to_position_with_speed_acceleration_deceleration(1, HOME_POSITION, FAST_SPEED_QPPS, FAST_SPEED_QPPS, SLOW_SPEED_QPPS)
                 # mc.drive_to_position(1, FAST_SPEED_QPPS, FAST_SPEED_QPPS, FAST_SPEED_QPPS, 50, 0)
                 mc.drive_to_position_buffered(1,HOME_POSITION,0)
-                print(mc.read_encoder(1))
+                print(f"ENC: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
                 sleep(0.1)
         
         # roboclaw.drive_motor(1,0)
