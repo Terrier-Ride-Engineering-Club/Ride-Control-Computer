@@ -25,6 +25,7 @@ QUAD_COUNTS_PER_REVOLUTION = MOTOR_PPR * 4
 SLOW_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 15)     # 1 revolution every 20 seconds
 MED_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 10)    # 1 revolution every 10 seconds
 FAST_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 5)     # 1 revolution every 5 seconds
+HOME_POSITION = 0
 
 
 # MISC CONSTANTS

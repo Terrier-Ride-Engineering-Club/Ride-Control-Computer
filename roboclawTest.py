@@ -6,7 +6,7 @@ RaspiConfig Serial Tutorial: https://resources.basicmicro.com/configuring-the-ra
 RoboClaw tutorial: https://resources.basicmicro.com/packet-serial-with-the-raspberry-pi-3/
 """
 
-from Backend.iocontroller import SLOW_SPEED_QPPS,MED_SPEED_QPPS,FAST_SPEED_QPPS
+from Backend.iocontroller import SLOW_SPEED_QPPS,MED_SPEED_QPPS,FAST_SPEED_QPPS, HOME_POSITION
 from roboclaw import RoboClaw
 from time import sleep, time
 
@@ -59,9 +59,8 @@ if __name__ == "__main__":
                 mc.set_speed_with_acceleration(1, MED_SPEED_QPPS, SLOW_SPEED_QPPS)
                 sleep(0.1)  # Adjust interval as needed
 
-            # Then run second command repeatedly for 5 seconds
             start_time = time()
-            while time() - start_time < 5:
+            while time() - start_time < 2:
                 mc.set_speed_with_acceleration(1, 0, SLOW_SPEED_QPPS)
                 sleep(0.1)
 
@@ -73,6 +72,11 @@ if __name__ == "__main__":
             start_time = time()
             while time() - start_time < 2:
                 mc.set_speed_with_acceleration(1, -FAST_SPEED_QPPS, FAST_SPEED_QPPS)
+                sleep(0.1)
+
+            start_time = time()
+            while time() - start_time < 10:
+                mc.set_position_with_speed_acceleration_deceleration(1, HOME_POSITION, FAST_SPEED_QPPS, FAST_SPEED_QPPS, SLOW_SPEED_QPPS)
                 sleep(0.1)
         
         # roboclaw.drive_motor(1,0)
