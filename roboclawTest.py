@@ -8,7 +8,7 @@ RoboClaw tutorial: https://resources.basicmicro.com/packet-serial-with-the-raspb
 
 from Backend.iocontroller import SLOW_SPEED_QPPS,MED_SPEED_QPPS,FAST_SPEED_QPPS
 from roboclaw import RoboClaw
-from time import sleep
+from time import sleep, time
 
 if __name__ == "__main__":
     
@@ -52,10 +52,18 @@ if __name__ == "__main__":
             sleep(2)
         elif MODE == "MOTOR TEST":
             print(f"STATUS: {mc.read_status()}")
-            mc.set_speed_with_acceleration(1, MED_SPEED_QPPS, SLOW_SPEED_QPPS)
-            sleep(1)
+
+            # Record start time
+            start_time = time()
+
+            # Run first command repeatedly for 5 seconds
+            while time() - start_time < 5:
+                mc.set_speed_with_acceleration(1, MED_SPEED_QPPS, SLOW_SPEED_QPPS)
+                sleep(0.1)  # Adjust interval as needed
+
+            # Then send the second command once
             mc.set_speed_with_acceleration(1, 0, SLOW_SPEED_QPPS)
-            sleep(1)
+            sleep(0.4)
         
         # roboclaw.drive_motor(1,0)
         # sleep(2)
