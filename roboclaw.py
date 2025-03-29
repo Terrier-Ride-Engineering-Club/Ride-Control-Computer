@@ -152,7 +152,7 @@ class RoboClaw:
         self._write(cmd, '>Ii', acceleration, speed)
 
 
-    def set_position_with_speed_acceleration_deceleration(self, motor: int, position: int, speed: int, acceleration: int, deceleration: int, buffer: int = 0):
+    def set_position_with_speed_acceleration_deceleration(self, motor: int, position: int, speed: int, acceleration: int, deceleration: int, buffer: int = 5):
         """
         Params:
             motor (int): 1 or 2 to select which motor gets this command.
@@ -188,7 +188,7 @@ class RoboClaw:
         #   'I' : unsigned 4-byte deceleration
         #   'i' : signed 4-byte target position
         #   'B' : 1-byte buffer indicator
-        self._write(cmd, '>IiIIB', acceleration, speed, deceleration, position, buffer)
+        self._write(cmd, '>IiIiB', acceleration, speed, deceleration, position, buffer)
 
     def recover_serial(self):
         self.port.close()
