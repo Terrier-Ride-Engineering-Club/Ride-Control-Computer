@@ -89,13 +89,20 @@ if __name__ == "__main__":
             print(f"ENC POS: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
             print(f"READ RANGE: {mc.read_range(1)}")
             print(f"READ PID: {mc.read_position_pid_constants()}")
+
+            import struct
+            pid_constants = mc.read_position_pid_constants()
+            p_raw = pid_constants.get('P')
+            p_float = struct.unpack('>f', struct.pack('>I', p_raw))[0]
+            print(f"P (raw): {p_raw}, P (as float): {p_float}")
+
             # print(f"SET PID...{mc.set_position_pid_constants(0,3618*2,0,0,0,0,10000)}")
             print(f"READ PID: {mc.read_position_pid_constants()}")
             print(f"READ RANGE: {mc.read_range(1)}")
             start_time = time()
             while time() - start_time < 10:
                 # mc.drive_to_position_with_speed_acceleration_deceleration(1, HOME_POSITION, FAST_SPEED_QPPS, FAST_SPEED_QPPS, SLOW_SPEED_QPPS)
-                mc.drive_to_position(1, 1, 1, 1, 1000, 0)
+                # mc.drive_to_position(1, 1, 1, 1, 1000, 0)
                 # mc.drive_to_position_buffered(1,5000,100)
                 print(f"ENC: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
                 sleep(0.05)
