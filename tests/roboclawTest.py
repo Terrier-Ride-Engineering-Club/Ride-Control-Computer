@@ -103,7 +103,7 @@ if __name__ == "__main__":
             print(f"READ PID: {mc.read_position_pid_constants()}")
             print(f"READ RANGE: {mc.read_range(1)}")
             start_time = time()
-            while time() - start_time < 10:
+            while time() - start_time < 5:
                 # mc.drive_to_position_with_speed_acceleration_deceleration(1, HOME_POSITION, FAST_SPEED_QPPS, FAST_SPEED_QPPS, SLOW_SPEED_QPPS)
                 # mc.drive_to_position(1, 1, 1, 1, 1000, 0)
                 # mc.drive_to_position_buffered(1,5000,100)

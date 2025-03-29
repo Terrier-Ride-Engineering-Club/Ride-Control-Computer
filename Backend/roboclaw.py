@@ -322,7 +322,7 @@ class RoboClaw:
             A dictionary with the encoder count and interpreted status flags.
         """
         cmd = 16
-        encoder, status = self._read(cmd, '>IB')
+        encoder, status = self._read(cmd, '>iB')
         underflow = bool(status & 0x01)
         direction = "Backward" if (status & 0x02) else "Forward"
         overflow = bool(status & 0x04)
