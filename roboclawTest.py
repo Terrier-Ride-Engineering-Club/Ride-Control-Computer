@@ -64,6 +64,16 @@ if __name__ == "__main__":
             while time() - start_time < 5:
                 mc.set_speed_with_acceleration(1, 0, SLOW_SPEED_QPPS)
                 sleep(0.1)
+
+            start_time = time()
+            while time() - start_time < 2:
+                mc.set_speed_with_acceleration(1, FAST_SPEED_QPPS, FAST_SPEED_QPPS)
+                sleep(0.1)
+
+            start_time = time()
+            while time() - start_time < 2:
+                mc.set_speed_with_acceleration(1, -FAST_SPEED_QPPS, FAST_SPEED_QPPS)
+                sleep(0.1)
         
         # roboclaw.drive_motor(1,0)
         # sleep(2)
