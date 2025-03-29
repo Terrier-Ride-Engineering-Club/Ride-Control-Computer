@@ -50,6 +50,7 @@ import time
 from abc import ABC, abstractmethod
 from Backend.roboclaw import RoboClaw
 from gpiozero import Device, Servo, Button
+from gpiozero.pins.mock import MockFactory, MockPWMPin
 
 # Configures gpiozero by making a pin factory using the lgpio library.
 # On non RPi platforms, use a mock factory to emulate functionality.
@@ -65,7 +66,6 @@ except ModuleNotFoundError as e:
         log.warning("Program will continue with a virtual pin setup.")
     # Configuring the mock environment
     USING_MOCK_PIN_FACTORY = True
-    from gpiozero.pins.mock import MockFactory, MockPWMPin
     Device.pin_factory = MockFactory(pin_class=MockPWMPin) # Gives every pin PWM Functionality.
 
 
