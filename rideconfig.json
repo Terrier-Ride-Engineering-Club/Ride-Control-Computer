@@ -1,7 +1,16 @@
 {
-    "ride_phases": [
-        {"name": "Accelerate", "duration": 5, "motor_speed": 1.0},
-        {"name": "Cruise", "duration": 10, "motor_speed": 0.8},
-        {"name": "Decelerate", "duration": 5, "motor_speed": 0.0}
-    ]
+    "ride_cycles": {
+        "cycle_1": [
+            {"name": "Move", "duration": 5, "speed": "slow", "direction": "fwd", "accel": "slow"},
+            {"name": "Position", "duration": 5, "pos": "home"},
+            {"name": "Move", "duration": 10, "speed": "fast", "direction": "bwd", "accel": "med"},
+            {"name": "Move", "duration": 10, "speed": "fast", "direction": "fwd", "accel": "slow"}
+        ],
+        "cycle_2": [
+            {"name": "Move", "duration": 5, "speed": "slow", "direction": "fwd", "accel": "slow"},
+            {"name": "Position", "duration": 5, "pos": "top"},
+            {"name": "Move", "duration": 10, "speed": "fast", "direction": "bwd", "accel": "med"},
+            {"name": "Move", "duration": 10, "speed": "fast", "direction": "fwd", "accel": "slow"}
+        ]
+    }
 }
