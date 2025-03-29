@@ -149,7 +149,7 @@ class RoboClaw:
         # The format string '>Ii' means:
         #   - 'I' for a 4-byte unsigned acceleration value
         #   - 'i' for a 4-byte signed speed value
-        self._write(cmd, '>Ii', acceleration, speed)
+        self._write(cmd, '>II', acceleration, speed)
 
 
     def set_position_with_speed_acceleration_deceleration(self, motor: int, position: int, speed: int, acceleration: int, deceleration: int, buffer: int = 0):
