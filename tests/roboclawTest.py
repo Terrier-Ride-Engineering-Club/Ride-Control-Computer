@@ -7,7 +7,7 @@ RoboClaw tutorial: https://resources.basicmicro.com/packet-serial-with-the-raspb
 """
 
 from Backend.iocontroller import SLOW_SPEED_QPPS,MED_SPEED_QPPS,FAST_SPEED_QPPS, HOME_POSITION
-from roboclaw import RoboClaw
+from Backend.roboclaw import RoboClaw
 from time import sleep, time
 
 if __name__ == "__main__":
