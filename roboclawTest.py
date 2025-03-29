@@ -62,6 +62,7 @@ if __name__ == "__main__":
             print("Stop - Slow")
             print(f"STATUS: {mc.read_status()}")
             start_time = time()
+            mc.reset_quad_encoders()
             while time() - start_time < 2:
                 mc.set_speed_with_acceleration(1, 0, SLOW_SPEED_QPPS)
                 sleep(0.1)
@@ -85,7 +86,7 @@ if __name__ == "__main__":
             print(f"ENC POS: {mc.read_encoder(1)}")
             start_time = time()
             while time() - start_time < 10:
-                mc.set_position_with_speed_acceleration_deceleration(1, HOME_POSITION, -FAST_SPEED_QPPS, FAST_SPEED_QPPS, SLOW_SPEED_QPPS)
+                mc.set_position_with_speed_acceleration_deceleration(1, HOME_POSITION, FAST_SPEED_QPPS, FAST_SPEED_QPPS, SLOW_SPEED_QPPS)
                 sleep(0.1)
         
         # roboclaw.drive_motor(1,0)
