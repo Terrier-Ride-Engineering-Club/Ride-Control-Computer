@@ -141,7 +141,6 @@ class RoboClaw:
         """
         if (motor == 1):
             cmd = Cmd.M1SPEEDACCEL
-            self._write()
         elif motor == 2:
             cmd = Cmd.M2SPEEDACCEL
         else:
