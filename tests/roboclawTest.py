@@ -51,6 +51,7 @@ if __name__ == "__main__":
             # print(f"SPEED M2: {mc.read_speed(2)}")
             sleep(2)
         elif MODE == "MOTOR TEST":
+            print(f"RESETTING ENCODERS: {mc.reset_quad_encoders()}")
 
             # print("Forward - Med/Slow")
             # print(f"STATUS: {mc.read_status()}")
@@ -69,6 +70,7 @@ if __name__ == "__main__":
 
             print("Forward - Fast/Fast")
             print(f"STATUS: {mc.read_status()}")
+            print(f"ENC POS: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
             start_time = time()
             while time() - start_time < 2:
                 mc.set_speed_with_acceleration(1, FAST_SPEED_QPPS, FAST_SPEED_QPPS)
@@ -76,6 +78,7 @@ if __name__ == "__main__":
 
             print("Reverse - Fast/Fast")
             print(f"STATUS: {mc.read_status()}")
+            print(f"ENC POS: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
             start_time = time()
             while time() - start_time < 2:
                 mc.set_speed_with_acceleration(1, -FAST_SPEED_QPPS, FAST_SPEED_QPPS)
@@ -86,7 +89,7 @@ if __name__ == "__main__":
             print(f"ENC POS: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
             print(f"READ RANGE: {mc.read_range(1)}")
             print(f"READ PID: {mc.read_position_pid_constants()}")
-            print(f"SET PID...{mc.set_position_pid_constants(0,3618*2,0,0,0,0,10000)}")
+            # print(f"SET PID...{mc.set_position_pid_constants(0,3618*2,0,0,0,0,10000)}")
             print(f"READ PID: {mc.read_position_pid_constants()}")
             print(f"READ RANGE: {mc.read_range(1)}")
             # start_time = time()

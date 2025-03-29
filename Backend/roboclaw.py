@@ -352,7 +352,7 @@ class RoboClaw:
             0x00800000: 'S5 Signal Triggered',
             0x01000000: 'Speed Error Limit Warning',
             0x02000000: 'Position Error Limit Warning'
-        }.get(status, 'Unknown Error')
+        }.get(status, f'Unknown Error: {status}')
 
     def read_temp_sensor(self, sensor):
         if sensor == 1:
