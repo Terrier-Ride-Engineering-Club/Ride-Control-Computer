@@ -100,7 +100,7 @@ class IOController(ABC):
             self.log.error(f"Button {button_name} not found for method attach_on_press().")
 
     @abstractmethod
-    def send_motor_command(self):
+    def send_motor_command(self, command: dict):
         ...
 
     @abstractmethod
@@ -312,7 +312,7 @@ class HardwareIOController(IOController):
         # Insert hardware-specific logic here
 
     # --- Motor Control Methods ---
-    def send_motor_command(self, command: dict):
+    def send_motor_command(self, command):
         if command.get('name') == "Move":
             # Parse command
             speed_str = command.get('speed', 'med').lower()
@@ -478,7 +478,7 @@ class WebIOController(IOController):
 
     def read_speed(self): return 32.5
 
-    def send_motor_command(self): return None
+    def send_motor_command(self, command): return None
 
 
 
