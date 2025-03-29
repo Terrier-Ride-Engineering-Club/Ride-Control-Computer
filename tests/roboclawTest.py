@@ -89,7 +89,7 @@ if __name__ == "__main__":
             while time() - start_time < 10:
                 # mc.drive_to_position_with_speed_acceleration_deceleration(1, HOME_POSITION, FAST_SPEED_QPPS, FAST_SPEED_QPPS, SLOW_SPEED_QPPS)
                 # mc.drive_to_position(1, FAST_SPEED_QPPS, FAST_SPEED_QPPS, FAST_SPEED_QPPS, 50, 0)
-                mc.drive_to_position_buffered(1,50,100)
+                mc.drive_to_position_buffered(1,5000,100)
                 print(f"ENC: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
                 sleep(0.1)
         
