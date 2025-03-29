@@ -6,7 +6,7 @@ RaspiConfig Serial Tutorial: https://resources.basicmicro.com/configuring-the-ra
 RoboClaw tutorial: https://resources.basicmicro.com/packet-serial-with-the-raspberry-pi-3/
 """
 
-
+from Backend.iocontroller import SLOW_SPEED_QPPS,MED_SPEED_QPPS,FAST_SPEED_QPPS
 from roboclaw import RoboClaw
 from time import sleep
 
@@ -52,10 +52,10 @@ if __name__ == "__main__":
             sleep(2)
         elif MODE == "MOTOR TEST":
             print(f"STATUS: {mc.read_status()}")
-            mc.drive_motor(1,20)
-            sleep(1)
-            mc.drive_motor(1,0)
-            sleep(1)
+            mc.set_speed_with_acceleration(1, MED_SPEED_QPPS, SLOW_SPEED_QPPS)
+            sleep(5)
+            mc.set_speed_with_acceleration(1, 0, SLOW_SPEED_QPPS)
+            sleep(5)
         
         # roboclaw.drive_motor(1,0)
         # sleep(2)
