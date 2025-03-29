@@ -301,7 +301,9 @@ class RoboClaw:
             cmd = Cmd.GETM1ENC
         else:
             cmd = Cmd.GETM2ENC
-        return self._read(cmd, '>IB')[0]
+        # Discards status byte
+        encoder, _ = self._read(cmd, '>IB')
+        return encoder
 
     def reset_quad_encoders(self):
         self._write(Cmd.SETM1ENCCOUNT, '>I', 0)
