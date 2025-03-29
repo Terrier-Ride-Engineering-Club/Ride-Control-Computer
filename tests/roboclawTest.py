@@ -51,7 +51,7 @@ if __name__ == "__main__":
             # print(f"SPEED M2: {mc.read_speed(2)}")
             sleep(2)
         elif MODE == "MOTOR TEST":
-            print(f"RESETTING ENCODERS: {mc.reset_quad_encoders()}")
+            # print(f"RESETTING ENCODERS: {mc.reset_quad_encoders()}")
 
             # print("Forward - Med/Slow")
             # print(f"STATUS: {mc.read_status()}")
@@ -74,7 +74,7 @@ if __name__ == "__main__":
             start_time = time()
             while time() - start_time < 2:
                 mc.set_speed_with_acceleration(1, FAST_SPEED_QPPS, FAST_SPEED_QPPS)
-                sleep(0.1)
+                sleep(0.05)
 
             print("Reverse - Fast/Fast")
             print(f"STATUS: {mc.read_status()}")
@@ -82,7 +82,7 @@ if __name__ == "__main__":
             start_time = time()
             while time() - start_time < 2:
                 mc.set_speed_with_acceleration(1, -FAST_SPEED_QPPS, FAST_SPEED_QPPS)
-                sleep(0.1)
+                sleep(0.05)
 
             print("Home - Fast/Slow")
             print(f"STATUS: {mc.read_status()}")
@@ -98,7 +98,7 @@ if __name__ == "__main__":
                 mc.drive_to_position(1, SLOW_SPEED_QPPS, SLOW_SPEED_QPPS, SLOW_SPEED_QPPS, 1000, 0)
                 # mc.drive_to_position_buffered(1,5000,100)
                 print(f"ENC: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
-                sleep(0.1)
+                sleep(0.05)
         
         # roboclaw.drive_motor(1,0)
         # sleep(2)
