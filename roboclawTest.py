@@ -53,9 +53,9 @@ if __name__ == "__main__":
         elif MODE == "MOTOR TEST":
             print(f"STATUS: {mc.read_status()}")
             mc.set_speed_with_acceleration(1, MED_SPEED_QPPS, SLOW_SPEED_QPPS)
-            sleep(5)
+            sleep(1)
             mc.set_speed_with_acceleration(1, 0, SLOW_SPEED_QPPS)
-            sleep(5)
+            sleep(1)
         
         # roboclaw.drive_motor(1,0)
         # sleep(2)
