@@ -163,5 +163,7 @@ class RideControlComputer():
 if __name__ == '__main__':
 
     rcc = RideControlComputer()
-
+    rcc.initialize()
     rcc.state = RunningState()
+    rcc.start()
+
