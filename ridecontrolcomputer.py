@@ -158,3 +158,10 @@ class RideControlComputer():
             raise ValueError("Current IO controller is not recognized. Cannot toggle.")
         self.change_io_controller(self.ioControllerType)
         return self.ioControllerType
+
+
+if __name__ == '__main__':
+
+    rcc = RideControlComputer()
+
+    rcc.state = RunningState()
