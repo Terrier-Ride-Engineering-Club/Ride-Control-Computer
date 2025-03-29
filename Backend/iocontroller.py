@@ -12,6 +12,25 @@ SERVO2_PIN = "GPIO13"
 #UART_TX = 14
 #UART_RX = 15
 
+# ROBOCLAW CONSTANTS
+ROBOCLAW_SERIAL_PORT = "/dev/ttyS0"
+ROBOCLAW_SERIAL_ADDRESS = 38400
+SELECTED_MOTOR = 1
+
+# MOTOR CONSTANTS
+# NOTE: GoBilda 5303 series motor encoders have a resolution of 1425.1 PPR @ Output shaft
+MOTOR_PPR = 1425.1
+QUAD_COUNTS_PER_REVOLUTION = MOTOR_PPR * 4
+# All speeds in Quad Pulses per Second (QPS)
+SLOW_SPEED_QPPS = QUAD_COUNTS_PER_REVOLUTION / 5     # 1 revolution every 5 seconds
+MED_SPEED_QPPS = QUAD_COUNTS_PER_REVOLUTION / 3.5    # 1 revolution every 3.5 seconds
+FAST_SPEED_QPPS = QUAD_COUNTS_PER_REVOLUTION / 2     # 1 revolution every 2 seconds
+
+
+# MISC CONSTANTS
+USING_MOCK_PIN_FACTORY = False
+
+
 import platform
 import logging
 import serial
@@ -21,11 +40,6 @@ import time
 from abc import ABC, abstractmethod
 from roboclaw import RoboClaw
 from gpiozero import Device, Servo, Button
-
-ROBOCLAW_SERIAL_PORT = "/dev/ttyS0"
-ROBOCLAW_SERIAL_ADDRESS = 38400
-SELECTED_MOTOR = 1
-USING_MOCK_PIN_FACTORY = False
 
 # Configures gpiozero by making a pin factory using the lgpio library.
 # On non RPi platforms, use a mock factory to emulate functionality.

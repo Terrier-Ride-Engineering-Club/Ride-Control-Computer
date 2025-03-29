@@ -114,9 +114,86 @@ class RoboClaw:
             cmd = Cmd.M2SPEED
         self._write(cmd, '>i', speed)
 
+    def set_speed_with_acceleration(self, motor: int, speed: int, acceleration: int):
+        """
+        Params:
+            motor (int): 1 or 2 to select which motor gets this command.
+            speed (int): the signed speed in QPPS (quad pulses per second)
+            acceleration (int): the unsigned acceleration in QPPS (quad pulses per second)
+
+
+        ## Detailed Desc:
+            Drive M1 with a signed speed and acceleration value. The sign indicates which direction the
+            motor will run. The acceleration values are not signed. This command is used to drive the motor
+            by quad pulses per second and using an acceleration value for ramping. Different quadrature
+            encoders will have different rates at which they generate the incoming pulses. The values used
+            will differ from one encoder to another. Once a value is sent the motor will begin to accelerate
+            incrementally until the rate defined is reached.
+
+            The acceleration is measured in speed increase per second. An acceleration value of 12,000
+            QPPS with a speed of 12,000 QPPS would accelerate a motor from 0 to 12,000 QPPS in 1
+            second. Another example would be an acceleration value of 24,000 QPPS and a speed value of
+            12,000 QPPS would accelerate the motor to 12,000 QPPS in 0.5 seconds.
+
+        Serial:
+            Send: [Address, 38, Accel(4 Bytes), Speed(4 Bytes), CRC(2 bytes)]
+            Receive: [0xFF]
+        """
+        if (motor == 1):
+            cmd = Cmd.M1SPEEDACCEL
+            self._write()
+        elif motor == 2:
+            cmd = Cmd.M2SPEEDACCEL
+        else:
+            raise ValueError(f"Motor #{motor} is not valid!")
+        
+        # The format string '>Ii' means:
+        #   - 'I' for a 4-byte unsigned acceleration value
+        #   - 'i' for a 4-byte signed speed value
+        self._write(cmd, '>Ii', acceleration, speed)
+
+
+    def set_position_with_speed_acceleration_deceleration(self, motor: int, position: int, speed: int, acceleration: int, deceleration: int, buffer: int = 0):
+        """
+        Params:
+            motor (int): 1 or 2 to select which motor gets this command.
+            position (int): Signed target position in encoder counts.
+            speed (int): Signed cruising speed in QPPS (quad pulses per second) that the motor will run at
+                after accelerating and before decelerating.
+            acceleration (int): Unsigned acceleration value in QPPS (quad pulses per second).
+            deceleration (int): Unsigned deceleration value in QPPS.
+            buffer (int, optional): Buffer index for command queuing. Typically use 0 for immediate execution.
+        
+
+        ##Detailed Desc:
+            Move M1 or M2 positions from their current positions to the specified new positions and hold the
+            new positions. Accel sets the acceleration value and deccel the decceleration value. QSpeed sets
+            the speed in quadrature pulses the motor will run at after acceleration and before decceleration.
+        
+        Serial:
+            Send: [Address, 65, Accel(4 bytes), Speed(4 Bytes), Deccel(4 bytes), Position(4 Bytes), Buffer, CRC(2 bytes)]
+            Receive: [0xFF]
+        """
+        # Select the appropriate command for each motor.
+        if motor == 1:
+            cmd = Cmd.M1SPEEDACCELDECCELPOS
+        elif motor == 2:
+            cmd = Cmd.M2SPEEDACCELDECCELPOS
+        else:
+            raise ValueError(f"Motor #{motor} is not valid!")
+        
+        # Send the command.
+        # The format '>IiIiB' corresponds to:
+        #   'I' : unsigned 4-byte acceleration
+        #   'i' : signed 4-byte QSpeed (cruising speed)
+        #   'I' : unsigned 4-byte deceleration
+        #   'i' : signed 4-byte target position
+        #   'B' : 1-byte buffer indicator
+        self._write(cmd, '>IiIiB', acceleration, speed, deceleration, position, buffer)
+
     def recover_serial(self):
         self.port.close()
-        while not self.port.isOpen():
+        while not self.port.is_open:
             try:
                 self.port.close()
                 self.port.open()
@@ -143,25 +220,6 @@ class RoboClaw:
                                    deccel,
                                    round(set_position),
                                    buffer)
-
-    def drive_motor(self, motor, speed):
-        # assert -64 <= speed <= 63
-        write_speed = speed + 64
-        if motor == 1:
-            cmd = 6 #Cmd.M17BIT
-        else:
-            cmd = Cmd.M27BIT
-        self._write(cmd, '>B', write_speed)
-
-    def stop_motor(self, motor):
-        if motor == 1:
-            self._write(Cmd.M1FORWARD, '>B', 0)
-        else:
-            self._write(Cmd.M2FORWARD, '>B', 0)
-
-    def stop_all(self):
-        self._write(Cmd.M1FORWARD, '>B', 0)
-        self._write(Cmd.M2FORWARD, '>B', 0)
 
     def read_encoder(self, motor):
         # Currently, this function doesn't check over/underflow, which is fine since we're using pots.
