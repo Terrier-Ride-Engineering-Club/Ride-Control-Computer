@@ -26,6 +26,15 @@ SLOW_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 15)     # 1 revolution every 
 MED_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 10)    # 1 revolution every 10 seconds
 FAST_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 5)     # 1 revolution every 5 seconds
 HOME_POSITION = 0
+SPEED_MAP = {
+    "slow": SLOW_SPEED_QPPS,
+    "med": MED_SPEED_QPPS,
+    "fast": FAST_SPEED_QPPS,
+    "home": HOME_POSITION
+}
+POSITION_MAP = {
+    "home": HOME_POSITION
+}
 
 
 # MISC CONSTANTS
@@ -91,6 +100,10 @@ class IOController(ABC):
             self.log.error(f"Button {button_name} not found for method attach_on_press().")
 
     @abstractmethod
+    def send_motor_command(self):
+        ...
+
+    @abstractmethod
     def read_estop(self) -> bool:
         """Return the state of the ESTOP input."""
         pass
@@ -143,11 +156,6 @@ class IOController(ABC):
     @abstractmethod
     def drive_to_position(self, accel, speed, deccel, position, buffer):
         """Sets the speed of the motor"""
-        pass
-
-    @abstractmethod
-    def drive_motor(self, speed):
-        """Assert -64 <= speed <= 63"""
         pass
 
     @abstractmethod
@@ -304,15 +312,31 @@ class HardwareIOController(IOController):
         # Insert hardware-specific logic here
 
     # --- Motor Control Methods ---
+    def send_motor_command(self, command: dict):
+        if command.get('name') == "Move":
+            # Parse command
+            speed_str = command.get('speed', 'med').lower()
+            speed = SPEED_MAP.get(speed_str, MED_SPEED_QPPS)
+            direction = command.get('direction') or 'fwd'
+            speed *= -1 if direction == 'bwd' else 1
+            accel_str = command.get('accel', 'med').lower()
+            accel = SPEED_MAP.get(accel_str, SPEED_MAP['med'])
+
+            self.mc.set_speed_with_acceleration(1, speed, accel)
+        elif command.get('name') == "Position":
+            position_str = command.get('pos', 'home').lower()
+            position = POSITION_MAP.get(position_str, 'home')
+            self.mc.drive_to_position(1, MED_SPEED_QPPS, MED_SPEED_QPPS, MED_SPEED_QPPS, position)
+        else:
+            self.stop_motor()
+    
     def set_speed(self, speed): self.mc.set_speed(SELECTED_MOTOR, speed)
 
     def drive_to_position_raw(self, accel, speed, deccel, position, buffer): self.mc.drive_to_position_raw(SELECTED_MOTOR, accel, speed, deccel, position, buffer)
     
     def drive_to_position(self, accel, speed, deccel, position, buffer): self.mc.drive_to_position(SELECTED_MOTOR, accel, speed, deccel, position, buffer)
 
-    def drive_motor(self, speed): self.mc.drive_motor(SELECTED_MOTOR, speed)
-
-    def stop_motor(self): self.mc.stop_motor(SELECTED_MOTOR)
+    def stop_motor(self): self.mc.set_speed_with_acceleration(SELECTED_MOTOR, 0, FAST_SPEED_QPPS)
 
     def read_encoder(self): return self.mc.read_encoder(SELECTED_MOTOR)
 
@@ -428,8 +452,6 @@ class WebIOController(IOController):
 
     def drive_to_position(self, accel, speed, deccel, position, buffer): return None
 
-    def drive_motor(self, speed): return None
-
     def stop_motor(self): return None
 
     def read_encoder(self): return 12345
@@ -455,6 +477,8 @@ class WebIOController(IOController):
     def read_max_speed(self): return 100000
 
     def read_speed(self): return 32.5
+
+    def send_motor_command(self): return None
 
 
 

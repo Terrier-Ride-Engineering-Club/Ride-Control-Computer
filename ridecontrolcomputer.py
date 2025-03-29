@@ -100,6 +100,13 @@ class RideControlComputer():
 
         # **Execute state-specific actions**
         self.state.run()
+
+        # Execute specific actions if in running state:
+        if isinstance(self.state, RunningState):
+            if not self.rmc.is_running:
+                self.rmc.start_cycle()
+            current_motor_instruction = self.rmc.update()
+            self.io.send_motor_command(current_motor_instruction)
             
 
     def is_estop_active(self) -> bool:

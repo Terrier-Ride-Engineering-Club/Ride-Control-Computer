@@ -10,9 +10,10 @@ RIDE_CONFIG_FILE_PATH = "rideconfig.json"
 class RideMotionController:
     def __init__(self):
         self.config = self.load_config()
-        self.current_phase_index = None
-        self.current_instruction = None
+        self.current_instr_index = None
+        self.current_instr = None
         self.cycle_start_time = 0
+        self.is_running = False
 
 
     def load_config(self) -> dict:
@@ -71,10 +72,11 @@ class RideMotionController:
         if cycle is None or len(cycle) == 0:
             print("No instructions found for cycle 1")
             return None
-        self.current_phase_index = 0
-        self.current_instruction = cycle[self.current_phase_index]
+        self.current_instr_index = 0
+        self.current_instr = cycle[self.current_instr_index]
         self.cycle_start_time = time.time()
-        return self.current_instruction
+        self.is_running = True
+        return self.current_instr
 
     def update(self):
         """
@@ -82,31 +84,31 @@ class RideMotionController:
         this function will return an instruction for the motor when a new one
         is needed, according to the duration set by the current instruction.
         """
-        if self.current_instruction is None:
+        if self.current_instr is None:
             return self.start_cycle()
 
         # Check if the duration for the current instruction has passed
         elapsed_time = time.time() - self.cycle_start_time
-        if elapsed_time >= self.current_instruction.get("duration", 0):
+        if elapsed_time >= self.current_instr.get("duration", 0):
             # Move to the next instruction in cycle 1
             cycle = self.get_cycle(1)
-            self.current_phase_index += 1
-            if self.current_phase_index >= len(cycle):
+            self.current_instr_index += 1
+            if self.current_instr_index >= len(cycle):
                 # End of cycle: finish the cycle and return None
                 self.finish()
                 return None
             else:
-                self.current_instruction = cycle[self.current_phase_index]
+                self.current_instr = cycle[self.current_instr_index]
                 self.cycle_start_time = time.time()
-                return self.current_instruction
+                return self.current_instr
 
-        # Not yet time for a new instruction, return None.
-        return None
+        # Not yet time for a new instruction, return current
+        return self.current_instr
 
     def finish(self):
         # End of ride cycle actions
-        self.current_phase_index = None
-        self.current_instruction = None
+        self.current_instr_index = None
+        self.current_instr = None
 
     def get_cycle(self, cycle_number: int):
         return self.config.get(f'cycle_{cycle_number}')
