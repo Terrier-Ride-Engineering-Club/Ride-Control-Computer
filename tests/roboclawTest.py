@@ -86,7 +86,8 @@ if __name__ == "__main__":
             print(f"ENC POS: {mc.read_encoder(1)}")
             start_time = time()
             while time() - start_time < 10:
-                mc.set_position_with_speed_acceleration_deceleration(1, HOME_POSITION, FAST_SPEED_QPPS, FAST_SPEED_QPPS, SLOW_SPEED_QPPS)
+                # mc.drive_to_position_with_speed_acceleration_deceleration(1, HOME_POSITION, FAST_SPEED_QPPS, FAST_SPEED_QPPS, SLOW_SPEED_QPPS)
+                mc.drive_to_position(1, FAST_SPEED_QPPS, FAST_SPEED_QPPS, FAST_SPEED_QPPS, HOME_POSITION, 0)
                 sleep(0.1)
         
         # roboclaw.drive_motor(1,0)

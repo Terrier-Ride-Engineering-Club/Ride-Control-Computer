@@ -152,7 +152,7 @@ class RoboClaw:
         self._write(cmd, '>Ii', acceleration, speed)
 
 
-    def set_position_with_speed_acceleration_deceleration(self, motor: int, position: int, speed: int, acceleration: int, deceleration: int, buffer: int = 5):
+    def drive_to_position_with_speed_acceleration_deceleration(self, motor: int, position: int, speed: int, acceleration: int, deceleration: int, buffer: int = 5):
         """
         Params:
             motor (int): 1 or 2 to select which motor gets this command.
@@ -219,6 +219,26 @@ class RoboClaw:
                                    deccel,
                                    round(set_position),
                                    buffer)
+
+    # def drive_to_position_buffered(self, motor: int, position: int, buffer: int = 0):
+    #NOTE: NOT TESTED
+    #     """
+    #     Buffered Drive to Position using default acceleration, deceleration, and speed.
+        
+    #     Params:
+    #         motor (int): 1 for M1 only (command 119 only supports M1).
+    #         position (int): Signed target position in encoder counts.
+    #         buffer (int): Buffer index for command queuing.
+        
+    #     Command 119:
+    #         Send: [Address, 119, Position (4 bytes), Buffer, CRC (2 bytes)]
+    #         Receive: [0xFF]
+    #     """
+    #     if motor != 1:
+    #         raise ValueError("Buffered drive with command 119 only supports motor 1.")
+        
+    #     cmd = 119
+    #     self._write(cmd, '>iB', position, buffer)
 
     def read_encoder(self, motor):
         # Currently, this function doesn't check over/underflow, which is fine since we're using pots.
