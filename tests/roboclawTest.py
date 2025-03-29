@@ -71,6 +71,7 @@ if __name__ == "__main__":
             print("Forward - Fast/Fast")
             print(f"STATUS: {mc.read_status()}")
             print(f"ENC POS: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
+            print(f"alt enc: {mc.read_encoder_m1()}")
             start_time = time()
             while time() - start_time < 2:
                 mc.set_speed_with_acceleration(1, FAST_SPEED_QPPS, FAST_SPEED_QPPS)
@@ -79,6 +80,7 @@ if __name__ == "__main__":
             print("Reverse - Fast/Fast")
             print(f"STATUS: {mc.read_status()}")
             print(f"ENC POS: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
+            print(f"alt enc: {mc.read_encoder_m1()}")
             start_time = time()
             while time() - start_time < 2:
                 mc.set_speed_with_acceleration(1, -FAST_SPEED_QPPS, FAST_SPEED_QPPS)
@@ -87,14 +89,15 @@ if __name__ == "__main__":
             print("Home - Fast/Slow")
             print(f"STATUS: {mc.read_status()}")
             print(f"ENC POS: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
+            print(f"alt enc: {mc.read_encoder_m1()}")
             print(f"READ RANGE: {mc.read_range(1)}")
             print(f"READ PID: {mc.read_position_pid_constants()}")
 
-            import struct
-            pid_constants = mc.read_position_pid_constants()
-            p_raw = pid_constants.get('P')
-            p_float = struct.unpack('>f', struct.pack('>I', p_raw))[0]
-            print(f"P (raw): {p_raw}, P (as float): {p_float}")
+            # import struct
+            # pid_constants = mc.read_position_pid_constants()
+            # p_raw = pid_constants.get('P')
+            # p_float = struct.unpack('>f', struct.pack('>I', p_raw))[0]
+            # print(f"P (raw): {p_raw}, P (as float): {p_float}")
 
             # print(f"SET PID...{mc.set_position_pid_constants(0,3618*2,0,0,0,0,10000)}")
             print(f"READ PID: {mc.read_position_pid_constants()}")
@@ -105,6 +108,7 @@ if __name__ == "__main__":
                 # mc.drive_to_position(1, 1, 1, 1, 1000, 0)
                 # mc.drive_to_position_buffered(1,5000,100)
                 print(f"ENC: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
+                print(f"alt enc: {mc.read_encoder_m1()}")
                 sleep(0.05)
         
         # roboclaw.drive_motor(1,0)

@@ -304,6 +304,29 @@ class RoboClaw:
         # Discards status byte
         encoder, _ = self._read(cmd, '>iB')
         return encoder
+    
+    def read_encoder_m1(self):
+        """
+        Read Encoder Count/Value M1.
+        
+        Sends: [Address, 16]
+        Receives: [Enc1 (4 bytes), Status, CRC (2 bytes)]
+        
+        The status byte:
+            Bit0 - Counter Underflow (1 = Underflow Occurred, Clear After Reading)
+            Bit1 - Direction (0 = Forward, 1 = Backwards)
+            Bit2 - Counter Overflow (1 = Overflow Occurred, Clear After Reading)
+            Bits3-7 - Reserved
+        
+        Returns:
+            A dictionary with the encoder count and interpreted status flags.
+        """
+        cmd = 16
+        encoder, status = self._read(cmd, '>IB')
+        underflow = bool(status & 0x01)
+        direction = "Backward" if (status & 0x02) else "Forward"
+        overflow = bool(status & 0x04)
+        return {"encoder": encoder, "underflow": underflow, "direction": direction, "overflow": overflow}
 
     def reset_quad_encoders(self):
         self._write(Cmd.SETM1ENCCOUNT, '>I', 0)
