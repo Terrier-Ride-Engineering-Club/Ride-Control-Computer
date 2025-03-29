@@ -52,11 +52,11 @@ class RoboClaw:
                     logger.error(f"Incomplete read: expected {expected_length + 2} bytes, got {len(response)} bytes")
                     raise Exception("Incomplete read")
             
-            print(f"[_read] cmd_bytes: {cmd_bytes.hex()} response: {response.hex()}")
+            # print(f"[_read] cmd_bytes: {cmd_bytes.hex()} response: {response.hex()}")
             
             crc_actual = CRCCCITT().calculate(cmd_bytes + response[:-2])
             crc_expect = struct.unpack('>H', response[-2:])[0]
-            print(f"[_read] CRC computed: {crc_actual:04x}, expected: {crc_expect:04x}")
+            # print(f"[_read] CRC computed: {crc_actual:04x}, expected: {crc_expect:04x}")
             
             if crc_actual != crc_expect:
                 logger.error('read crc failed')
@@ -78,7 +78,7 @@ class RoboClaw:
         
         try:
             with self.serial_lock:
-                print(f"[_write] message: {message.hex()} CRC: {crc_bytes.hex()} ==> {(message + crc_bytes).hex()}")
+                # print(f"[_write] message: {message.hex()} CRC: {crc_bytes.hex()} ==> {(message + crc_bytes).hex()}")
                 self.port.write(message + crc_bytes)
                 self.port.flush()
                 start_time = time.time()
@@ -86,7 +86,7 @@ class RoboClaw:
                 # Wait for the verification byte
                 while True:
                     verification = self.port.read(1)
-                    print(verification)
+                    # print(verification)
                     if verification:
                         break
                     if time.time() - start_time > self.port.timeout:
@@ -95,7 +95,7 @@ class RoboClaw:
                     logger.error("No verification byte received")
                     raise Exception("No verification byte received")
             
-            print(f"[_write] verification byte: {verification.hex()}")
+            # print(f"[_write] verification byte: {verification.hex()}")
             
             if 0xff != struct.unpack('>B', verification)[0]:
                 logger.error('write crc failed')
@@ -250,7 +250,7 @@ class RoboClaw:
         cmd = Cmd.GETERROR
         raw = self._read(cmd, '>BBBB')
         status = (raw[0] << 24) | (raw[1] << 16) | (raw[2] << 8) | raw[3]
-        print(f"RETURNED: {raw}")
+        # print(f"RETURNED: {raw}")
         return {
             0x00000000: 'Normal',
             0x00000001: 'E-Stop',
@@ -355,19 +355,19 @@ class RoboClaw:
                 # Read the following 2 bytes for CRC
                 crc_bytes = self.port.read(2)
             
-            print(f"[read_version] cmd_bytes: {cmd_bytes.hex()} response: {response.hex()} crc_bytes: {crc_bytes.hex()}")
+            # print(f"[read_version] cmd_bytes: {cmd_bytes.hex()} response: {response.hex()} crc_bytes: {crc_bytes.hex()}")
             
             # Verify CRC: Calculate over the command and response (excluding CRC bytes)
             crc_actual = CRCCCITT().calculate(cmd_bytes + response)
             crc_expected = struct.unpack('>H', crc_bytes)[0]
-            print(f"[read_version] CRC computed: {crc_actual:04x}, expected: {crc_expected:04x}")
+            # print(f"[read_version] CRC computed: {crc_actual:04x}, expected: {crc_expected:04x}")
             
             if crc_actual != crc_expected:
                 logger.error('read version CRC failed')
                 raise CRCException('CRC failed')
             # Decode the version string and strip termination characters
             version_str = response.decode('utf-8', errors='ignore').rstrip('\n\x00')
-            print(f"[read_version] Firmware version: {version_str}")
+            # print(f"[read_version] Firmware version: {version_str}")
             return version_str
         except serial.serialutil.SerialException:
             if self.auto_recover:

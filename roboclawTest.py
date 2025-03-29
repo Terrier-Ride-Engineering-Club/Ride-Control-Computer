@@ -53,27 +53,31 @@ if __name__ == "__main__":
         elif MODE == "MOTOR TEST":
             print(f"STATUS: {mc.read_status()}")
 
-            # Run first command repeatedly for 5 seconds
+            print("Forward - Med/Slow")
             start_time = time()
             while time() - start_time < 5:
                 mc.set_speed_with_acceleration(1, MED_SPEED_QPPS, SLOW_SPEED_QPPS)
                 sleep(0.1)  # Adjust interval as needed
 
+            print("Stop - Slow")
             start_time = time()
             while time() - start_time < 2:
                 mc.set_speed_with_acceleration(1, 0, SLOW_SPEED_QPPS)
                 sleep(0.1)
 
+            print("Forward - Fast/Fast")
             start_time = time()
             while time() - start_time < 2:
                 mc.set_speed_with_acceleration(1, FAST_SPEED_QPPS, FAST_SPEED_QPPS)
                 sleep(0.1)
 
+            print("Reverse - Fast/Fast")
             start_time = time()
             while time() - start_time < 2:
                 mc.set_speed_with_acceleration(1, -FAST_SPEED_QPPS, FAST_SPEED_QPPS)
                 sleep(0.1)
 
+            print("Home - Fast/Slow")
             start_time = time()
             while time() - start_time < 10:
                 mc.set_position_with_speed_acceleration_deceleration(1, HOME_POSITION, FAST_SPEED_QPPS, FAST_SPEED_QPPS, SLOW_SPEED_QPPS)
