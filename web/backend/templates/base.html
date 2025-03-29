@@ -5,18 +5,25 @@
   <title>{% block title %}My Website{% endblock %}</title>
   <!-- Common CSS (e.g., Bootstrap) -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .custom-navbar {
+      background-color: #2D2926 !important; /* BU Red */
+    }
+  </style>
 </head>
 <body>
   <!-- Common Navbar/Header -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
     <div class="container">
-      <a class="navbar-brand" href="/">Your Brand</a>
-      <!-- other nav elements -->
+      <a class="navbar-brand text-white" href="#">
+        <h1 class="h1 mb-0">Boston University Terrier Ride Engineering Club</h1>
+        <h2 class="h5">RCC Dashboard</h2>
+      </a>
     </div>
   </nav>
 
   <!-- Main content area -->
-  <div class="container my-5">
+  <div class="container my-2">
     {% block content %}
     {% endblock %}
   </div>

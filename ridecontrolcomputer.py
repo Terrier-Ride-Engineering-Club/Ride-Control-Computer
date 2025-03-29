@@ -5,17 +5,13 @@
 
 import logging
 from enum import Enum
+from typing import List
 from Backend.iocontroller import IOController, HardwareIOController, WebIOController
 from Backend.faults import Fault, FaultManager, FaultSeverity
 from Backend.ridemotioncontroller import RideMotionController
-
-class State(Enum):
-    IDLE = 1
-    RUNNING = 2
-    ESTOPPED = 3
-    RESETTING = 4
-    OFF = 5
-
+from Backend.state import State
+from Backend.states import *
+from Backend.event import *
 
 class RideControlComputer():
     '''
@@ -26,7 +22,7 @@ class RideControlComputer():
     log: logging.Logger
 
     # Ride controllers
-    _state: State
+    state: State
     EStop: bool
     OnSwitchActive: bool
     Reset: bool
@@ -37,10 +33,7 @@ class RideControlComputer():
         Should NOT initialize any functions. This is left for the initialize() func.
         '''
         # Init vars to safe position
-        self.EStop = False
-        self.OnSwitchActive = False
-        self.Reset = False
-        self._state = State.IDLE
+        self.state = OffState()
         self.initialized = False
         self.ioControllerType = 'web' if useWebIOController else 'hardware'
 
@@ -61,10 +54,23 @@ class RideControlComputer():
         else:
             self.io = WebIOController()
 
+        # Attach callback methods to io funcs
+        def handle_io_estop(): self.state = self.state.on_event(EStopPressed())
+        def handle_io_stop(): self.state = self.state.on_event(StopPressed())
+        def handle_io_dispatch(): self.state = self.state.on_event(DispatchedPressed())
+        def handle_io_ride_on_off(): self.state = self.state.on_event(RideOnOffPressed())
+        def handle_io_reset(): self.state = self.state.on_event(ResetPressed())
+        self.io.attach_on_press("estop", handle_io_estop)
+        self.io.attach_on_press("stop", handle_io_stop)
+        self.io.attach_on_press("dispatch", handle_io_dispatch)
+        self.io.attach_on_press("rideonoff", handle_io_ride_on_off)
+        self.io.attach_on_press("reset", handle_io_reset)
+
         # Initialize Ride Motion Controller
         self.rmc = RideMotionController()
 
         self.initialized = True
+        self.log.info(f"Ride Control Computer Initialized!")
 
     def start(self):
         '''
@@ -79,52 +85,21 @@ class RideControlComputer():
     def update(self):
         '''
         Main logic update loop.
-        It should be called as often as possible
+        It should be called as often as possible.
+
+        NOTE: IO events automatically call their respective states when pressed. 
+        NOTE: See initialize() for more info.
         '''
-        # Read inputs from I/O controller
-        self.EStop = self.is_estop_active()
-        self.Stop = self.io.read_stop()
-        self.RideOff = self.io.read_ride_off()
-        self.Reset = self.io.read_restart()
-        self.Dispatch = self.io.read_dispatch()
 
         # **Check for faults using sensor and encoder comparisons**
         self.fault_manager.check_faults(self.io, self.rmc)
 
-        # Transition logic
-        if self.EStop:
-            self.state = State.ESTOPPED
-        elif self.Stop:
-            self.state = State.IDLE
-        else:
-            if self.state == State.ESTOPPED:
-                if self.Reset:
-                    self.state = State.RESETTING
-            elif self.state == State.RESETTING:
-                if not self.Reset:
-                    self.state = State.IDLE
-            elif self.state == State.OFF:
-                if self.Reset:
-                    self.state = State.RESETTING
-            elif self.state == State.IDLE:
-                if self.RideOff:
-                    self.state = State.OFF
-                elif self.Dispatch:
-                    self.state = State.RUNNING
-            elif self.state == State.RUNNING:
-                if self.Stop:
-                    self.state = State.IDLE
+        # Process non-io events.
+        if self.is_estop_active():
+            self.state = self.state.on_event(EStopPressed())
 
         # **Execute state-specific actions**
-        if self.state == State.ESTOPPED:
-            self.io.terminate_power()
-        elif self.state == State.RUNNING:
-            self.io.enable_motors()
-            self.run_ride()
-        elif self.state == State.IDLE:
-            self.io.disable_motors()
-        else:
-            self.io.disable_motors()
+        self.state.run()
             
 
     def is_estop_active(self) -> bool:
@@ -176,17 +151,3 @@ class RideControlComputer():
             raise ValueError("Current IO controller is not recognized. Cannot toggle.")
         self.change_io_controller(self.ioControllerType)
         return self.ioControllerType
-
-
-    # State Getter/Setters
-    @property
-    def state(self):
-        '''State getter'''
-        return self._state
-
-    @state.setter
-    def state(self, new_state: State):
-        ''' Setter for the state, detects changes and runs transition logic '''
-        if new_state.name != self._state.name:
-            self.log.info(f'Changed from {self._state.name} to {new_state.name}')
-            self._state = new_state  # Update state

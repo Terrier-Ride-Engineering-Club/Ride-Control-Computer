@@ -31,15 +31,14 @@ import logging
 # --- Configure Logging ---
 LOG_FORMAT = "%(asctime)s %(levelname)s [%(name)s]: %(message)s"
 LOG_FILE = "ride_control.log"
-
 logging.basicConfig(
     level=logging.DEBUG,
     format=LOG_FORMAT,
-    handlers=[
-        logging.FileHandler(LOG_FILE),  # Log to a file
-        logging.StreamHandler()  # Log to the console
-    ]
-)
+    handlers=[logging.FileHandler(LOG_FILE)])  # Log to a file
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(logging.Formatter(LOG_FORMAT))
+console_handler.setLevel(logging.DEBUG)
+logging.getLogger().addHandler(console_handler)  # Log to the console (INFO or higher)
 
 
 # --- Import Custom Modules ---
