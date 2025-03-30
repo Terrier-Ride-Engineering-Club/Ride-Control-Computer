@@ -105,7 +105,7 @@ if __name__ == "__main__":
             start_time = time()
             while time() - start_time < 5:
                 # mc.drive_to_position_with_speed_acceleration_deceleration(1, HOME_POSITION, FAST_SPEED_QPPS, FAST_SPEED_QPPS, SLOW_SPEED_QPPS)
-                speed = 1
+                speed = 0.01
                 pos = 50
                 mc.drive_to_position(1, 1, speed, 1, pos, 0)
                 # Taken from MC
