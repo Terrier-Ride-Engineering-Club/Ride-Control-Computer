@@ -89,9 +89,6 @@ class RideControlComputer():
 
         attach_button_callbacks(self.ioFactory.get('web'))
         attach_button_callbacks(self.ioFactory.get('hardware'))
-        
-        # Define state specific enter/exit actions
-        OffState._on_exit = lambda self: self.log.info('Leaving OFF State')
 
         # Initialize Ride Motion Controller
         self.rmc = RideMotionController()
@@ -130,10 +127,21 @@ class RideControlComputer():
 
         # Execute specific actions if in running state:
         if isinstance(self.state, RunningState) or self.demoMode:
+            # Start cycle if not running
             if not self.rmc.is_running:
-                self.rmc.start_cycle()
-            current_motor_instruction = self.rmc.update()
-            self.io.send_motor_command(current_motor_instruction)
+                self.current_motor_instruction = self.rmc.start_cycle()
+            
+            # Log any changes in instruction
+            new_motor_instr = self.rmc.update()
+            if new_motor_instr != self.current_motor_instruction:
+                self.current_motor_instruction = new_motor_instr
+                self.log.info(f"New Motor Instruction: {new_motor_instr}")
+            
+            self.io.send_motor_command(self.current_motor_instruction)
+        
+        # Required to update timer for resetting state
+        if isinstance(self.state, ResettingState):
+            self.state = self.state.on_event(None)
             
 
     def is_estop_active(self) -> bool:
@@ -162,7 +170,7 @@ class RideControlComputer():
             self.eventList.remove(event)
         except ValueError:
             pass
-        
+
         self.log.info(f"Event {event.__class__.__name__} Removed.")
 
         # Handle EStop even special - need to raise a fault

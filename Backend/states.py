@@ -1,6 +1,7 @@
 from Backend.state import State
 from Backend.event import *
 import time
+import threading
 
 class OffState(State):
     """
@@ -51,9 +52,26 @@ class ResettingState(State):
     """
     Description of state
     """
+
+    done_resetting = False
+
+    def _on_enter(self):
+        
+        def reset_exit_timer_thread():
+            enter_time = time.time()
+            reset_time = 2
+            while True:
+                if time.time() - enter_time >= reset_time:
+                    self.done_resetting = True
+                else:
+                    time.sleep(0.1)
+        threading.Thread(target=reset_exit_timer_thread, daemon=True).start()
+        
     def on_event(self, event):
         if type(event) is EStopPressed:
             return self._transition(EstoppedState())
+        elif self.done_resetting:
+            return self._transition(IdleState())
         return self
 
 class RunningState(State):
