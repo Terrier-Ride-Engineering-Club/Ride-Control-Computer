@@ -353,7 +353,7 @@ class HardwareIOController(IOController):
         elif command.get('name') == "Position":
             position_str = command.get('pos', 'home').lower()
             position = POSITION_MAP.get(position_str, 'home')
-            self.mc.drive_to_position_with_speed_acceleration_deceleration(1, position, MED_SPEED_QPPS, MED_SPEED_QPPS, MED_SPEED_QPPS)
+            self.mc.drive_to_position_with_speed_acceleration_deceleration(1, position, MED_SPEED_QPPS, ACCEL_MAP['med'], ACCEL_MAP['med'])
         else:
             self.stop_motor()
     
