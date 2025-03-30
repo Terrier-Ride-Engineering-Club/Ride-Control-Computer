@@ -359,7 +359,7 @@ class HardwareIOController(IOController):
 
     def read_range(self): return self.mc.read_range(SELECTED_MOTOR)
 
-    def read_position(self): return self.mc.read_position(SELECTED_MOTOR)
+    def read_position(self): return self.mc.read_encoder_m1()
 
     def read_status(self): return self.mc.read_status()
 
