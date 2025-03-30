@@ -13,6 +13,7 @@ class State():
     """
 
     def __init__(self):
+        self.log = logging.getLogger(self.__class__.__name__)
         pass
 
     def on_event(self, event: Event) -> State:
