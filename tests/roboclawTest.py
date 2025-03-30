@@ -127,8 +127,16 @@ if __name__ == "__main__":
         
         elif MODE == "PID TEST":
 
-            print(f"SPEED: {mc.read_raw_speed_m1()}")
-            mc.set_speed_with_acceleration(1,100000,1000)
+            # QPPS Test
+            # Observe the max encoder speed that the motor reaches at full power
+            # print(f"SPEED: {mc.read_raw_speed_m1()}")
+            # mc.set_speed_with_acceleration(1,100000,1000)
+            # RESULTS: QPPS = 8773
 
+            #
+            print(f"SET PID...{mc.set_velocity_pid_constants_m1(p=1,i=0,d=0,i=0)}")
+            while True:
+                print(f"SPEED: {mc.read_raw_speed_m1()}")
+                mc.set_speed(1, SLOW_SPEED_QPPS)
 
             pass

@@ -732,7 +732,24 @@ class RoboClaw:
             "S4": s4_mapping.get(s4_mode, f"Unknown (0x{s4_mode:02X})"),
             "S5": s5_mapping.get(s5_mode, f"Unknown (0x{s5_mode:02X})")
         }
-
+    
+    def set_velocity_pid_constants_m1(self, d: int, p: int, i: int, qpps: int):
+        """
+        Set Velocity PID Constants for Motor 1.
+    
+        Params:
+            d (int): Derivative constant (4 bytes, unsigned)
+            p (int): Proportional constant (4 bytes, unsigned)
+            i (int): Integral constant (4 bytes, unsigned)
+            qpps (int): QPPS value, encoder speed at 100% motor power (4 bytes, unsigned)
+    
+        Serial:
+            Send: [Address, 28, D(4 bytes), P(4 bytes), I(4 bytes), QPPS(4 bytes), CRC(2 bytes)]
+            Receive: [0xFF]
+        """
+        cmd = 28
+        self._write(cmd, '>IIII', d, p, i, qpps)
+    
     # def read_duty_acceleration_settings(self):
     #     """
     #     Read M1 and M2 Duty Cycle Acceleration Settings.
