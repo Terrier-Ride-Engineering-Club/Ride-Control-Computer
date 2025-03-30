@@ -26,12 +26,20 @@ QUAD_COUNTS_PER_REVOLUTION = MOTOR_PPR * 4
 SLOW_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 15)     # 1 revolution every 20 seconds
 MED_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 10)    # 1 revolution every 10 seconds
 FAST_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 5)     # 1 revolution every 5 seconds
+SLOW_ACCLE_QPPS = 100
+MED_ACCL_QPPS = 150
+FAST_ACCL_QPPS = 200
 HOME_POSITION = 0
 SPEED_MAP = {
     "slow": SLOW_SPEED_QPPS,
     "med": MED_SPEED_QPPS,
     "fast": FAST_SPEED_QPPS,
     "home": HOME_POSITION
+}
+ACCEL_MAP = {
+    "slow": SLOW_ACCLE_QPPS,
+    "med": MED_ACCL_QPPS,
+    "fast": FAST_ACCL_QPPS,
 }
 POSITION_MAP = {
     "home": HOME_POSITION
@@ -339,7 +347,7 @@ class HardwareIOController(IOController):
             direction = command.get('direction') or 'fwd'
             speed *= -1 if direction == 'bwd' else 1
             accel_str = command.get('accel', 'med').lower()
-            accel = SPEED_MAP.get(accel_str, SPEED_MAP['med'])
+            accel = ACCEL_MAP.get(accel_str, ACCEL_MAP['med'])
 
             self.mc.set_speed_with_acceleration(1, speed, accel)
         elif command.get('name') == "Position":
