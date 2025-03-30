@@ -2,7 +2,7 @@
     # Made by Jackson Justus (jackjust@bu.edu)
 
 import unittest
-from Backend.faults import Fault, FaultManager, FaultSeverity
+from Backend.faults import Fault, FaultManager, FaultSeverity, MOTOR_MAX_SPEED
 from unittest.mock import MagicMock
 
 class TestFaultSeverity(unittest.TestCase):
@@ -83,6 +83,24 @@ class TestFaultManager(unittest.TestCase):
         self.fm.raise_fault(fault2)
         self.fm.clear_all_faults()
         self.assertEqual(len(self.fm.active_faults), 0)
+
+    def test_motor_overspeed_raises_fault(self):
+        # Test that if the motor speed exceeds the max speed by more than 5, a fault is raised.
+        io_mock = MagicMock()
+        io_mock.read_position.return_value = None
+        io_mock.read_encoder.return_value = 100
+        io_mock.read_speed.return_value = 4000  # Actual speed
+        io_mock.read_max_speed.return_value = MOTOR_MAX_SPEED # Max speed (deviation = 10)
+        io_mock.read_estop.return_value = False
+        io_mock.read_status.return_value = "Normal"
+
+        rmc_mock = MagicMock()
+
+        self.fm.check_faults(io=io_mock, rmc=rmc_mock)
+
+        fault_codes = [fault.code for fault in self.fm.active_faults]
+        self.assertIn(104, fault_codes)  # 104 is the code for "Motor Overspeed"
+    
 
 if __name__ == '__main__':
     unittest.main()
