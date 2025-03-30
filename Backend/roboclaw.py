@@ -729,19 +729,19 @@ class RoboClaw:
             "S5": s5_mapping.get(s5_mode, f"Unknown (0x{s5_mode:02X})")
         }
 
-    def read_duty_acceleration_settings(self):
-        """
-        Read M1 and M2 Duty Cycle Acceleration Settings.
+    # def read_duty_acceleration_settings(self):
+    #     """
+    #     Read M1 and M2 Duty Cycle Acceleration Settings.
         
-        Command 81:
-            Send: [Address, 81]
-            Receive: [M1Accel(4 bytes), M2Accel(4 bytes), CRC(2 bytes)]
+    #     Command 81:
+    #         Send: [Address, 81]
+    #         Receive: [M1Accel(4 bytes), M2Accel(4 bytes), CRC(2 bytes)]
         
-        Returns:
-            A tuple (M1Accel, M2Accel) of acceleration settings as unsigned 4-byte integers.
-        """
-        cmd = 81
-        return self._read(cmd, '>II')
+    #     Returns:
+    #         A tuple (M1Accel, M2Accel) of acceleration settings as unsigned 4-byte integers.
+    #     """
+    #     cmd = 81
+    #     return self._read(cmd, '>II')
 
 
 class CRCException(Exception):
