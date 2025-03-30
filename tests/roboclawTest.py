@@ -112,7 +112,7 @@ if __name__ == "__main__":
                 range = mc.read_range(1)
                 mc.set_motor1_default_speed(10)
                 print(f"M1 Default Speed: {mc.read_default_speeds()[0]}")
-                # print(f"M1 Default Acceleration: {mc.read_duty_acceleration_settings()[0]}")
+                print(f"M1 Default Acceleration: {mc.read_duty_acceleration_settings()[0]}")
                 max_speed = mc.read_max_speed(1)
                 print(f"M1 Max Speed: {max_speed}")
                 
