@@ -1,18 +1,39 @@
-{% extends "base.html" %}
-
-{% block title %}Maintenance Mode{% endblock %}
-
-{% block content %}
-<nav aria-label="...">
-  <ul class="pagination pagination-lg my-1 justify-content-center">
-    <li class="page-item"><a id="maintenanceButton" class="page-link" href="/control">Controls</a>
-      <!-- <span class="page-link" href="/controls#">Controls</span> -->
-    </li>
-    <li class="page-item active">
-      <span class="page-link" aria-current="page">Maintenance</span>
-    </li>
-  </ul>
-</nav>
+{% set active_page = "maintenance" %}
+{% include "base.html" %}
+<!-- Server Logs -->
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-6">
+      <h2>Active Faults</h2>
+      <div id="activeWarnings" style="background-color: #f8f9fa; padding: 1em; border: 1px solid #dee2e6; height: 150px; overflow-y: scroll;"></div>
+    </div>
+    <div class="col-md-6">
+      <h2>Manual Motor Control</h2>
+      <div id="troubleshootingMotors" style="background-color: #f8f9fa; padding: 1em; border: 1px solid #dee2e6; height: 150px; overflow-y: scroll;">
+        <div id="motorControls" style="margin-bottom: 1em;">
+          <button onclick="postMotorAction('creep_fwd')">Creep Fwd</button>
+          <button onclick="postMotorAction('creep_bwd')">Creep Bwd</button>
+          <button onclick="postMotorAction('reset_encoder')">Reset Encoder</button>
+          <button onclick="postMotorAction('save_home_position')">Save Home Position</button>
+        </div>
+        <div id="motorStatus">
+          <div class="row">
+            <div class="col-3" style="font-size: 0.8rem; border: 1px solid #dee2e6; padding: 0.5rem;">Enc Position: <span id="encoderPosition"><strong>N/A</strong></span></div>
+            <div class="col-3" style="font-size: 0.8rem; border: 1px solid #dee2e6; padding: 0.5rem;">Enc Home: <span id="encoderHomePosition"><strong>N/A</strong></span></div>
+            <div class="col-3" style="font-size: 0.8rem; border: 1px solid #dee2e6; padding: 0.5rem;">Motor Speed: <span id="motorSpeed"><strong>N/A</strong></span></div>
+            <div class="col-3" style="font-size: 0.8rem; border: 1px solid #dee2e6; padding: 0.5rem;">Motor Current: <span id="motorCurrent"><strong>N/A</strong></span></div>
+          </div>
+          <div class="row">
+            <div class="col-3" style="font-size: 0.8rem; border: 1px solid #dee2e6; padding: 0.5rem;">PSU Voltage: <span id="powerSupplyVoltage"><strong>N/A</strong></span></div>
+            <div class="col-3" style="font-size: 0.8rem; border: 1px solid #dee2e6; padding: 0.5rem;">MC Status: <span id="motorControllerStatus"><strong>N/A</strong></span></div>
+            <div class="col-3" style="font-size: 0.8rem; border: 1px solid #dee2e6; padding: 0.5rem;"></div>
+            <div class="col-3" style="font-size: 0.8rem; border: 1px solid #dee2e6; padding: 0.5rem;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="container mt-4">
    <h2>RCC Server Logs</h2>
    <pre id="logContainer" style="background-color: #f8f9fa; padding: 1em; border: 1px solid #dee2e6; height: 300px; overflow-y: scroll;"></pre>
@@ -34,8 +55,63 @@
          console.error('Error fetching logs:', error);
       });
   }
-  // Fetch logs immediately and then every 5 seconds
+  // Fetch logs immediately and then every 100ms
   fetchLogs();
   setInterval(fetchLogs, 100);
+
+  function fetchFaults() {
+    fetch('/api/faults')
+      .then(response => response.json())
+      .then(data => {
+         var activeWarnings = document.getElementById('activeWarnings');
+         activeWarnings.innerHTML = '';
+         Object.keys(data).forEach(function(faultCode) {
+           var fault = data[faultCode];
+           var warningDiv = document.createElement('div');
+           warningDiv.textContent = 'Fault ' + faultCode + ': ' + fault.message + ' (Severity: ' + fault.severity + ')';
+           activeWarnings.appendChild(warningDiv);
+         });
+      })
+      .catch(error => {
+         console.error('Error fetching faults:', error);
+      });
+  }
+  // Fetch faults immediately and then every 100ms
+  fetchFaults();
+  setInterval(fetchFaults, 100);
+
+  function postMotorAction(action) {
+    fetch('/api/motor/' + action, {
+      method: 'POST'
+    })
+    .then(response => {
+      if (response.ok) {
+        console.log('Motor action ' + action + ' executed successfully.');
+      } else {
+        console.error('Motor action ' + action + ' failed.');
+      }
+    })
+    .catch(error => {
+      console.error('Error executing motor action:', error);
+    });
+  }
+
+  function fetchMotorStatus() {
+    fetch('/api/motor/status')
+      .then(response => response.json())
+      .then(data => {
+         document.getElementById('encoderPosition').innerHTML = `<strong>${data.encoderPosition}</strong>`;
+         document.getElementById('encoderHomePosition').innerHTML = `<strong>${data.encoderHomePosition}</strong>`;
+         document.getElementById('motorSpeed').innerHTML = `<strong>${data.motorSpeed}</strong>`;
+         document.getElementById('motorCurrent').innerHTML = `<strong>${data.motorCurrent}</strong>`;
+         document.getElementById('powerSupplyVoltage').innerHTML = `<strong>${data.powerSupplyVoltage}</strong>`;
+         document.getElementById('motorControllerStatus').innerHTML = `<strong>${data.motorControllerStatus}</strong>`;
+      })
+      .catch(error => {
+         console.error('Error fetching motor status:', error);
+      });
+  }
+  // Fetch motor status immediately and then every 100ms
+  fetchMotorStatus();
+  setInterval(fetchMotorStatus, 100);
 </script>
-{% endblock %}

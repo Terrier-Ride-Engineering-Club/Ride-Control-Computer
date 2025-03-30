@@ -142,3 +142,13 @@ class FaultManager:
 
                 return True
         return False
+    
+    def get_faults(self) -> dict:
+        """Returns a dict of the active faults by fault code, including fault message and severity."""
+        faults_dict = {}
+        for fault in self.active_faults:
+            faults_dict[fault.code] = {
+                "message": fault.message,
+                "severity": fault.severity.name
+            }
+        return faults_dict

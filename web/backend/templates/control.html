@@ -14,24 +14,8 @@
 </head>
 <body>
   <!-- Header Bar -->
-  <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
-    <div class="container">
-      <a class="navbar-brand text-white" href="#">
-        <h1 class="h1 mb-0">Boston University Terrier Ride Engineering Club</h1>
-        <h2 class="h5">RCC Dashboard</h2>
-      </a>
-    </div>
-  </nav>
-
-  <!-- Navbar -->
-  <nav aria-label="...">
-    <ul class="pagination pagination-lg my-1 justify-content-center">
-      <li class="page-item active" aria-current="page">
-        <span class="page-link"√>Controls</span>
-      </li>
-      <li class="page-item"><a id="maintenanceButton" class="page-link" href="/maintenance#">Maintenance</a></li>
-    </ul>
-  </nav>
+{% set active_page = "controls" %}
+{% include "base.html" %}
 
   <!-- Main Container -->
   <div class="container my-5">
@@ -90,7 +74,7 @@
         <div class="col-md-6 mb-4">
           <div class="card border-secondary shadow">
             <div class="card-header bg-secondary text-white">
-              <h5 class="mb-0">Ride Controls</h5>
+              <h5 class="mb-0">Virtual Ride Controls</h5>
             </div>
             <div class="card-body text-center">
               <div class="container text-center">
@@ -123,7 +107,7 @@
                 </div>
                 <div class="col-6">
                   <button id="rideOff" type="button" class="btn btn-dark btn-lg w-100 py-3">
-                    <i class="fas fa-power-off me-2"></i> Ride Off
+                    <i class="fas fa-power-off me-2"></i> Ride On/Off
                   </button>
                 </div>
                 <div class="col-12">

@@ -13,6 +13,7 @@ from Backend.faults import PREDEFINED_FAULTS
 from Backend.state import State
 from Backend.states import *
 from Backend.event import *
+import json
 
 class RideControlComputer():
     '''
@@ -240,4 +241,3 @@ if __name__ == '__main__':
     rcc.initialize()
     rcc.state = RunningState()
     rcc.start()
-

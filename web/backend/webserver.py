@@ -69,6 +69,8 @@ class RideWebServer:
         self.app.add_url_rule('/api/restart', 'restart_ride', self.restart_ride, methods=['POST'])
         self.app.add_url_rule('/api/toggle_webcontrols','toggle_web_controls', self.toggle_webserver_control, methods=['POST'])
         self.app.add_url_rule('/api/logs', 'logs', self.get_logs, methods=['GET'])
+        self.app.add_url_rule('/api/faults','faults', self.get_faults, methods=['GET'])
+        self.app.add_url_rule('/api/motor/status', 'motor_status', self.get_motor_status, methods=['GET'])
 
     # --- Run Methods ---
     def run(self):
@@ -142,3 +144,18 @@ class RideWebServer:
 
     def get_logs(self):
         return jsonify({'logs': self.log_handler.logs[-100:]})
+    
+    def get_faults(self):
+        return jsonify(self.rcc.fault_manager.get_faults())
+
+    def get_motor_status(self):
+        """Returns motor status values as a JSON object."""
+        motor_status = {
+            "encoderPosition": self.rcc.io.read_encoder(),
+            "encoderHomePosition": "NOT IMPL", # TODO: IMPLEMENT
+            "motorSpeed": self.rcc.io.read_max_speed(),
+            "motorCurrent": self.rcc.io.read_motor_current(),
+            "powerSupplyVoltage": "NOT IMPL", # TODO: IMPLEMENT
+            "motorControllerStatus": self.rcc.io.read_status()
+        }
+        return jsonify(motor_status)
