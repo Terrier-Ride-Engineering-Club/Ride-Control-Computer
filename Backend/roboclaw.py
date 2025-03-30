@@ -284,7 +284,7 @@ class RoboClaw:
                 - "MaxPos": Maximum Position (4 bytes, signed)
         """
         cmd = 63
-        pid_vals = self._read(cmd, '>fffffii')
+        pid_vals = self._read(cmd, '>IIIIIii')
         return {
             "P": pid_vals[0],
             "I": pid_vals[1],
