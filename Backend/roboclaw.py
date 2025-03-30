@@ -181,7 +181,7 @@ class RoboClaw:
         return speeds
 
 
-    def drive_to_position_with_speed_acceleration_deceleration(self, motor: int, position: int, speed: int, acceleration: int, deceleration: int, buffer: int = 5):
+    def drive_to_position_with_speed_acceleration_deceleration(self, motor: int, position: int, speed: int, acceleration: int, deceleration: int, buffer: int = 0):
         """
         Params:
             motor (int): 1 or 2 to select which motor gets this command.

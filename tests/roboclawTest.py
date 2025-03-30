@@ -15,7 +15,7 @@ if __name__ == "__main__":
     address = 0x80
     mc = RoboClaw(port='/dev/ttyAMA0',address=0x80)
     
-    MODE = "PID TEST"
+    MODE = "POS TEST"
     while True:
         if MODE == "DIAGNOSTIC":
             print(f"VER: {mc.read_version()}")
@@ -149,4 +149,15 @@ if __name__ == "__main__":
             print(f"VEL PID: {mc.read_velocity_pid_constants_m1()}")
             print(f"POS PID: {mc.read_position_pid_constants()}")
 
-            pass
+        elif MODE == "POS TEST":
+            start_time = time()
+            while time() - start_time < 5:
+                mc.drive_to_position_with_speed_acceleration_deceleration(1,0,1000,100,100,0)
+                sleep(0.05)
+
+
+            start_time = time()
+            while time() - start_time < 5:
+                mc.drive_to_position_with_speed_acceleration_deceleration(1,2000,1000,100,100,0)
+                sleep(0.05)
+            
