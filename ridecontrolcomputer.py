@@ -6,7 +6,7 @@
 import logging
 from enum import Enum
 from typing import List
-from Backend.iocontroller import IOController, HardwareIOController, WebIOController
+from Backend.iocontroller import IOController, HardwareIOController, WebIOController, IOControllerFactory
 from Backend.faults import Fault, FaultManager, FaultSeverity
 from Backend.ridemotioncontroller import RideMotionController
 from Backend.state import State
@@ -18,6 +18,7 @@ class RideControlComputer():
     This class outlines the functionality of the RCC.
     '''
     # I/O
+    ioFactory: IOControllerFactory
     io: IOController
     log: logging.Logger
 
@@ -27,19 +28,26 @@ class RideControlComputer():
     OnSwitchActive: bool
     Reset: bool
 
-    def __init__(self, useWebIOController=False):
+    def __init__(self, useWebIOController=False, demoMode = False):
         '''
         Creates a RideControlComputer object.
         Should NOT initialize any functions. This is left for the initialize() func.
+
+        Params:
+            useWebIOController (bool): True if this should default to the web IO Controller
+            demoMode (bool): True if the rcc should ignore control all logic and start the ride sequence.
         '''
+        # Get logger
+        self.log = logging.getLogger('RCC')
+
         # Init vars to safe position
         self.state = OffState()
         self.initialized = False
         self.ioControllerType = 'web' if useWebIOController else 'hardware'
+        self.log.info(f"Created RCC w/ Control Type {self.ioControllerType}")
+        self.demoMode = demoMode
+        if demoMode: self.log.warning("Demo Mode enabled: RCC Will ignore control logic.")
 
-        # Get logger
-        self.log = logging.getLogger('RCC')
-        
         # Initialize fault manager
         self.fault_manager = FaultManager()
 
@@ -49,10 +57,8 @@ class RideControlComputer():
         Carries out the actions detailed in the theory of operations.
         '''
         # Initialize I/O
-        if not self.ioControllerType:
-            self.io = HardwareIOController()
-        else:
-            self.io = WebIOController()
+        self.ioFactory = IOControllerFactory()
+        self.io = self.ioFactory.get(self.ioControllerType)
 
         # Attach callback methods to io funcs
         def handle_io_estop(): self.state = self.state.on_event(EStopPressed())
@@ -65,6 +71,9 @@ class RideControlComputer():
         self.io.attach_on_press("dispatch", handle_io_dispatch)
         self.io.attach_on_press("rideonoff", handle_io_ride_on_off)
         self.io.attach_on_press("reset", handle_io_reset)
+
+        # Define state specific enter/exit actions
+        OffState._on_exit = lambda self: self.log.info('Leaving OFF State')
 
         # Initialize Ride Motion Controller
         self.rmc = RideMotionController()
@@ -102,7 +111,7 @@ class RideControlComputer():
         self.state.run()
 
         # Execute specific actions if in running state:
-        if isinstance(self.state, RunningState):
+        if isinstance(self.state, RunningState) or self.demoMode:
             if not self.rmc.is_running:
                 self.rmc.start_cycle()
             current_motor_instruction = self.rmc.update()
@@ -128,20 +137,20 @@ class RideControlComputer():
             # Pass the instruction to the IO controller for execution.
             ...
 
-    def change_io_controller(self, controller_type: str):
+    def change_io_controller(self, controller_type: str) -> str:
         """
         Switches the IO controller to a new implementation at runtime.
         
         Parameters:
             controller_type (str): A string specifying which IO controller to use. Accepted values are "hardware" or "web".
         """
-        if controller_type.lower() == "hardware":
-            self.io = HardwareIOController()
-        elif controller_type.lower() == "web":
-            self.io = WebIOController()
+        io_type = controller_type.lower()
+        if io_type == "hardware" or io_type ==  "web":
+            self.io = self.ioFactory.get(io_type)
+            self.ioControllerType = io_type
         else:
-            raise ValueError(f"Invalid IO controller type: {controller_type}")
-        self.log.info(f'Switched IO controller to: {self.io.__class__.__name__}')
+            raise ValueError(f"Invalid IO controller type: {io_type}")
+        self.log.info(f'Switched IO controller to: {self.ioControllerType}')
 
     def toggle_io_controller(self) -> str:
         """

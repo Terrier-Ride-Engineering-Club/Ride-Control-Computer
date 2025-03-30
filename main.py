@@ -27,6 +27,7 @@ Notes for members:
 
 # Native modules
 import logging
+import argparse
 
 # --- Configure Logging ---
 LOG_FORMAT = "%(asctime)s %(levelname)s [%(name)s]: %(message)s"
@@ -45,10 +46,14 @@ logging.getLogger().addHandler(console_handler)  # Log to the console (INFO or h
 from ridecontrolcomputer import RideControlComputer
 from web.backend.webserver import RideWebServer
 
+# --- Parse start args ---
+parser = argparse.ArgumentParser(description="Ride Control Computer Launcher")
+parser.add_argument("-demo", action="store_true", help="Enable extra debugging output")
+args = parser.parse_args()
 
 
 # Initialize RCC
-rcc = RideControlComputer()
+rcc = RideControlComputer(demoMode = args.demo)
 rcc.initialize()
 
 # Start Web Server
