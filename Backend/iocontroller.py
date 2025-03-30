@@ -196,7 +196,7 @@ class IOController(ABC):
         pass
 
     @abstractmethod
-    def read_position(self):
+    def read_position(self) -> dict:
         """Returns position as a percentage across the full set range of the motor"""
         pass
 
@@ -360,7 +360,7 @@ class HardwareIOController(IOController):
 
     def read_range(self): return self.mc.read_range(SELECTED_MOTOR)
 
-    def read_position(self): return self.mc.read_encoder_m1()
+    def read_position(self) -> dict: return self.mc.read_encoder_m1()
 
     def read_status(self): return self.mc.read_status()
 

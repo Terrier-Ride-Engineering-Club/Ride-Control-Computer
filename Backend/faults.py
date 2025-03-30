@@ -98,6 +98,7 @@ class FaultManager:
 
         # Motor speed deviation detection   
         if actual_speed:         
+            print(actual_speed)
             speed_deviation = abs(actual_speed) - max_speed
             if speed_deviation > 5:
                 self.raise_fault(PREDEFINED_FAULTS[104])
