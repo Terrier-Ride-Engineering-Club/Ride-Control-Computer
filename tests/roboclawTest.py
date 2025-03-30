@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
             #
             print(f"READ PID: {mc.read_velocity_pid_constants_m1()}")
-            print(f"SET PID...{mc.set_velocity_pid_constants_m1(p=2,i=0,d=0,qpps=8773)}")
+            print(f"SET PID...{mc.set_velocity_pid_constants_m1(p=2*(10^6),i=0,d=0,qpps=8773)}")
             print(f"READ PID: {mc.read_velocity_pid_constants_m1()}")
             while True:
                 print(f"SPEED: {mc.read_raw_speed_m1()}")
