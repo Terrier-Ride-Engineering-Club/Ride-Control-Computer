@@ -150,6 +150,35 @@ class RoboClaw:
         #   - 'I' for a 4-byte unsigned acceleration value
         #   - 'i' for a 4-byte signed speed value
         self._write(cmd, '>Ii', acceleration, speed)
+    
+    def set_motor1_default_speed(self, default_speed: int):
+        """
+        Set Motor1 Default Speed for use with M1 position command and RC or analog modes when position
+        control is enabled.
+        This sets the percentage of the maximum speed set by QPSS as the default speed.
+        The range is 0 to 32767.
+        
+        Serial:
+            Send: [Address, 70, Value(2 bytes), CRC(2 bytes)]
+            Receive: [0xFF]
+        """
+        if not (0 <= default_speed <= 32767):
+            raise ValueError("Default speed must be between 0 and 32767.")
+        self._write(70, '>H', default_speed)
+    
+    def read_default_speeds(self):
+        """
+        Read current default speeds for M1 and M2.
+        
+        Serial:
+            Send: [Address, 72]
+            Receive: [M1Speed(2 bytes), M2Speed(2 bytes), CRC(2 bytes)]
+        
+        Returns:
+            A tuple (M1Speed, M2Speed) where each speed is a 2-byte unsigned value.
+        """
+        speeds = self._read(72, '>HH')
+        return speeds
 
 
     def drive_to_position_with_speed_acceleration_deceleration(self, motor: int, position: int, speed: int, acceleration: int, deceleration: int, buffer: int = 5):
