@@ -98,7 +98,6 @@ class FaultManager:
 
         # Motor speed deviation detection   
         if actual_speed:         
-            print(actual_speed)
             speed_deviation = abs(actual_speed) - max_speed
             if speed_deviation > 5:
                 self.raise_fault(PREDEFINED_FAULTS[104])
@@ -107,6 +106,7 @@ class FaultManager:
 
         # Position mismatch detection
         if current_position:
+            print(current_position)
             deviation = 0 - abs(current_position)
             if deviation > 5:
                 self.raise_fault(PREDEFINED_FAULTS[105])
