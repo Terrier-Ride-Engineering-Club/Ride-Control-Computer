@@ -248,17 +248,22 @@ class HardwareIOController(IOController):
     def __init__(self):
         self.log = logging.getLogger('IOController')
 
+        if USING_MOCK_PIN_FACTORY:
+            factory = MockFactory(pin_class=MockPWMPin)
+        else:
+            factory = LGPIOFactory()
+
         # Initialize GPIO inputs as buttons (pull-down enabled by default)
-        self.estop_button = Button(ESTOP_PIN, pull_up=False)
-        self.stop_button = Button(STOP_PIN, pull_up=False)
-        self.dispatch_button = Button(DISPATCH_PIN, pull_up=False)
-        self.ride_onoff_button = Button(RIDE_ONOFF_PIN, pull_up=False)
-        self.reset_button = Button(RESTART_PIN, pull_up=False)
-        self.servo1 = Servo(pin=SERVO1_PIN)
+        self.estop_button = Button(ESTOP_PIN, pull_up=False, pin_factory=factory)
+        self.stop_button = Button(STOP_PIN, pull_up=False, pin_factory=factory)
+        self.dispatch_button = Button(DISPATCH_PIN, pull_up=False, pin_factory=factory)
+        self.ride_onoff_button = Button(RIDE_ONOFF_PIN, pull_up=False, pin_factory=factory)
+        self.reset_button = Button(RESTART_PIN, pull_up=False, pin_factory=factory)
+        self.servo1 = Servo(pin=SERVO1_PIN, pin_factory=factory)
                     # min_pulse_width=600/1_000_000,   # 0.0006
                     # max_pulse_width=2400/1_000_000,  # 0.0024
                     # frame_width=20/1000)             # 0.02 (20 ms standard servo frame)
-        self.servo2 = Servo(pin=SERVO2_PIN)
+        self.servo2 = Servo(pin=SERVO2_PIN, pin_factory=factory)
                     # min_pulse_width=600/1_000_000,   # 0.0006
                     # max_pulse_width=2400/1_000_000,  # 0.0024
                     # frame_width=20/1000)             # 0.02 (20 ms standard servo frame)
@@ -375,6 +380,7 @@ class WebIOController(IOController):
     def __init__(self):
         self.log = logging.getLogger('WebIOController')
         mock = MockFactory(pin_class=MockPWMPin)
+
         self.estop_button = Button(ESTOP_PIN, pull_up=False, pin_factory=mock)
         self.stop_button = Button(STOP_PIN, pull_up=False, pin_factory=mock)
         self.dispatch_button = Button(DISPATCH_PIN, pull_up=False, pin_factory=mock)
@@ -480,6 +486,21 @@ class WebIOController(IOController):
 
     def send_motor_command(self, command): return None
 
+class IOControllerFactory():
+    """Class to dispatch IOController objects at runtime without duplication"""
+    hardware: HardwareIOController
+    web: WebIOController
+    def __init__(self):
+        self.hardware = HardwareIOController()
+        self.web = WebIOController()
+
+    def get(self, type: str):
+        if type == 'web':
+            return self.web
+        elif type == 'hardware':
+            return self.hardware
+        else:
+            raise KeyError(f"IOController Type {type} not recognized!")
 
 
 if __name__ == "__main__":
