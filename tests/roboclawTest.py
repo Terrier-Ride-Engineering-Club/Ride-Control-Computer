@@ -107,7 +107,7 @@ if __name__ == "__main__":
                 # mc.drive_to_position_with_speed_acceleration_deceleration(1, HOME_POSITION, FAST_SPEED_QPPS, FAST_SPEED_QPPS, SLOW_SPEED_QPPS)
                 speed = 0.001
                 pos = 50
-                mc.drive_to_position(1, 1, speed, 1, pos, 0)
+                # mc.drive_to_position(1, 1, speed, 1, pos, 0)
                 # Taken from MC
                 range = mc.read_range(1)
                 max_speed = mc.read_max_speed(1)
