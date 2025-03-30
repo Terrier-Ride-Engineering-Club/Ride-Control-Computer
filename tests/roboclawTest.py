@@ -145,7 +145,7 @@ if __name__ == "__main__":
             # Position Test
             print(f"VEL PID: {mc.read_velocity_pid_constants_m1()}")
             print(f"POS PID: {mc.read_position_pid_constants()}")
-            
+            mc.drive_to_position_with_speed_acceleration_deceleration(1,0,1000,100,100,0)
             print(f"VEL PID: {mc.read_velocity_pid_constants_m1()}")
             print(f"POS PID: {mc.read_position_pid_constants()}")
 
