@@ -749,6 +749,30 @@ class RoboClaw:
         """
         cmd = 28
         self._write(cmd, '>IIII', d, p, i, qpps)
+
+    def read_velocity_pid_constants_m1(self):
+        """
+        Read Motor 1 Velocity PID and QPPS Settings.
+ 
+        Serial:
+            Send: [Address, 55]
+            Receive: [P(4 bytes), I(4 bytes), D(4 bytes), QPPS(4 bytes), CRC(2 bytes)]
+ 
+        Returns:
+            A dictionary containing the PID constants and QPPS:
+                - "P": Proportional constant (4 bytes, unsigned)
+                - "I": Integral constant (4 bytes, unsigned)
+                - "D": Derivative constant (4 bytes, unsigned)
+                - "QPPS": QPPS value (4 bytes, unsigned)
+        """
+        cmd = 55
+        pid_vals = self._read(cmd, '>IIII')
+        return {
+            "P": pid_vals[0],
+            "I": pid_vals[1],
+            "D": pid_vals[2],
+            "QPPS": pid_vals[3]
+        }
     
     # def read_duty_acceleration_settings(self):
     #     """
