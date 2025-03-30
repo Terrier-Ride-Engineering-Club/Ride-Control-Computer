@@ -136,6 +136,9 @@ class FaultManager:
                 self.raise_fault(PREDEFINED_FAULTS[105])
                 self.log.warning(f"Position mismatch detected! Expected: 50, Actual: {current_position}, Deviation: {deviation}")
 
+            else:
+             self.clear_fault(PREDEFINED_FAULTS[105].code)
+
 
 
 
