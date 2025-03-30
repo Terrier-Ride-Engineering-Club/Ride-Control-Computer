@@ -111,6 +111,7 @@ if __name__ == "__main__":
                 # Taken from MC
                 range = mc.read_range(1)
                 mc.set_motor1_default_speed(10)
+                print(f"M1 Default Speed: {mc.read_default_speeds()[0]}")
                 max_speed = mc.read_max_speed(1)
                 set_speed = (speed / 100.) * max_speed
                 set_position = (pos / 100.) * (range[1] - range[0]) + range[0]
