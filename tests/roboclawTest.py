@@ -99,7 +99,7 @@ if __name__ == "__main__":
             # p_float = struct.unpack('>f', struct.pack('>I', p_raw))[0]
             # print(f"P (raw): {p_raw}, P (as float): {p_float}")
 
-            # print(f"SET PID...{mc.set_position_pid_constants(0,3618*2,0,0,0,0,10000)}")
+            print(f"SET PID...{mc.set_position_pid_constants(0,0,0,0,0,-10000,10000)}")
             print(f"READ PID: {mc.read_position_pid_constants()}")
             print(f"READ RANGE: {mc.read_range(1)}")
             start_time = time()
@@ -117,7 +117,7 @@ if __name__ == "__main__":
                 set_position = (pos / 100.) * (range[1] - range[0]) + range[0]
 
                 print(f"SET SPEED: {round(set_speed)}% of {max_speed}, SET POS: {set_position}")
-                mc.drive_to_position_buffered(1,0,0)
+                # mc.drive_to_position_buffered(1,0,0)
                 # print(f"ENC: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
                 print(f"ENC: {mc.read_encoder_m1()}\n HOME: {HOME_POSITION}")
                 sleep(0.05)
