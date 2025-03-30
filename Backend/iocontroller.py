@@ -375,7 +375,7 @@ class HardwareIOController(IOController):
 
     def read_max_speed(self): return self.mc.read_max_speed(SELECTED_MOTOR)
 
-    def read_speed(self): return self.mc.read_speed(SELECTED_MOTOR)
+    def read_speed(self): return self.mc.read_speed_percentage(SELECTED_MOTOR)
 
 
 

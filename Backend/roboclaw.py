@@ -559,7 +559,7 @@ class RoboClaw:
             cmd = Cmd.READM2PID
         return self._read(cmd, '>IIII')[3]
 
-    def read_speed(self, motor):
+    def read_speed_percentage(self, motor):
         # returns velocity as a percentage of max speed
         if motor == 1:
             cmd = Cmd.GETM1SPEED
@@ -572,6 +572,10 @@ class RoboClaw:
             speed *= -1
         return speed
 
+    def read_raw_speed_m1(self):
+        speed_vals = self._read(Cmd.GETM1SPEED, '>IB')
+        return speed_vals
+        
     def write_settings_to_eeprom(self):
         """
         Writes all current settings to non-volatile EEPROM.

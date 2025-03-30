@@ -15,7 +15,7 @@ if __name__ == "__main__":
     address = 0x80
     mc = RoboClaw(port='/dev/ttyAMA0',address=0x80)
     
-    MODE = "MOTOR TEST"
+    MODE = "PID TEST"
     while True:
         if MODE == "DIAGNOSTIC":
             print(f"VER: {mc.read_version()}")
@@ -125,5 +125,10 @@ if __name__ == "__main__":
                 print(f"ENC: {mc.read_encoder_m1()}\n HOME: {HOME_POSITION}")
                 sleep(0.05)
         
-        # roboclaw.drive_motor(1,0)
-        # sleep(2)
+        elif MODE == "PID TEST":
+
+            print(f"SPEED: {mc.read_raw_speed_m1()}")
+            mc.set_speed_with_acceleration(1,100000,1000)
+
+
+            pass
