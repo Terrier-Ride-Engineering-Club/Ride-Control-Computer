@@ -210,6 +210,9 @@ class RoboClaw:
         else:
             raise ValueError(f"Motor #{motor} is not valid!")
         
+        if speed > 2000 or acceleration > 2000 or deceleration > 2000:
+            raise ValueError(f"Value to great! spd: {speed}, acc: {acceleration}, dec: {deceleration}")
+        
         # Send the command.
         # The format '>IiIiB' corresponds to:
         #   'I' : unsigned 4-byte acceleration
