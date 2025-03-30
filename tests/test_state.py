@@ -1,4 +1,5 @@
 import unittest
+from time import sleep
 from unittest.mock import patch, call, MagicMock
 
 # Import states and events
@@ -8,19 +9,19 @@ from Backend.event import RideOnOffPressed, EStopPressed, DispatchedPressed, Res
 class TestStateTransitions(unittest.TestCase):
 
     def test_on_exit_called(self):
-        originalState = OffState()
+        originalState = OffState(disable_timer=True)
         originalState._on_exit = MagicMock()
         newState = originalState.on_event(RideOnOffPressed())
         originalState._on_exit.assert_called_once()
 
     def test_on_enter_called(self):
-        originalState = OffState()
+        originalState = OffState(disable_timer=True)
         IdleState._on_enter = MagicMock()
         originalState.on_event(RideOnOffPressed())
         IdleState._on_enter.assert_called_once()
 
     def test_off_state_transitions(self):
-        originalState = OffState()
+        originalState = OffState(disable_timer=True)
         self.assertIsInstance(originalState.on_event(RideOnOffPressed()), IdleState)
         originalState = OffState()
         self.assertIsInstance(originalState.on_event(DispatchedPressed()), OffState)

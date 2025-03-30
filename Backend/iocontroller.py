@@ -84,20 +84,30 @@ class IOController(ABC):
     servo1: Servo
     servo2: Servo
 
+    def get_button_map(self):
+        return {
+            "estop": self.estop_button,
+            "stop": self.stop_button,
+            "dispatch": self.dispatch_button,
+            "rideonoff": self.ride_onoff_button,
+            "reset": self.reset_button
+        }
+
     def attach_on_press(self, button_name: str, func_call: callable):
         """Attaches a function call to be called when a specified button is pressed."""
-        if button_name == "estop":
-            self.estop_button.when_activated = func_call
-        elif button_name == "stop":
-            self.stop_button.when_activated = func_call
-        elif button_name == "dispatch":
-            self.dispatch_button.when_activated = func_call
-        elif button_name == "rideonoff":
-            self.ride_onoff_button.when_activated = func_call
-        elif button_name == "reset":
-            self.reset_button.when_activated = func_call
+        button = self.get_button_map().get(button_name)
+        if button:
+            button.when_activated = func_call
         else:
             self.log.error(f"Button {button_name} not found for method attach_on_press().")
+
+    def attach_on_release(self, button_name: str, func_call: callable):
+        """Attaches a function call to be called when a specified button is released."""
+        button = self.get_button_map().get(button_name)
+        if button:
+            button.when_deactivated = func_call
+        else:
+            self.log.error(f"Button {button_name} not found for method attach_on_release().")
 
     @abstractmethod
     def send_motor_command(self, command: dict):

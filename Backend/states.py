@@ -1,14 +1,28 @@
 from Backend.state import State
 from Backend.event import *
+import time
 
 class OffState(State):
     """
     Ride OFF State
+
+    Includes a timer b/c there is only one event to enter/exit this state.
+    If the timer hasn't reached the threshold, the RideOnOffPressed event will
+    do nothing.
+    
+    The `disable_timer` flag can be used to disable this timer.
     """
 
+    def __init__(self,disable_timer = False):
+        super().__init__()
+        self.enter_time = time.time()
+        self.min_off_duration = 2.0  # seconds
+        self.disable_timer = disable_timer
+
     def on_event(self, event):
-        if type(event) is RideOnOffPressed:
-            return self._transition(IdleState())
+        if isinstance(event, RideOnOffPressed):
+            if time.time() - self.enter_time >= self.min_off_duration or self.disable_timer:
+                return self._transition(IdleState())
         return self
 
 class IdleState(State):

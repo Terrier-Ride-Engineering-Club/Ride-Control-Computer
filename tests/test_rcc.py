@@ -98,7 +98,6 @@ class TestRideControlComputer(unittest.TestCase):
         self.assertIsInstance(self.rcc.state, IdleState)
 
     def test_latched_estop_in_state_transition(self):
-        self.rcc.state = OffState()
         self.rcc.io.estop_button.pin.drive_high()
         self.rcc.io.ride_onoff_button.pin.drive_high()
         self.assertIsInstance(self.rcc.state, EstoppedState)

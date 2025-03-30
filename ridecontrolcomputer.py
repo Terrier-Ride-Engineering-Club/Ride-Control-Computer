@@ -9,6 +9,7 @@ from typing import List
 from Backend.iocontroller import IOController, HardwareIOController, WebIOController, IOControllerFactory
 from Backend.faults import Fault, FaultManager, FaultSeverity
 from Backend.ridemotioncontroller import RideMotionController
+from Backend.faults import PREDEFINED_FAULTS
 from Backend.state import State
 from Backend.states import *
 from Backend.event import *
@@ -21,6 +22,7 @@ class RideControlComputer():
     ioFactory: IOControllerFactory
     io: IOController
     log: logging.Logger
+    eventList: List[Event] # Holds the IO Events currently active
 
     # Ride controllers
     state: State
@@ -41,12 +43,13 @@ class RideControlComputer():
         self.log = logging.getLogger('RCC')
 
         # Init vars to safe position
-        self.state = OffState()
+        self._state = OffState(disable_timer=True)
         self.initialized = False
         self.ioControllerType = 'web' if useWebIOController else 'hardware'
         self.log.info(f"Created RCC w/ Control Type {self.ioControllerType}")
         self.demoMode = demoMode
         if demoMode: self.log.warning("Demo Mode enabled: RCC Will ignore control logic.")
+        self.eventList = []
 
         # Initialize fault manager
         self.fault_manager = FaultManager()
@@ -60,17 +63,28 @@ class RideControlComputer():
         self.ioFactory = IOControllerFactory()
         self.io = self.ioFactory.get(self.ioControllerType)
 
-        # Attach callback methods to io funcs
-        def handle_io_estop(): self.state = self.state.on_event(EStopPressed())
-        def handle_io_stop(): self.state = self.state.on_event(StopPressed())
-        def handle_io_dispatch(): self.state = self.state.on_event(DispatchedPressed())
-        def handle_io_ride_on_off(): self.state = self.state.on_event(RideOnOffPressed())
-        def handle_io_reset(): self.state = self.state.on_event(ResetPressed())
-        self.io.attach_on_press("estop", handle_io_estop)
-        self.io.attach_on_press("stop", handle_io_stop)
-        self.io.attach_on_press("dispatch", handle_io_dispatch)
-        self.io.attach_on_press("rideonoff", handle_io_ride_on_off)
-        self.io.attach_on_press("reset", handle_io_reset)
+        # Attach callback methods to io events
+        def handle_io_estop_pressed(): self.create_event(EStopPressed()); self.update()
+        def handle_io_stop_pressed(): self.create_event(StopPressed()); self.update()
+        def handle_io_dispatch_pressed(): self.create_event(DispatchedPressed()); self.update()
+        def handle_io_ride_on_off_pressed(): self.create_event(RideOnOffPressed()); self.update()
+        def handle_io_reset_pressed(): self.create_event(ResetPressed()); self.update()
+        self.io.attach_on_press("estop", handle_io_estop_pressed)
+        self.io.attach_on_press("stop", handle_io_stop_pressed)
+        self.io.attach_on_press("dispatch", handle_io_dispatch_pressed)
+        self.io.attach_on_press("rideonoff", handle_io_ride_on_off_pressed)
+        self.io.attach_on_press("reset", handle_io_reset_pressed)
+
+        def handle_io_estop_released(): self.delete_event(EStopPressed()); self.update()
+        def handle_io_stop_released(): self.delete_event(StopPressed()); self.update()
+        def handle_io_dispatch_released(): self.delete_event(DispatchedPressed()); self.update()
+        def handle_io_ride_on_off_released(): self.delete_event(RideOnOffPressed()); self.update()
+        def handle_io_reset_released(): self.delete_event(ResetPressed()); self.update()
+        self.io.attach_on_release("estop", handle_io_estop_released)
+        self.io.attach_on_release("stop", handle_io_stop_released)
+        self.io.attach_on_release("dispatch", handle_io_dispatch_released)
+        self.io.attach_on_release("rideonoff", handle_io_ride_on_off_released)
+        self.io.attach_on_release("reset", handle_io_reset_released)
 
         # Define state specific enter/exit actions
         OffState._on_exit = lambda self: self.log.info('Leaving OFF State')
@@ -137,6 +151,25 @@ class RideControlComputer():
             # Pass the instruction to the IO controller for execution.
             ...
 
+    def delete_event(self, event: Event):
+        """Handles the creation of an Event by sending it to the appropriate parties."""
+        self.eventList.remove(event)
+        self.state = self.state.on_event(event)
+
+        # Handle EStop even special - need to raise a fault
+        # if isinstance(event, EStopPressed):
+        #     self.fault_manager.raise_fault(PREDEFINED_FAULTS[101])
+    
+    def create_event(self, event: Event):
+        """Handles the creation of an Event by sending it to the appropriate parties."""
+        self.eventList.append(event)
+        self.state = self.state.on_event(event)
+
+        # Handle EStop even special - need to raise a fault
+        # if isinstance(event, EStopPressed):
+        #     self.fault_manager.raise_fault(PREDEFINED_FAULTS[101])
+
+
     def change_io_controller(self, controller_type: str) -> str:
         """
         Switches the IO controller to a new implementation at runtime.
@@ -167,6 +200,19 @@ class RideControlComputer():
             raise ValueError("Current IO controller is not recognized. Cannot toggle.")
         self.change_io_controller(self.ioControllerType)
         return self.ioControllerType
+    
+    @property # State Getter
+    def state(self) -> State:
+        return self._state
+
+    @state.setter # State Setter
+    def state(self, new_state: State):
+        # Send the current events to the new state
+        for event in self.eventList:
+            new_state = new_state.on_event(event)
+        
+        # Set state to new state
+        self._state = new_state
 
 
 if __name__ == '__main__':
