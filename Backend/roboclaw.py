@@ -268,6 +268,19 @@ class RoboClaw:
         cmd = 119
         self._write(cmd, '>iB', position, buffer)
 
+    def buffered_drive_m1_speed_position(self, speed: int, position: int, buffer: int = 0):
+        """
+        Buffered Drive M1 with Speed and Position.
+        Move M1 from the current position to the specified new position at a given speed and hold the new position.
+        Default acceleration and deceleration values are used.
+        
+        Command 122:
+            Send: [Address, 122, Speed (4 bytes), Position (4 bytes), Buffer, CRC (2 bytes)]
+            Receive: [0xFF]
+        """
+        cmd = 122
+        self._write(cmd, '>iiB', speed, position, buffer)
+
 
     def set_position_pid_constants(self, d=0, p=0, i=0, maxi=0, deadzone=0, min_pos=0, max_pos=0):
         """
@@ -715,6 +728,20 @@ class RoboClaw:
             "S4": s4_mapping.get(s4_mode, f"Unknown (0x{s4_mode:02X})"),
             "S5": s5_mapping.get(s5_mode, f"Unknown (0x{s5_mode:02X})")
         }
+
+    def read_duty_acceleration_settings(self):
+        """
+        Read M1 and M2 Duty Cycle Acceleration Settings.
+        
+        Command 81:
+            Send: [Address, 81]
+            Receive: [M1Accel(4 bytes), M2Accel(4 bytes), CRC(2 bytes)]
+        
+        Returns:
+            A tuple (M1Accel, M2Accel) of acceleration settings as unsigned 4-byte integers.
+        """
+        cmd = 81
+        return self._read(cmd, '>II')
 
 
 class CRCException(Exception):

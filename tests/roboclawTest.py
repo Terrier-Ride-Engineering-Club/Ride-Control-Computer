@@ -112,12 +112,15 @@ if __name__ == "__main__":
                 range = mc.read_range(1)
                 mc.set_motor1_default_speed(10)
                 print(f"M1 Default Speed: {mc.read_default_speeds()[0]}")
+                print(f"M1 Default Acceleration: {mc.read_duty_acceleration_settings()[0]}")
                 max_speed = mc.read_max_speed(1)
+                print(f"M1 Max Speed: {max_speed}")
+                
                 set_speed = (speed / 100.) * max_speed
                 set_position = (pos / 100.) * (range[1] - range[0]) + range[0]
 
-                print(f"SET SPEED: {round(set_speed)}% of {max_speed}, SET POS: {set_position}")
-                mc.drive_to_position_buffered(1,0,0)
+                # print(f"SET SPEED: {round(set_speed)}% of {max_speed}, SET POS: {set_position}")
+                mc.buffered_drive_m1_speed_position(10,0,0)
                 # print(f"ENC: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
                 print(f"ENC: {mc.read_encoder_m1()}\n HOME: {HOME_POSITION}")
                 sleep(0.05)
