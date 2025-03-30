@@ -107,7 +107,7 @@ class FaultManager:
         deviation = 0 - abs(current_position)
         if deviation > 5:
             self.raise_fault(PREDEFINED_FAULTS[105])
-            self.log.warning(f"Position mismatch detected! Expected: {0}, Actual: {current_position}, Deviation: {deviation}")
+            self.log.warning(f"Position mismatch detected! Expected: 0, Actual: {current_position}, Deviation: {deviation}")
 
 
     def log_fault(self, fault: Fault):
