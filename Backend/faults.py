@@ -106,7 +106,10 @@ class FaultManager:
 
         # Position mismatch detection
         if current_position:
-            deviation = 0 - abs(current_position.get('encoder'))
+            if isinstance(current_position, dict):
+                deviation = 0 - abs(current_position.get('encoder'))
+            else:
+                deviation = current_position
             if deviation > 5:
                 self.raise_fault(PREDEFINED_FAULTS[105])
                 self.log.warning(f"Position mismatch detected! Expected: 0, Actual: {current_position}, Deviation: {deviation}")
