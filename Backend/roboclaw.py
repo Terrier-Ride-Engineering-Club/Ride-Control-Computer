@@ -220,25 +220,80 @@ class RoboClaw:
                                    round(set_position),
                                    buffer)
 
-    # def drive_to_position_buffered(self, motor: int, position: int, buffer: int = 0):
-    #NOTE: NOT TESTED
-    #     """
-    #     Buffered Drive to Position using default acceleration, deceleration, and speed.
+    def drive_to_position_buffered(self, motor: int, position: int, buffer: int = 0):
+        """
+        Buffered Drive to Position using default acceleration, deceleration, and speed.
         
-    #     Params:
-    #         motor (int): 1 for M1 only (command 119 only supports M1).
-    #         position (int): Signed target position in encoder counts.
-    #         buffer (int): Buffer index for command queuing.
+        Params:
+            motor (int): 1 for M1 only (command 119 only supports M1).
+            position (int): Signed target position in encoder counts.
+            buffer (int): Buffer index for command queuing.
         
-    #     Command 119:
-    #         Send: [Address, 119, Position (4 bytes), Buffer, CRC (2 bytes)]
-    #         Receive: [0xFF]
-    #     """
-    #     if motor != 1:
-    #         raise ValueError("Buffered drive with command 119 only supports motor 1.")
+        Command 119:
+            Send: [Address, 119, Position (4 bytes), Buffer, CRC (2 bytes)]
+            Receive: [0xFF]
+        """
+        if motor != 1:
+            raise ValueError("Buffered drive with command 119 only supports motor 1.")
         
-    #     cmd = 119
-    #     self._write(cmd, '>iB', position, buffer)
+        cmd = 119
+        self._write(cmd, '>iB', position, buffer)
+
+
+    def set_position_pid_constants(self, d=0, p=0, i=0, maxi=0, deadzone=0, min_pos=0, max_pos=0):
+        """
+        Set the Position PID constants used for the position control commands.
+
+        The Position PID system consists of seven constants:
+            - D: Derivative constant (4 bytes, unsigned)
+            - P: Proportional constant (4 bytes, unsigned)
+            - I: Integral constant (4 bytes, unsigned)
+            - MaxI: Maximum integral windup (4 bytes, unsigned)
+            - Deadzone: Deadzone in encoder counts (4 bytes, unsigned)
+            - MinPos: Minimum Position (4 bytes, signed)
+            - MaxPos: Maximum Position (4 bytes, signed)
+
+        Default values for all constants are 0.
+
+        Serial format:
+            Send: [Address, 61, D(4 bytes), P(4 bytes), I(4 bytes), MaxI(4 bytes),
+                   Deadzone(4 bytes), MinPos(4 bytes), MaxPos(4 bytes), CRC(2 bytes)]
+            Receive: [0xFF]
+        """
+        cmd = 61
+        # Format string: 5 unsigned ints followed by 2 signed ints.
+        self._write(cmd, '>IIIIIii', d, p, i, maxi, deadzone, min_pos, max_pos)
+    
+    def read_position_pid_constants(self):
+        """
+        Read Motor 1 Position PID Constants.
+    
+        Serial:
+            Send: [Address, 63]
+            Receive: [P(4 bytes), I(4 bytes), D(4 bytes), MaxI(4 bytes), Deadzone(4 bytes),
+                      MinPos(4 bytes), MaxPos(4 bytes), CRC(2 bytes)]
+    
+        Returns:
+            A dictionary containing the Position PID constants:
+                - "P": Proportional constant (4 bytes, unsigned)
+                - "I": Integral constant (4 bytes, unsigned)
+                - "D": Derivative constant (4 bytes, unsigned)
+                - "MaxI": Maximum Integral windup (4 bytes, unsigned)
+                - "Deadzone": Deadzone in encoder counts (4 bytes, unsigned)
+                - "MinPos": Minimum Position (4 bytes, signed)
+                - "MaxPos": Maximum Position (4 bytes, signed)
+        """
+        cmd = 63
+        pid_vals = self._read(cmd, '>fffffii')
+        return {
+            "P": pid_vals[0],
+            "I": pid_vals[1],
+            "D": pid_vals[2],
+            "MaxI": pid_vals[3],
+            "Deadzone": pid_vals[4],
+            "MinPos": pid_vals[5],
+            "MaxPos": pid_vals[6]
+        }
 
     def read_encoder(self, motor):
         # Currently, this function doesn't check over/underflow, which is fine since we're using pots.
@@ -246,7 +301,32 @@ class RoboClaw:
             cmd = Cmd.GETM1ENC
         else:
             cmd = Cmd.GETM2ENC
-        return self._read(cmd, '>IB')[0]
+        # Discards status byte
+        encoder, _ = self._read(cmd, '>iB')
+        return encoder
+    
+    def read_encoder_m1(self):
+        """
+        Read Encoder Count/Value M1.
+        
+        Sends: [Address, 16]
+        Receives: [Enc1 (4 bytes), Status, CRC (2 bytes)]
+        
+        The status byte:
+            Bit0 - Counter Underflow (1 = Underflow Occurred, Clear After Reading)
+            Bit1 - Direction (0 = Forward, 1 = Backwards)
+            Bit2 - Counter Overflow (1 = Overflow Occurred, Clear After Reading)
+            Bits3-7 - Reserved
+        
+        Returns:
+            A dictionary with the encoder count and interpreted status flags.
+        """
+        cmd = 16
+        encoder, status = self._read(cmd, '>iB')
+        underflow = bool(status & 0x01)
+        direction = "Backward" if (status & 0x02) else "Forward"
+        overflow = bool(status & 0x04)
+        return {"encoder": encoder, "underflow": underflow, "direction": direction, "overflow": overflow}
 
     def reset_quad_encoders(self):
         self._write(Cmd.SETM1ENCCOUNT, '>I', 0)
@@ -297,7 +377,7 @@ class RoboClaw:
             0x00800000: 'S5 Signal Triggered',
             0x01000000: 'Speed Error Limit Warning',
             0x02000000: 'Position Error Limit Warning'
-        }.get(status, 'Unknown Error')
+        }.get(status, f'Unknown Error: {status}')
 
     def read_temp_sensor(self, sensor):
         if sensor == 1:
