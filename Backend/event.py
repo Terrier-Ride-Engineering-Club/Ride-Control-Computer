@@ -13,6 +13,9 @@ class Event:
         Returns the name of the Event.
         """
         return self.__class__.__name__
+    
+    def __eq__(self, other):
+        return isinstance(other, self.__class__)
 
 class RideOnOffPressed(Event):
     """Happens when the ride on/off button is pressed."""

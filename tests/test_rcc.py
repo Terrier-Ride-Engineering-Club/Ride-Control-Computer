@@ -102,6 +102,10 @@ class TestRideControlComputer(unittest.TestCase):
         self.rcc.io.ride_onoff_button.pin.drive_high()
         self.assertIsInstance(self.rcc.state, EstoppedState)
 
+    def test_idle_state_is_sustained(self):
+        self.rcc.io.ride_onoff_button.pin.drive_high()
+        self.assertIsInstance(self.rcc.state, IdleState)
+
     # def test_io_actions_on_estopped(self):
         # TODO: Update with expected behavior
         # When in ESTOPPED state, the system should call terminate_power() on the I/O controller.

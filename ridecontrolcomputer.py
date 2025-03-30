@@ -63,29 +63,33 @@ class RideControlComputer():
         self.ioFactory = IOControllerFactory()
         self.io = self.ioFactory.get(self.ioControllerType)
 
-        # Attach callback methods to io events
-        def handle_io_estop_pressed(): self.create_event(EStopPressed()); self.update()
-        def handle_io_stop_pressed(): self.create_event(StopPressed()); self.update()
-        def handle_io_dispatch_pressed(): self.create_event(DispatchedPressed()); self.update()
-        def handle_io_ride_on_off_pressed(): self.create_event(RideOnOffPressed()); self.update()
-        def handle_io_reset_pressed(): self.create_event(ResetPressed()); self.update()
-        self.io.attach_on_press("estop", handle_io_estop_pressed)
-        self.io.attach_on_press("stop", handle_io_stop_pressed)
-        self.io.attach_on_press("dispatch", handle_io_dispatch_pressed)
-        self.io.attach_on_press("rideonoff", handle_io_ride_on_off_pressed)
-        self.io.attach_on_press("reset", handle_io_reset_pressed)
+        def attach_button_callbacks(io: IOController):
+            # Attach callback methods to io events
+            def handle_io_estop_pressed(): self.create_event(EStopPressed()); self.update()
+            def handle_io_stop_pressed(): self.create_event(StopPressed()); self.update()
+            def handle_io_dispatch_pressed(): self.create_event(DispatchedPressed()); self.update()
+            def handle_io_ride_on_off_pressed(): self.create_event(RideOnOffPressed()); self.update()
+            def handle_io_reset_pressed(): self.create_event(ResetPressed()); self.update()
+            io.attach_on_press("estop", handle_io_estop_pressed)
+            io.attach_on_press("stop", handle_io_stop_pressed)
+            io.attach_on_press("dispatch", handle_io_dispatch_pressed)
+            io.attach_on_press("rideonoff", handle_io_ride_on_off_pressed)
+            io.attach_on_press("reset", handle_io_reset_pressed)
 
-        def handle_io_estop_released(): self.delete_event(EStopPressed()); self.update()
-        def handle_io_stop_released(): self.delete_event(StopPressed()); self.update()
-        def handle_io_dispatch_released(): self.delete_event(DispatchedPressed()); self.update()
-        def handle_io_ride_on_off_released(): self.delete_event(RideOnOffPressed()); self.update()
-        def handle_io_reset_released(): self.delete_event(ResetPressed()); self.update()
-        self.io.attach_on_release("estop", handle_io_estop_released)
-        self.io.attach_on_release("stop", handle_io_stop_released)
-        self.io.attach_on_release("dispatch", handle_io_dispatch_released)
-        self.io.attach_on_release("rideonoff", handle_io_ride_on_off_released)
-        self.io.attach_on_release("reset", handle_io_reset_released)
+            def handle_io_estop_released(): self.delete_event(EStopPressed()); self.update()
+            def handle_io_stop_released(): self.delete_event(StopPressed()); self.update()
+            def handle_io_dispatch_released(): self.delete_event(DispatchedPressed()); self.update()
+            def handle_io_ride_on_off_released(): self.delete_event(RideOnOffPressed()); self.update()
+            def handle_io_reset_released(): self.delete_event(ResetPressed()); self.update()
+            io.attach_on_release("estop", handle_io_estop_released)
+            io.attach_on_release("stop", handle_io_stop_released)
+            io.attach_on_release("dispatch", handle_io_dispatch_released)
+            io.attach_on_release("rideonoff", handle_io_ride_on_off_released)
+            io.attach_on_release("reset", handle_io_reset_released)
 
+        attach_button_callbacks(self.ioFactory.get('web'))
+        attach_button_callbacks(self.ioFactory.get('hardware'))
+        
         # Define state specific enter/exit actions
         OffState._on_exit = lambda self: self.log.info('Leaving OFF State')
 
@@ -153,8 +157,13 @@ class RideControlComputer():
 
     def delete_event(self, event: Event):
         """Handles the creation of an Event by sending it to the appropriate parties."""
-        self.eventList.remove(event)
-        self.state = self.state.on_event(event)
+        # Remove event from list if it exists
+        try:
+            self.eventList.remove(event)
+        except ValueError:
+            pass
+        
+        self.log.info(f"Event {event.__class__.__name__} Removed.")
 
         # Handle EStop even special - need to raise a fault
         # if isinstance(event, EStopPressed):
@@ -162,8 +171,10 @@ class RideControlComputer():
     
     def create_event(self, event: Event):
         """Handles the creation of an Event by sending it to the appropriate parties."""
-        self.eventList.append(event)
+        if isinstance(event, EStopPressed): # Allows latching behavior for EStop
+            self.eventList.append(event)
         self.state = self.state.on_event(event)
+        self.log.info(f"Event {event.__class__.__name__} Created.")
 
         # Handle EStop even special - need to raise a fault
         # if isinstance(event, EStopPressed):
