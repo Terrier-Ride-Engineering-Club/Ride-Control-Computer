@@ -105,7 +105,7 @@ if __name__ == "__main__":
             start_time = time()
             while time() - start_time < 5:
                 # mc.drive_to_position_with_speed_acceleration_deceleration(1, HOME_POSITION, FAST_SPEED_QPPS, FAST_SPEED_QPPS, SLOW_SPEED_QPPS)
-                speed = 0.001
+                speed = 1
                 pos = 50
                 mc.drive_to_position(1, 1, speed, 1, pos, 0)
                 # Taken from MC
@@ -114,7 +114,7 @@ if __name__ == "__main__":
                 set_speed = (speed / 100.) * max_speed
                 set_position = (pos / 100.) * (range[1] - range[0]) + range[0]
 
-                print(f"SET SPEED: {set_speed}, SET POS: {set_position}")
+                print(f"SET SPEED: {round(set_speed)}% of {max_speed}, SET POS: {set_position}")
                 # mc.drive_to_position_buffered(1,5000,100)
                 print(f"ENC: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
                 print(f"alt enc: {mc.read_encoder_m1()}")
