@@ -329,6 +329,8 @@ class HardwareIOController(IOController):
 
     # --- Motor Control Methods ---
     def send_motor_command(self, command):
+        if command == None:
+            self.mc.set_speed_with_acceleration(1,0, FAST_SPEED_QPPS)
         if command.get('name') == "Move":
             # Parse command
             speed_str = command.get('speed', 'med').lower()
