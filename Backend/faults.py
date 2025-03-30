@@ -86,7 +86,7 @@ class FaultManager:
         status = io.read_status()
         if not status or "fault" in status.lower() or "error" in status.lower():
             self.raise_fault(PREDEFINED_FAULTS[102])
-            # self.log.error(f"Motor controller status indicates fault: {status}")
+            self.log.warning(f"Motor controller status indicates fault: {status}")
         else:
             self.clear_fault(PREDEFINED_FAULTS[102].code)
          
