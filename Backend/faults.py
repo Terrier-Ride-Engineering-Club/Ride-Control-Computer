@@ -7,6 +7,8 @@ import logging
 from typing import List
 from Backend.iocontroller import IOController
 
+MOTOR_MAX_SPEED = 3000
+
 class FaultSeverity(Enum):
     LOW = 1      # Warning, does not stop ride
     MEDIUM = 2   # Requires operator intervention
@@ -27,7 +29,7 @@ PREDEFINED_FAULTS = {
     101: Fault(101, "Emergency Stop Activated", FaultSeverity.HIGH),
     102: Fault(102, "Motor Controller Failure", FaultSeverity.HIGH),
     103: Fault(103, "Sensor Failure", FaultSeverity.MEDIUM),
-    104: Fault(104, "Speed Deviation Detected", FaultSeverity.MEDIUM),
+    104: Fault(104, "Motor Overspeed", FaultSeverity.HIGH),
     105: Fault(105, "Sensor Mismatch", FaultSeverity.MEDIUM),
 }
 
@@ -70,7 +72,7 @@ class FaultManager:
         current_position = io.read_position()
         actual_sensor_data = io.read_encoder()  # Returns int {encoder1 pos}
         actual_speed = io.read_speed()
-        max_speed = io.read_max_speed()
+        max_speed = MOTOR_MAX_SPEED
 
         # Fault Detection Logic
         
