@@ -82,9 +82,9 @@ class FaultManager:
 
         # Motor controller status check
         status = io.read_status()
-        if "fault" in status.lower() or "error" in status.lower():
+        if not status or "fault" in status.lower() or "error" in status.lower():
             self.raise_fault(PREDEFINED_FAULTS[102])
-            self.log.error(f"Motor controller status indicates fault: {status}")
+            # self.log.error(f"Motor controller status indicates fault: {status}")
         else:
             self.clear_fault(PREDEFINED_FAULTS[102].code)
          
@@ -96,18 +96,20 @@ class FaultManager:
             self.clear_fault(PREDEFINED_FAULTS[103].code)
 
 
-        # Motor speed deviation detection            
-        speed_deviation = abs(actual_speed) - max_speed
-        if speed_deviation > 5:
-            self.raise_fault(PREDEFINED_FAULTS[104])
-            self.log.warning(f"Speed deviation: Expected -63 to 64, Got {actual_speed}")
+        # Motor speed deviation detection   
+        if actual_speed:         
+            speed_deviation = abs(actual_speed) - max_speed
+            if speed_deviation > 5:
+                self.raise_fault(PREDEFINED_FAULTS[104])
+                self.log.warning(f"Speed deviation: Expected -63 to 64, Got {actual_speed}")
 
 
         # Position mismatch detection
-        deviation = 0 - abs(current_position)
-        if deviation > 5:
-            self.raise_fault(PREDEFINED_FAULTS[105])
-            self.log.warning(f"Position mismatch detected! Expected: 0, Actual: {current_position}, Deviation: {deviation}")
+        if current_position:
+            deviation = 0 - abs(current_position)
+            if deviation > 5:
+                self.raise_fault(PREDEFINED_FAULTS[105])
+                self.log.warning(f"Position mismatch detected! Expected: 0, Actual: {current_position}, Deviation: {deviation}")
 
 
     def log_fault(self, fault: Fault):
