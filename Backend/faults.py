@@ -93,8 +93,9 @@ class FaultManager:
          
 
         # Sensor failure detection (Assumes None means failure)
-        if actual_sensor_data is None:
+        if actual_sensor_data == 'None':
             self.raise_fault(PREDEFINED_FAULTS[103])
+            self.log.warning(f"There is a sensor failure")
         else:
             self.clear_fault(PREDEFINED_FAULTS[103].code)
 
