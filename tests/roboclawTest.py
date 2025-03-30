@@ -158,6 +158,6 @@ if __name__ == "__main__":
 
             start_time = time()
             while time() - start_time < 5:
-                mc.drive_to_position_with_speed_acceleration_deceleration(1,1425,1000,100,100,0)
+                mc.drive_to_position_with_speed_acceleration_deceleration(1,1425,2000,200,200,0)
                 sleep(0.05)
             
