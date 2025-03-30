@@ -29,6 +29,8 @@ PREDEFINED_FAULTS = {
     103: Fault(103, "Sensor Failure", FaultSeverity.MEDIUM),
     104: Fault(104, "Speed Deviation Detected", FaultSeverity.MEDIUM),
     105: Fault(105, "Sensor Mismatch", FaultSeverity.MEDIUM),
+    106: Fault(106, "None Type Returned", FaultSeverity.MEDIUM),
+    107: Fault(107, "Extreme Temperature (Too Hot)", FaultSeverity.MEDIUM),
 }
 
 class FaultManager:
@@ -62,7 +64,7 @@ class FaultManager:
                 self.faultRequiresEStop = True
 
 
-    def check_faults(self, io: IOController, rmc):
+    def check_faults(self, io: IOController):
         """
         Checks for various fault conditions by comparing actual sensor and motor encoder data.
         """
@@ -71,17 +73,19 @@ class FaultManager:
         actual_sensor_data = io.read_encoder()  # Returns int {encoder1 pos}
         actual_speed = io.read_speed()
         max_speed = io.read_max_speed()
+        status = io.read_status()
+        actual_temp = io.read_temp_sensor()
 
         # Fault Detection Logic
         
+
         # Emergency stop detection
-        if io.read_estop():
+        if io.read_estop() == False:
             self.raise_fault(PREDEFINED_FAULTS[101])
         else:
             self.clear_fault(PREDEFINED_FAULTS[101].code)
 
         # Motor controller status check
-        status = io.read_status()
         if not status or "fault" in status.lower() or "error" in status.lower():
             self.raise_fault(PREDEFINED_FAULTS[102])
             # self.log.error(f"Motor controller status indicates fault: {status}")
@@ -97,7 +101,7 @@ class FaultManager:
 
 
         # Motor speed deviation detection   
-        if actual_speed:         
+        if actual_speed:       
             speed_deviation = abs(actual_speed) - max_speed
             if speed_deviation > 5:
                 self.raise_fault(PREDEFINED_FAULTS[104])
@@ -113,6 +117,14 @@ class FaultManager:
             if deviation > 5:
                 self.raise_fault(PREDEFINED_FAULTS[105])
                 self.log.warning(f"Position mismatch detected! Expected: 0, Actual: {current_position}, Deviation: {deviation}")
+
+        
+        if actual_temp:
+            if isinstance(actual_temp, float):
+                temp_deviation = abs(85 - (actual_temp))
+                self.raise_fault(PREDEFINED_FAULTS[107])
+                self.log.warning(f"Motors are too hot, it is {temp_deviation} from acceptable max (85)")
+
 
 
     def log_fault(self, fault: Fault):
