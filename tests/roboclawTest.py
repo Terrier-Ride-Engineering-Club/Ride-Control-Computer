@@ -134,7 +134,7 @@ if __name__ == "__main__":
             # RESULTS: QPPS = 8773
 
             #
-            print(f"SET PID...{mc.set_velocity_pid_constants_m1(p=1,i=0,d=0,i=0)}")
+            print(f"SET PID...{mc.set_velocity_pid_constants_m1(p=1,i=0,d=0,qpps=8773)}")
             while True:
                 print(f"SPEED: {mc.read_raw_speed_m1()}")
                 mc.set_speed(1, SLOW_SPEED_QPPS)
