@@ -210,7 +210,9 @@ class RoboClaw:
         else:
             raise ValueError(f"Motor #{motor} is not valid!")
         
-        if speed > 2000 or acceleration > 2000 or deceleration > 2000:
+        print(f"spd: {speed}, acc: {acceleration}, dec: {deceleration}, pos: {position}")
+        
+        if speed > 2000 or acceleration > 500 or deceleration > 500:
             raise ValueError(f"Value to great! spd: {speed}, acc: {acceleration}, dec: {deceleration}")
         
         # Send the command.
