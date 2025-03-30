@@ -117,7 +117,7 @@ if __name__ == "__main__":
                 set_position = (pos / 100.) * (range[1] - range[0]) + range[0]
 
                 print(f"SET SPEED: {round(set_speed)}% of {max_speed}, SET POS: {set_position}")
-                # mc.drive_to_position_buffered(1,0,0)
+                mc.drive_to_position_buffered(1,0,0)
                 # print(f"ENC: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
                 print(f"ENC: {mc.read_encoder_m1()}\n HOME: {HOME_POSITION}")
                 sleep(0.05)
