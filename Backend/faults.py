@@ -100,7 +100,7 @@ class FaultManager:
 
         # Motor speed deviation detection   
         if actual_speed:         
-            speed_deviation = abs(actual_speed) - max_speed
+            speed_deviation = abs(actual_speed) - MOTOR_MAX_SPEED
             if speed_deviation > 5:
                 self.raise_fault(PREDEFINED_FAULTS[104])
                 self.log.warning(f"Speed deviation: Expected -63 to 64, Got {actual_speed}")
@@ -109,7 +109,7 @@ class FaultManager:
         # Position mismatch detection
         if current_position:
             if isinstance(current_position, dict):
-                deviation = 0 - abs(current_position.get('encoder'))
+                deviation = 50 - abs(current_position.get('encoder'))
             else:
                 deviation = current_position
             if deviation > 5:
