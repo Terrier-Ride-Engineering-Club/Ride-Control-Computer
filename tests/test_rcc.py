@@ -112,8 +112,22 @@ class TestRideControlComputer(unittest.TestCase):
         self.rcc.update()
         self.assertIsInstance(self.rcc.state, EstoppedState)
 
-        
+    def test_motor_stops_during_estop(self):
+        # Set state to Running and assume motor is running
+        self.rcc.state = RunningState()
+        self.rcc.rmc.is_running = True
+        self.rcc.rmc.start_cycle = MagicMock(return_value="Instruction1")
+        self.rcc.rmc.update = MagicMock(return_value="Instruction1")
+        self.rcc.io.send_motor_command = MagicMock()
+        self.rcc.io.stop_motor = MagicMock()
 
+        # Simulate ESTOP activation
+        self.rcc.io.read_estop.return_value = True
+        self.rcc.update()
+
+        # Ensure state is Estopped and motor command was sent
+        self.assertIsInstance(self.rcc.state, EstoppedState)
+        self.rcc.io.stop_motor.assert_not_called()
 
     # def test_io_actions_on_estopped(self):
         # TODO: Update with expected behavior
