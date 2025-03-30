@@ -107,37 +107,15 @@ class FaultManager:
 
 
         # Position mismatch detection
-        # if current_position:
-        #     if isinstance(current_position, dict):
-        #         deviation = 50 - abs(current_position.get('encoder'))
-        #     else:
-        #         deviation = current_position
-        #     if deviation > 5:
-        #         self.raise_fault(PREDEFINED_FAULTS[105])
-        #         self.log.warning(f"Position mismatch detected! Expected: 50, Actual: {current_position}, Deviation: {deviation}")
-
-
         if current_position:
-            self.log.info(f"Raw current_position: {current_position}")
             if isinstance(current_position, dict):
-                encoder_value = current_position.get('encoder', None)
-                self.log.info(f"Extracted encoder value: {encoder_value}")
-                if encoder_value is not None:
-                    deviation = abs(encoder_value - 50)  # Proper deviation calculation
+                deviation = abs(current_position.get('encoder') - 50)
+
+                if deviation > 5:
+                    self.raise_fault(PREDEFINED_FAULTS[105])
+                    self.log.warning(f"Position mismatch detected! Expected: 50, Actual: {current_position}, Deviation: {deviation}")
                 else:
-                    self.log.warning("Encoder value missing in current_position dictionary")
-                    return
-            else:
-                deviation = abs(current_position - 50)  # Handle non-dict values correctly
-
-            self.log.info(f"Final deviation calculated: {deviation}")
-
-            if deviation > 5:
-                self.raise_fault(PREDEFINED_FAULTS[105])
-                self.log.warning(f"Position mismatch detected! Expected: 50, Actual: {current_position}, Deviation: {deviation}")
-
-            else:
-             self.clear_fault(PREDEFINED_FAULTS[105].code)
+                    self.clear_fault(PREDEFINED_FAULTS[105].code)
 
 
 
