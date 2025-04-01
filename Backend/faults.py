@@ -31,6 +31,7 @@ PREDEFINED_FAULTS = {
     103: Fault(103, "Sensor Failure", FaultSeverity.MEDIUM),
     104: Fault(104, "Motor Overspeed", FaultSeverity.HIGH),
     105: Fault(105, "Sensor Mismatch", FaultSeverity.MEDIUM),
+    106: Fault(106, "Motor Overheating", FaultSeverity.MEDIUM),
 }
 
 class FaultManager:
@@ -69,9 +70,12 @@ class FaultManager:
         Checks for various fault conditions by comparing actual sensor and motor encoder data.
         """
         # Read actual values using the provided methods
+        status = io.read_status()
         current_position = io.read_position()
         actual_sensor_data = io.read_encoder()  # Returns int {encoder1 pos}
         actual_speed = io.read_speed()
+        actual_temp1 = io.read_temp_sensor(1)
+        actual_temp2 = io.read_temp_sensor(2)
         max_speed = MOTOR_MAX_SPEED
 
         # Fault Detection Logic
@@ -83,8 +87,7 @@ class FaultManager:
             self.clear_fault(PREDEFINED_FAULTS[101].code)
 
         # Motor controller status check
-        status = io.read_status()
-        if status == "None":
+        if status:
             if not status or "fault" in status.lower() or "error" in status.lower():
                 self.raise_fault(PREDEFINED_FAULTS[102])
                 self.log.warning(f"Motor controller status indicates fault: {status}")
@@ -93,19 +96,20 @@ class FaultManager:
          
 
         # Sensor failure detection (Assumes None means failure)
-        if actual_sensor_data == 'None':
+        if actual_sensor_data == "None":
             self.raise_fault(PREDEFINED_FAULTS[103])
             self.log.warning(f"There is a sensor failure")
         else:
             self.clear_fault(PREDEFINED_FAULTS[103].code)
 
-
         # Motor speed deviation detection   
         if actual_speed:         
-            speed_deviation = abs(actual_speed) - MOTOR_MAX_SPEED
+            speed_deviation = abs(actual_speed) - max_speed
             if speed_deviation > 5:
                 self.raise_fault(PREDEFINED_FAULTS[104])
-                self.log.warning(f"Speed deviation: Expected -63 to 64, Got {actual_speed}")
+                self.log.warning(f"Speed deviation: Expected at or below 3000. Got {actual_speed}.")
+            else:
+                self.clear_fault(PREDEFINED_FAULTS[104].code)
 
 
         # Position mismatch detection
@@ -120,7 +124,24 @@ class FaultManager:
                     self.clear_fault(PREDEFINED_FAULTS[105].code)
 
 
+        # Motor Overheat
+        if actual_temp1:
+            if isinstance(actual_temp1, (float, int)):
+                temp1_dev = actual_temp1 - 80
+                if actual_temp1 > 80:
+                    self.raise_fault(PREDEFINED_FAULTS[106])
+                    self.log.warning(f"Motor 1 is Overheating by {temp1_dev}. Should be below 80.")
+                else:
+                    self.clear_fault(PREDEFINED_FAULTS[106].code)
 
+        if actual_temp2:
+            if isinstance(actual_temp1, (float, int)):
+                temp2_dev = actual_temp2 - 80
+                if actual_temp2 > 80:
+                    self.raise_fault(PREDEFINED_FAULTS[106])
+                    self.log.warning(f"Motor 2 is Overheating by {temp2_dev}. Should be below 80.")
+                else:
+                    self.clear_fault(PREDEFINED_FAULTS[106].code)
 
 
     def log_fault(self, fault: Fault):
