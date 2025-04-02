@@ -354,7 +354,7 @@ class HardwareIOController(IOController):
         elif command.get('name') == "Position":
             position_str = command.get('pos', 'home').lower()
             position = POSITION_MAP.get(position_str, 'home')
-            
+
             self.mc.print_telemetry()
             self.mc.drive_to_position_with_speed_acceleration_deceleration(1, 0, 1000, 100, 100, 0)
         else:
@@ -528,26 +528,55 @@ class IOControllerFactory():
             raise KeyError(f"IOController Type {type} not recognized!")
 
 
+# if __name__ == "__main__":
+#     from gpiozero import Button
+#     from gpiozero.pins.mock import MockFactory
+
+#     # Create a mock pin factory
+#     mock_factory = MockFactory()
+
+#     # Create a mock button on pin 1 using the mock factory
+#     button = Button(1, pin_factory=mock_factory)
+
+#     # Check the initial state (usually not pressed)
+#     print("Initial button state:", button.is_pressed)
+
+#     button.when_activated = lambda: print("PRESSED")
+
+#     # To simulate a button press, you can change the state of the underlying pin.
+#     # For instance, if your button is active-low, you might drive the pin low to simulate a press:
+#     button.pin.drive_low()  # simulate press
+#     print("Button state after press simulation:", button.is_pressed)
+
+#     # And then drive the pin high to simulate a release:
+#     button.pin.drive_high()  # simulate release
+#     print("Button state after release simulation:", button.is_pressed)
+
 if __name__ == "__main__":
-    from gpiozero import Button
-    from gpiozero.pins.mock import MockFactory
 
-    # Create a mock pin factory
-    mock_factory = MockFactory()
+    print("V>P TEST")
+    io = HardwareIOController()
 
-    # Create a mock button on pin 1 using the mock factory
-    button = Button(1, pin_factory=mock_factory)
 
-    # Check the initial state (usually not pressed)
-    print("Initial button state:", button.is_pressed)
+    start_time = time.time()
+    while time.time() - start_time < 5:
+        io.send_motor_command({"name": "Move", "duration": 5, "speed": "slow", "direction": "fwd", "accel": "slow"})
 
-    button.when_activated = lambda: print("PRESSED")
+    start_time = time.time()
+    while time.time() - start_time < 2:
+        io.send_motor_command({"name": "Position", "duration": 5, "pos": "home"})
 
-    # To simulate a button press, you can change the state of the underlying pin.
-    # For instance, if your button is active-low, you might drive the pin low to simulate a press:
-    button.pin.drive_low()  # simulate press
-    print("Button state after press simulation:", button.is_pressed)
+    io.stop_motor()
 
-    # And then drive the pin high to simulate a release:
-    button.pin.drive_high()  # simulate release
-    print("Button state after release simulation:", button.is_pressed)
+    del io
+    time.sleep(1)
+    print("POS TEST")
+
+    io = HardwareIOController()
+
+    start_time = time.time()
+    while time.time() - start_time < 5:
+        io.send_motor_command({"name": "Position", "duration": 5, "pos": "home"})
+
+    io.stop_motor()
+
