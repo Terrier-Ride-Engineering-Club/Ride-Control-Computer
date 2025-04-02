@@ -100,6 +100,33 @@ class TestFaultManager(unittest.TestCase):
 
         fault_codes = [fault.code for fault in self.fm.active_faults]
         self.assertIn(104, fault_codes)  # 104 is the code for "Motor Overspeed"
+
+    def test_mc_returns_none_value(self):
+        io_mock = MagicMock()
+        io_mock.read_status.return_value = None
+        io_mock.read_position.return_value = None
+        io_mock.read_encoder.return_value = None
+        io_mock.read_speed.return_value = None  # Actual speed
+        io_mock.read_temp_sensor.return_value = None # Max speed (deviation = 10)
+        
+        rmc_mock = MagicMock()
+
+        self.fm.check_faults(io_mock, rmc_mock)
+
+    def test_mc_returns_unexpected_value(self):
+        io_mock = MagicMock()
+        io_mock.read_status.return_value = (1,2)
+        io_mock.read_position.return_value = (1,2)
+        io_mock.read_encoder.return_value = (1,2)
+        io_mock.read_speed.return_value = (1,2)
+        io_mock.read_temp_sensor.return_value = (1,2)
+        
+        rmc_mock = MagicMock()
+
+        self.fm.check_faults(io_mock, rmc_mock)
+
+
+        
     
 
 if __name__ == '__main__':
