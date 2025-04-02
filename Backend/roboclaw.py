@@ -216,13 +216,25 @@ class RoboClaw:
             raise ValueError(f"Value to great! spd: {speed}, acc: {acceleration}, dec: {deceleration}")
         
     def print_telemetry(self):
-        print(f"Vb = {self.read_batt_voltage()}")
-        print(f"I = {self.read_currents()}")
-        print(f"ENC = {self.read_encoder_m1()}")
-        print(f"M1 Max Spd = {self.read_max_speed(1)}")
-        print(f"M1 Range = {self.read_range(1)}")
-        print(f"M1 Vel PID = {self.read_velocity_pid_constants_m1()}")
-        print(f"M1 Pos PID = {self.read_position_pid_constants()}")
+        Vb = self.read_batt_voltage() + "V"
+        Im1 = self.read_currents()[0] + "A"
+        enc = self.read_encoder_m1().get("encoder")
+        maxspd = self.read_max_speed(1)
+        minpos, maxpos = self.read_range(1)
+        raw_vel_pid = self.read_velocity_pid_constants_m1()
+        VelP = raw_vel_pid.get('P')
+        VelI = raw_vel_pid.get('I')
+        VelD = raw_vel_pid.get('D')
+        VelQPPS = raw_vel_pid.get('QPPS')
+        raw_pos_pid = self.read_position_pid_constants()
+        PosP = raw_pos_pid.get('P')
+        PosI = raw_pos_pid.get('I')
+        PosD = raw_pos_pid.get('D')
+        PosMaxI = raw_pos_pid.get('MaxI')
+        PosDeadzone = raw_pos_pid.get('Deadzone')
+        PosMin = raw_pos_pid.get('MinPos')
+        PosMax = raw_pos_pid.get('MaxPos')
+        print(f"Telemetry: Vb: {Vb}, Im1: {Im1}, Encoder: {enc}, Max Speed: {maxspd}, Range: ({minpos}, {maxpos}), VelPID: [P: {VelP}, I: {VelI}, D: {VelD}, QPPS: {VelQPPS}], PosPID: [P: {PosP}, I: {PosI}, D: {PosD}, MaxI: {PosMaxI}, Deadzone: {PosDeadzone}, Range: ({PosMin}, {PosMax})]")
         
         # Send the command.
         # The format '>IiIiB' corresponds to:
@@ -231,7 +243,7 @@ class RoboClaw:
         #   'I' : unsigned 4-byte deceleration
         #   'i' : signed 4-byte target position
         #   'B' : 1-byte buffer indicator
-        
+
     def recover_serial(self):
         self.port.close()
         while not self.port.is_open:
