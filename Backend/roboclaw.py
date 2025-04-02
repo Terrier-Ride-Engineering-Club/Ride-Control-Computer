@@ -220,7 +220,7 @@ class RoboClaw:
         
     def print_telemetry(self):
         Vb = f"{self.read_batt_voltage()}V"
-        Im1 = f"{self.read_currents()[0]}V"
+        Im1 = f"{self.read_currents()[0]}A"
         enc = self.read_encoder_m1().get("encoder")
         maxspd = self.read_max_speed(1)
         minpos, maxpos = self.read_range(1)
