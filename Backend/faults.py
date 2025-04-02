@@ -87,12 +87,12 @@ class FaultManager:
             self.clear_fault(PREDEFINED_FAULTS[101].code)
 
         # Motor controller status check
-        if status:
+        if isinstance(status, str):
             if not status or "fault" in status.lower() or "error" in status.lower():
                 self.raise_fault(PREDEFINED_FAULTS[102])
                 self.log.warning(f"Motor controller status indicates fault: {status}")
-        else:
-            self.clear_fault(PREDEFINED_FAULTS[102].code)
+            else:
+                self.clear_fault(PREDEFINED_FAULTS[102].code)
          
 
         # Sensor failure detection (Assumes None means failure)
@@ -103,8 +103,8 @@ class FaultManager:
             self.clear_fault(PREDEFINED_FAULTS[103].code)
 
         # Motor speed deviation detection   
-        if actual_speed:         
-            speed_deviation = abs(actual_speed) - max_speed
+        if isinstance(actual_speed, tuple):         
+            speed_deviation = abs(actual_speed[0]) - max_speed
             if speed_deviation > 5:
                 self.raise_fault(PREDEFINED_FAULTS[104])
                 self.log.warning(f"Speed deviation: Expected at or below 3000. Got {actual_speed}.")
