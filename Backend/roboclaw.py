@@ -231,8 +231,7 @@ class RoboClaw:
         #   'I' : unsigned 4-byte deceleration
         #   'i' : signed 4-byte target position
         #   'B' : 1-byte buffer indicator
-        self._write(cmd, '>IiIiB', acceleration, speed, deceleration, position, buffer)
-
+        
     def recover_serial(self):
         self.port.close()
         while not self.port.is_open:
