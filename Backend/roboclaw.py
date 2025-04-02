@@ -442,7 +442,7 @@ class RoboClaw:
             cmd = Cmd.GETTEMP2
         return self._read(cmd, '>H')[0] / 10
 
-    def read_batt_voltage(self, battery):
+    def read_batt_voltage(self, battery="Main"):
         if battery in ['logic', 'Logic', 'L', 'l']:
             cmd = Cmd.GETLBATT
         else:
