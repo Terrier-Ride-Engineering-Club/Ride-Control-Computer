@@ -237,7 +237,7 @@ class RoboClaw:
         PosDeadzone = raw_pos_pid.get('Deadzone')
         PosMin = raw_pos_pid.get('MinPos')
         PosMax = raw_pos_pid.get('MaxPos')
-        print(f"Telemetry: Vb: {Vb}, Im1: {Im1}, Encoder: {enc}, Max Speed: {maxspd}, Range: ({minpos}, {maxpos}), VelPID: [P: {VelP}, I: {VelI}, D: {VelD}, QPPS: {VelQPPS}], PosPID: [P: {PosP}, I: {PosI}, D: {PosD}, MaxI: {PosMaxI}, Deadzone: {PosDeadzone}, Range: ({PosMin}, {PosMax})]")
+        print(f"Vb: {Vb}, Im1: {Im1}, Encoder: {enc}, Max Speed: {maxspd}, Range: ({minpos}, {maxpos}), \nVelPID: [P: {VelP}, I: {VelI}, D: {VelD}, QPPS: {VelQPPS}], \nPosPID: [P: {PosP}, I: {PosI}, D: {PosD}, MaxI: {PosMaxI}, Deadzone: {PosDeadzone}, Range: ({PosMin}, {PosMax})]")
         
         # Send the command.
         # The format '>IiIiB' corresponds to:
