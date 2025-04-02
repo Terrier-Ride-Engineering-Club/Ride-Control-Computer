@@ -57,6 +57,11 @@ class TestRideControlComputer(unittest.TestCase):
 
     def test_stop_input_sets_idle(self):
         self.rcc.state = RunningState()
+
+        # Test assumes estop conditions don't exist
+        self.rcc.is_estop_active = MagicMock()
+        self.rcc.is_estop_active.return_value = False
+
         self.rcc.io.stop_button.when_activated()
         self.rcc.update()
         self.assertIsInstance(self.rcc.state, IdleState)
@@ -64,6 +69,11 @@ class TestRideControlComputer(unittest.TestCase):
     def test_reset_logic_from_estopped(self):
         # From ESTOPPED, a Reset should transition to RESETTING.
         self.rcc.state = EstoppedState()
+
+        # Test assumes estop conditions don't exist
+        self.rcc.is_estop_active = MagicMock()
+        self.rcc.is_estop_active.return_value = False
+
         self.rcc.io.reset_button.when_activated()
         self.rcc.update()
         self.assertIsInstance(self.rcc.state, ResettingState)
@@ -86,6 +96,11 @@ class TestRideControlComputer(unittest.TestCase):
     def test_dispatch_transitions_to_running(self):
         # In IDLE, if Dispatch input is true, the state should transition to RUNNING.
         self.rcc.state = IdleState()
+        
+        # Test assumes estop conditions don't exist
+        self.rcc.is_estop_active = MagicMock()
+        self.rcc.is_estop_active.return_value = False
+
         self.rcc.io.dispatch_button.when_activated()
         self.rcc.update()
         self.assertIsInstance(self.rcc.state, RunningState)
@@ -93,6 +108,11 @@ class TestRideControlComputer(unittest.TestCase):
     def test_running_to_idle_on_stop(self):
         # In RUNNING state, if Stop is activated, the state should revert to IDLE.
         self.rcc.state = RunningState()
+
+        # Test assumes estop conditions don't exist
+        self.rcc.is_estop_active = MagicMock()
+        self.rcc.is_estop_active.return_value = False
+
         self.rcc.io.stop_button.when_activated()
         self.rcc.update()
         self.assertIsInstance(self.rcc.state, IdleState)
@@ -103,7 +123,13 @@ class TestRideControlComputer(unittest.TestCase):
         self.assertIsInstance(self.rcc.state, EstoppedState)
 
     def test_idle_state_is_sustained(self):
+        # Test assumes estop conditions don't exist
+        self.rcc.is_estop_active = MagicMock()
+        self.rcc.is_estop_active.return_value = False
+
         self.rcc.io.ride_onoff_button.pin.drive_high()
+        self.assertIsInstance(self.rcc.state, IdleState)
+        self.rcc.update()
         self.assertIsInstance(self.rcc.state, IdleState)
 
     def test_fault_manager_raises_estop(self):

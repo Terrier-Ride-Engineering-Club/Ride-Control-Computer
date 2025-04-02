@@ -32,6 +32,7 @@ PREDEFINED_FAULTS = {
     104: Fault(104, "Motor Overspeed", FaultSeverity.HIGH),
     105: Fault(105, "Sensor Mismatch", FaultSeverity.MEDIUM),
     106: Fault(106, "Motor Overheating", FaultSeverity.MEDIUM),
+    107: Fault(107, "Unexpected Data Type", FaultSeverity.HIGH)
 }
 
 class FaultManager:
@@ -110,18 +111,21 @@ class FaultManager:
                 self.log.warning(f"Speed deviation: Expected at or below 3000. Got {actual_speed}.")
             else:
                 self.clear_fault(PREDEFINED_FAULTS[104].code)
+        else:
+            self.raise_fault(PREDEFINED_FAULTS[107])
 
 
         # Position mismatch detection
-        if current_position:
-            if isinstance(current_position, dict):
-                deviation = abs(current_position.get('encoder') - 50)
+        # NOTE: CURRENTLY, THIS DOESNT MAKE SENSE.
+        # if current_position:
+        #     if isinstance(current_position, dict):
+        #         deviation = abs(current_position.get('encoder') - 50)
 
-                if deviation > 5:
-                    self.raise_fault(PREDEFINED_FAULTS[105])
-                    self.log.warning(f"Position mismatch detected! Expected: 50, Actual: {current_position}, Deviation: {deviation}")
-                else:
-                    self.clear_fault(PREDEFINED_FAULTS[105].code)
+        #         if deviation > 5:
+        #             self.raise_fault(PREDEFINED_FAULTS[105])
+        #             self.log.warning(f"Position mismatch detected! Expected: 50, Actual: {current_position}, Deviation: {deviation}")
+        #         else:
+        #             self.clear_fault(PREDEFINED_FAULTS[105].code)
 
 
         # Motor Overheat
