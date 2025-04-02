@@ -562,6 +562,8 @@ if __name__ == "__main__":
     while time.time() - start_time < 5:
         io.send_motor_command({"name": "Move", "duration": 5, "speed": "slow", "direction": "fwd", "accel": "slow"})
 
+    io.stop_motor()
+    
     start_time = time.time()
     while time.time() - start_time < 2:
         io.send_motor_command({"name": "Position", "duration": 5, "pos": "home"})
