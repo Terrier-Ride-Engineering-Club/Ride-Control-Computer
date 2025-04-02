@@ -349,10 +349,13 @@ class HardwareIOController(IOController):
             accel_str = command.get('accel', 'med').lower()
             accel = ACCEL_MAP.get(accel_str, ACCEL_MAP['med'])
 
+            self.mc.print_telemetry()
             self.mc.set_speed_with_acceleration(1, speed, accel)
         elif command.get('name') == "Position":
             position_str = command.get('pos', 'home').lower()
             position = POSITION_MAP.get(position_str, 'home')
+            
+            self.mc.print_telemetry()
             self.mc.drive_to_position_with_speed_acceleration_deceleration(1, 0, 1000, 100, 100, 0)
         else:
             self.stop_motor()

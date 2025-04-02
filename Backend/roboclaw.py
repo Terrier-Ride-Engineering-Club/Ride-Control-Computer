@@ -215,6 +215,15 @@ class RoboClaw:
         if speed > 2000 or acceleration > 500 or deceleration > 500:
             raise ValueError(f"Value to great! spd: {speed}, acc: {acceleration}, dec: {deceleration}")
         
+    def print_telemetry(self):
+        print(f"Vb = {self.read_batt_voltage()}")
+        print(f"I = {self.read_currents()}")
+        print(f"ENC = {self.read_encoder_m1()}")
+        print(f"M1 Max Spd = {self.read_max_speed(1)}")
+        print(f"M1 Range = {self.read_range(1)}")
+        print(f"M1 Vel PID = {self.read_velocity_pid_constants_m1()}")
+        print(f"M1 Pos PID = {self.read_position_pid_constants()}")
+        
         # Send the command.
         # The format '>IiIiB' corresponds to:
         #   'I' : unsigned 4-byte acceleration
