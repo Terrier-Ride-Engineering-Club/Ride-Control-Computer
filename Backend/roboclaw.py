@@ -215,6 +215,9 @@ class RoboClaw:
         if speed > 2000 or acceleration > 500 or deceleration > 500:
             raise ValueError(f"Value to great! spd: {speed}, acc: {acceleration}, dec: {deceleration}")
         
+        self._write(cmd, '>IiIiB', acceleration, speed, deceleration, position, buffer)
+
+        
     def print_telemetry(self):
         Vb = f"{self.read_batt_voltage()}V"
         Im1 = f"{self.read_currents()[0]}V"
