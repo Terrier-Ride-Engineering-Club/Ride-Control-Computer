@@ -32,7 +32,8 @@ PREDEFINED_FAULTS = {
     104: Fault(104, "Motor Overspeed", FaultSeverity.HIGH),
     105: Fault(105, "Sensor Mismatch", FaultSeverity.MEDIUM),
     106: Fault(106, "Motor Overheating", FaultSeverity.MEDIUM),
-    107: Fault(107, "Unexpected Data Type", FaultSeverity.HIGH)
+    107: Fault(107, "Unexpected Data Type", FaultSeverity.HIGH),
+    108: Fault(108, "MC Communication Failure", FaultSeverity.HIGH)
 }
 
 class FaultManager:
@@ -71,13 +72,17 @@ class FaultManager:
         Checks for various fault conditions by comparing actual sensor and motor encoder data.
         """
         # Read actual values using the provided methods
-        status = io.read_status()
-        current_position = io.read_position()
-        actual_sensor_data = io.read_encoder()  # Returns int {encoder1 pos}
-        actual_speed = io.read_speed()
-        actual_temp1 = io.read_temp_sensor(1)
-        actual_temp2 = io.read_temp_sensor(2)
-        max_speed = MOTOR_MAX_SPEED
+        try:
+            status = io.read_status()
+            current_position = io.read_position()
+            actual_sensor_data = io.read_encoder()  # Returns int {encoder1 pos}
+            actual_speed = io.read_speed()
+            actual_temp1 = io.read_temp_sensor(1)
+            actual_temp2 = io.read_temp_sensor(2)
+            max_speed = MOTOR_MAX_SPEED
+        except Exception as e:
+            self.log.error(f"Lost communication with MC: {e}")
+            self.raise_fault(PREDEFINED_FAULTS[108])
 
         # Fault Detection Logic
         
