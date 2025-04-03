@@ -223,6 +223,7 @@ class RoboClaw:
         Im1 = f"{self.read_currents()[0]}A"
         enc = self.read_encoder_m1().get("encoder")
         maxspd = self.read_max_speed(1)
+        currentspd = self.read_raw_speed_m1()
         minpos, maxpos = self.read_range(1)
         raw_vel_pid = self.read_velocity_pid_constants_m1()
         VelP = raw_vel_pid.get('P')
@@ -237,7 +238,7 @@ class RoboClaw:
         PosDeadzone = raw_pos_pid.get('Deadzone')
         PosMin = raw_pos_pid.get('MinPos')
         PosMax = raw_pos_pid.get('MaxPos')
-        print(f"Vb: {Vb}, Im1: {Im1}, Encoder: {enc}, Max Speed: {maxspd}, Range: ({minpos}, {maxpos}), \nVelPID: [P: {VelP}, I: {VelI}, D: {VelD}, QPPS: {VelQPPS}], \nPosPID: [P: {PosP}, I: {PosI}, D: {PosD}, MaxI: {PosMaxI}, Deadzone: {PosDeadzone}, Range: ({PosMin}, {PosMax})]")
+        print(f"Vb: {Vb}, Im1: {Im1}, Speed: {currentspd}, Encoder: {enc}, Max Speed: {maxspd}, Range: ({minpos}, {maxpos}), \nVelPID: [P: {VelP}, I: {VelI}, D: {VelD}, QPPS: {VelQPPS}], \nPosPID: [P: {PosP}, I: {PosI}, D: {PosD}, MaxI: {PosMaxI}, Deadzone: {PosDeadzone}, Range: ({PosMin}, {PosMax})]")
         
         # Send the command.
         # The format '>IiIiB' corresponds to:
