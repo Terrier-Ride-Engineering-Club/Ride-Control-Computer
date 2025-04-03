@@ -33,7 +33,8 @@ PREDEFINED_FAULTS = {
     105: Fault(105, "Sensor Mismatch", FaultSeverity.MEDIUM),
     106: Fault(106, "Motor Overheating", FaultSeverity.MEDIUM),
     107: Fault(107, "Unexpected Data Type", FaultSeverity.HIGH),
-    108: Fault(108, "MC Communication Failure", FaultSeverity.HIGH)
+    108: Fault(108, "MC Communication Failure", FaultSeverity.HIGH),
+    109: Fault(109, "MC Estop Triggered", FaultSeverity.HIGH)
 }
 
 class FaultManager:
@@ -96,11 +97,23 @@ class FaultManager:
 
         # Motor controller status check
         if isinstance(status, str):
-            if not status or "fault" in status.lower() or "error" in status.lower():
+            if not status:
+                self.raise_fault(PREDEFINED_FAULTS[108])
+                return
+            
+            # MC has Fault/Error status
+            if "fault" in status.lower() or "error" in status.lower():
                 self.raise_fault(PREDEFINED_FAULTS[102])
                 self.log.warning(f"Motor controller status indicates fault: {status}")
             else:
                 self.clear_fault(PREDEFINED_FAULTS[102].code)
+            
+            # MC has ESTOP status
+            if "estop" in status.lower():
+                self.raise_fault(PREDEFINED_FAULTS[109])
+            else:
+                self.clear_fault(PREDEFINED_FAULTS[109].code)
+
          
 
         # Sensor failure detection (Assumes None means failure)
