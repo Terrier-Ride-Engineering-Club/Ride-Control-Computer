@@ -17,6 +17,7 @@ ROBOCLAW_SERIAL_PORT = "/dev/ttyAMA0"
 ROBOCLAW_SERIAL_ADDRESS = 0x80
 ROBOCLAW_SERIAL_BAUD_RATE = 38400
 SELECTED_MOTOR = 1
+MC_READ_POLL_INTERVAL = 0.1 # In Seconds
 
 # MOTOR CONSTANTS
 # NOTE: GoBilda 5303 series motor encoders have a resolution of 1425.1 PPR @ Output shaft
@@ -50,6 +51,7 @@ POSITION_MAP = {
 USING_MOCK_PIN_FACTORY = False
 
 
+from enum import Enum
 import platform
 import logging
 import serial
@@ -300,6 +302,25 @@ class HardwareIOController(IOController):
                     return lambda *args, **kwargs: None
             self.mc = NullRoboClaw()
 
+        # Initialize motor state cache and start polling thread
+        self._motor_state = {
+            "encoder": None,
+            "range": None,
+            "position": None,
+            "status": None,
+            "temp_sensor": None,
+            "voltages": None,
+            "motor_current": None,
+            "motor_pwm": None,
+            "input_pin_modes": None,
+            "max_speed": None,
+            "speed": None
+        }
+        self._motor_state_lock = threading.Lock()
+        self._stop_motor_polling = False
+        self._motor_polling_thread = threading.Thread(target=self._poll_motor_state, daemon=True)
+        self._motor_polling_thread.start()
+
         self.log.info("Finished Initializing Hardware IOController!")
 
     # --- Hardware Read Methods ---
@@ -367,32 +388,73 @@ class HardwareIOController(IOController):
 
     def stop_motor(self): self.mc.set_speed_with_acceleration(SELECTED_MOTOR, 0, FAST_SPEED_QPPS)
 
-    def read_encoder(self): return self.mc.read_encoder(SELECTED_MOTOR)
+    def read_encoder(self):
+        with self._motor_state_lock:
+            return self._motor_state.get("encoder")
 
     def reset_quad_encoders(self): self.mc.reset_quad_encoders()
 
-    def read_range(self): return self.mc.read_range(SELECTED_MOTOR)
+    def read_range(self):
+        with self._motor_state_lock:
+            return self._motor_state.get("range")
 
-    def read_position(self) -> dict: return self.mc.read_encoder_m1()
+    def read_position(self) -> dict:
+        with self._motor_state_lock:
+            return self._motor_state.get("position")
 
-    def read_status(self): return self.mc.read_status()
+    def read_status(self):
+        with self._motor_state_lock:
+            return self._motor_state.get("status")
 
-    def read_temp_sensor(self, sensor): return self.mc.read_temp_sensor(sensor)
+    def read_temp_sensor(self, sensor):
+        with self._motor_state_lock:
+            return self._motor_state.get("temp_sensor")
 
-    def read_voltages(self) -> tuple: return self.mc.read_voltages()
+    def read_voltages(self) -> tuple:
+        with self._motor_state_lock:
+            return self._motor_state.get("voltages")
 
-    def read_motor_current(self): return self.mc.read_motor_current(SELECTED_MOTOR)
+    def read_motor_current(self):
+        with self._motor_state_lock:
+            return self._motor_state.get("motor_current")
 
-    def read_motor_pwm(self): return self.mc.read_motor_pwm(SELECTED_MOTOR)
+    def read_motor_pwm(self):
+        with self._motor_state_lock:
+            return self._motor_state.get("motor_pwm")
 
-    def read_input_pin_modes(self) -> tuple: return self.mc.read_input_pin_modes()
+    def read_input_pin_modes(self) -> tuple:
+        with self._motor_state_lock:
+            return self._motor_state.get("input_pin_modes")
 
-    def read_max_speed(self): return self.mc.read_max_speed(SELECTED_MOTOR)
+    def read_max_speed(self):
+        with self._motor_state_lock:
+            return self._motor_state.get("max_speed")
 
-    def read_speed(self): return self.mc.read_raw_speed_m1()
+    def read_speed(self):
+        with self._motor_state_lock:
+            return self._motor_state.get("speed")
 
-
-
+    def _poll_motor_state(self):
+        while not self._stop_motor_polling:
+            try:
+                new_state = {
+                    "encoder": self.mc.read_encoder(SELECTED_MOTOR),
+                    "range": self.mc.read_range(SELECTED_MOTOR),
+                    "position": self.mc.read_encoder_m1(),
+                    "status": self.mc.read_status(),
+                    "temp_sensor": self.mc.read_temp_sensor(1),
+                    "voltages": self.mc.read_voltages(),
+                    "motor_current": self.mc.read_motor_current(SELECTED_MOTOR),
+                    "motor_pwm": self.mc.read_motor_pwm(SELECTED_MOTOR),
+                    "input_pin_modes": self.mc.read_input_pin_modes(),
+                    "max_speed": self.mc.read_max_speed(SELECTED_MOTOR),
+                    "speed": self.mc.read_raw_speed_m1()
+                }
+                with self._motor_state_lock:
+                    self._motor_state.update(new_state)
+            except Exception as e:
+                self.log.error(f"Error polling motor state: {e}")
+            time.sleep(MC_READ_POLL_INTERVAL)
 
 # --- Simulation Controller ---
 class WebIOController(IOController):
