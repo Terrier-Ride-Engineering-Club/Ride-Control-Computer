@@ -74,13 +74,14 @@ class FaultManager:
         """
         # Read actual values using the provided methods
         try:
-            status = io.read_status()
-            current_position = io.read_position()
-            actual_sensor_data = io.read_encoder()  # Returns int {encoder1 pos}
-            actual_speed = io.read_speed()
-            actual_temp1 = io.read_temp_sensor(1)
-            actual_temp2 = io.read_temp_sensor(2)
-            max_speed = MOTOR_MAX_SPEED
+            # status = io.read_status()
+            # current_position = io.read_position()
+            # actual_sensor_data = io.read_encoder()  # Returns int {encoder1 pos}
+            # actual_speed = io.read_speed()
+            # actual_temp1 = io.read_temp_sensor(1)
+            # actual_temp2 = io.read_temp_sensor(2)
+            # max_speed = MOTOR_MAX_SPEED
+            return
         except Exception as e:
             self.raise_fault(PREDEFINED_FAULTS[108])
             return
