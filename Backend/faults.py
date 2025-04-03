@@ -83,6 +83,8 @@ class FaultManager:
         except Exception as e:
             self.raise_fault(PREDEFINED_FAULTS[108])
             return
+        else:
+            self.clear_fault(PREDEFINED_FAULTS[108].code)
 
         # Fault Detection Logic
         
