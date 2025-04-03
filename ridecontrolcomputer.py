@@ -122,6 +122,9 @@ class RideControlComputer():
         # Process non-io events.
         if self.is_estop_active():
             self.state = self.state.on_event(EStopPressed())
+        
+        if isinstance(self.state, EstoppedState):
+            self.io.stop_motor()
 
         # **Execute state-specific actions**
         self.state.run()
