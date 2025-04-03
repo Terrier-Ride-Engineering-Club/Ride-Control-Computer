@@ -103,6 +103,8 @@ class TestRideControlComputer(unittest.TestCase):
 
         self.rcc.io.ride_onoff_button.when_activated()
         self.rcc.update()
+        self.rcc.update()
+        self.rcc.update()
         self.assertIsInstance(self.rcc.state, IdleState)
 
 
