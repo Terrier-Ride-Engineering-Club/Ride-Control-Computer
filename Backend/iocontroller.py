@@ -388,11 +388,11 @@ class HardwareIOController(IOController):
 
     def stop_motor(self): self.mc.set_speed_with_acceleration(SELECTED_MOTOR, 0, FAST_SPEED_QPPS)
 
+    def reset_quad_encoders(self): self.mc.reset_quad_encoders()
+
     def read_encoder(self):
         with self._motor_state_lock:
             return self._motor_state.get("encoder")
-
-    def reset_quad_encoders(self): self.mc.reset_quad_encoders()
 
     def read_range(self):
         with self._motor_state_lock:
