@@ -17,8 +17,12 @@ class Event:
     def __eq__(self, other):
         return isinstance(other, self.__class__)
 
-class RideOnOffPressed(Event):
-    """Happens when the ride on/off button is pressed."""
+class RideOn(Event):
+    """Happens when the ride on/off is switched to on positon."""
+    pass
+
+class RideOff(Event):
+    """Happens when the ride on/off is switched to off positon."""
     pass
 
 class DispatchedPressed(Event):

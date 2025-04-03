@@ -14,16 +14,16 @@ class OffState(State):
     The `disable_timer` flag can be used to disable this timer.
     """
 
-    def __init__(self,disable_timer = False):
-        super().__init__()
-        self.enter_time = time.time()
-        self.min_off_duration = 2.0  # seconds
-        self.disable_timer = disable_timer
+    # def __init__(self,disable_timer = False):
+    #     super().__init__()
+    #     self.enter_time = time.time()
+    #     self.min_off_duration = 2.0  # seconds
+    #     self.disable_timer = disable_timer
 
     def on_event(self, event):
-        if isinstance(event, RideOnOffPressed):
-            if time.time() - self.enter_time >= self.min_off_duration or self.disable_timer:
-                return self._transition(IdleState())
+        if isinstance(event, RideOn):
+            # if time.time() - self.enter_time >= self.min_off_duration or self.disable_timer:
+            return self._transition(IdleState())
         return self
 
 class IdleState(State):
@@ -31,7 +31,7 @@ class IdleState(State):
     Description of state
     """
     def on_event(self, event):
-        if type(event) is RideOnOffPressed:
+        if type(event) is RideOff:
             return self._transition(OffState())
         if type(event) is EStopPressed:
             return self._transition(EstoppedState())
@@ -89,5 +89,5 @@ class RunningState(State):
 
 if __name__ == "__main__":
     originalState = OffState()
-    newState = originalState.on_event(RideOnOffPressed())
+    newState = originalState.on_event(RideOn())
     print(f"{originalState} -> {newState}")

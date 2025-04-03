@@ -44,7 +44,7 @@ class RideControlComputer():
         self.log = logging.getLogger('RCC')
 
         # Init vars to safe position
-        self._state = OffState(disable_timer=True)
+        self._state = OffState()
         self.initialized = False
         self.ioControllerType = 'web' if useWebIOController else 'hardware'
         self.log.info(f"Created RCC w/ Control Type {self.ioControllerType}")
@@ -69,7 +69,7 @@ class RideControlComputer():
             def handle_io_estop_pressed(): self.create_event(EStopPressed()); self.update()
             def handle_io_stop_pressed(): self.create_event(StopPressed()); self.update()
             def handle_io_dispatch_pressed(): self.create_event(DispatchedPressed()); self.update()
-            def handle_io_ride_on_off_pressed(): self.create_event(RideOnOffPressed()); self.update()
+            def handle_io_ride_on_off_pressed(): self.create_event(RideOn()); self.delete_event(RideOff()); self.update()
             def handle_io_reset_pressed(): self.create_event(ResetPressed()); self.update()
             io.attach_on_press("estop", handle_io_estop_pressed)
             io.attach_on_press("stop", handle_io_stop_pressed)
@@ -80,7 +80,7 @@ class RideControlComputer():
             def handle_io_estop_released(): self.delete_event(EStopPressed()); self.update()
             def handle_io_stop_released(): self.delete_event(StopPressed()); self.update()
             def handle_io_dispatch_released(): self.delete_event(DispatchedPressed()); self.update()
-            def handle_io_ride_on_off_released(): self.delete_event(RideOnOffPressed()); self.update()
+            def handle_io_ride_on_off_released(): self.create_event(RideOff()); self.delete_event(RideOn()); self.update()
             def handle_io_reset_released(): self.delete_event(ResetPressed()); self.update()
             io.attach_on_release("estop", handle_io_estop_released)
             io.attach_on_release("stop", handle_io_stop_released)
@@ -125,6 +125,13 @@ class RideControlComputer():
 
         # **Execute state-specific actions**
         self.state.run()
+
+        # Execute specific actions if in idle state:
+        # if isinstance(self.state, IdleState):
+        #     # If the ride on action is not active,
+        #     if any(isinstance(event, RideOn) for event in self.eventList):
+        #         # Transition to off state
+        #         self.state = self.state.on_event(RideOn())
 
         # Execute specific actions if in running state:
         if isinstance(self.state, RunningState) or self.demoMode:
@@ -180,7 +187,7 @@ class RideControlComputer():
     
     def create_event(self, event: Event):
         """Handles the creation of an Event by sending it to the appropriate parties."""
-        if isinstance(event, EStopPressed): # Allows latching behavior for EStop
+        if isinstance(event, EStopPressed or RideOff): # Allows latching behavior for EStop/OnOff
             self.eventList.append(event)
         self.state = self.state.on_event(event)
         self.log.info(f"Event {event.__class__.__name__} Created.")

@@ -4,25 +4,25 @@ from unittest.mock import patch, call, MagicMock
 
 # Import states and events
 from Backend.states import OffState, IdleState, EstoppedState, ResettingState, RunningState
-from Backend.event import RideOnOffPressed, EStopPressed, DispatchedPressed, ResetPressed, StopPressed
+from Backend.event import RideOn, EStopPressed, DispatchedPressed, ResetPressed, StopPressed, RideOff
 
 class TestStateTransitions(unittest.TestCase):
 
     def test_on_exit_called(self):
-        originalState = OffState(disable_timer=True)
+        originalState = OffState()
         originalState._on_exit = MagicMock()
-        newState = originalState.on_event(RideOnOffPressed())
+        newState = originalState.on_event(RideOn())
         originalState._on_exit.assert_called_once()
 
     def test_on_enter_called(self):
-        originalState = OffState(disable_timer=True)
+        originalState = OffState()
         IdleState._on_enter = MagicMock()
-        originalState.on_event(RideOnOffPressed())
+        originalState.on_event(RideOn())
         IdleState._on_enter.assert_called_once()
 
     def test_off_state_transitions(self):
-        originalState = OffState(disable_timer=True)
-        self.assertIsInstance(originalState.on_event(RideOnOffPressed()), IdleState)
+        originalState = OffState()
+        self.assertIsInstance(originalState.on_event(RideOn()), IdleState)
         originalState = OffState()
         self.assertIsInstance(originalState.on_event(DispatchedPressed()), OffState)
         originalState = OffState()
@@ -34,7 +34,7 @@ class TestStateTransitions(unittest.TestCase):
 
     def test_idle_state_transitions(self):
         originalState = IdleState()
-        self.assertIsInstance(originalState.on_event(RideOnOffPressed()), OffState)
+        self.assertIsInstance(originalState.on_event(RideOff()), OffState)
         originalState = IdleState()
         self.assertIsInstance(originalState.on_event(DispatchedPressed()), RunningState)
         originalState = IdleState()
@@ -46,7 +46,7 @@ class TestStateTransitions(unittest.TestCase):
 
     def test_running_state_transitions(self):
         originalState = RunningState()
-        self.assertIsInstance(originalState.on_event(RideOnOffPressed()), RunningState)
+        self.assertIsInstance(originalState.on_event(RideOn()), RunningState)
         originalState = RunningState()
         self.assertIsInstance(originalState.on_event(DispatchedPressed()), RunningState)
         originalState = RunningState()
@@ -58,7 +58,7 @@ class TestStateTransitions(unittest.TestCase):
 
     def test_estop_state_transitions(self):
         originalState = EstoppedState()
-        self.assertIsInstance(originalState.on_event(RideOnOffPressed()), EstoppedState)
+        self.assertIsInstance(originalState.on_event(RideOn()), EstoppedState)
         originalState = EstoppedState()
         self.assertIsInstance(originalState.on_event(DispatchedPressed()), EstoppedState)
         originalState = EstoppedState()
@@ -70,7 +70,7 @@ class TestStateTransitions(unittest.TestCase):
 
     def test_resetting_state_transitions(self):
         originalState = ResettingState()
-        self.assertIsInstance(originalState.on_event(RideOnOffPressed()), ResettingState)
+        self.assertIsInstance(originalState.on_event(RideOn()), ResettingState)
         originalState = ResettingState()
         self.assertIsInstance(originalState.on_event(DispatchedPressed()), ResettingState)
         originalState = ResettingState()

@@ -86,10 +86,30 @@ class TestRideControlComputer(unittest.TestCase):
     #     self.rcc.update()
     #     self.assertIsInstance(self.rcc.state, IdleState)
 
+
+    def test_ride_off_transitions_idle(self):
+        # In OFF, if RideOff input is true, the state should transition to Idle.
+        self.rcc.state = OffState()
+
+        # Test assumes estop conditions don't exist
+        self.rcc.is_estop_active = MagicMock()
+        self.rcc.is_estop_active.return_value = False
+
+        self.rcc.io.ride_onoff_button.when_activated()
+        self.rcc.update()
+        self.assertIsInstance(self.rcc.state, IdleState)
+
+
     def test_ride_off_transitions_to_off(self):
         # In IDLE, if RideOff input is true, the state should transition to OFF.
         self.rcc.state = IdleState()
-        self.rcc.io.ride_onoff_button.when_activated()
+
+        # Test assumes estop conditions don't exist
+        self.rcc.is_estop_active = MagicMock()
+        self.rcc.is_estop_active.return_value = False
+
+        self.rcc.io.ride_onoff_button.when_deactivated()
+
         self.rcc.update()
         self.assertIsInstance(self.rcc.state, OffState)
 
