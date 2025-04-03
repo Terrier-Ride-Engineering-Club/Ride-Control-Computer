@@ -109,7 +109,7 @@ class FaultManager:
                 self.clear_fault(PREDEFINED_FAULTS[102].code)
             
             # MC has ESTOP status
-            if "estop" in status.lower():
+            if "e-stop" in status.lower():
                 self.raise_fault(PREDEFINED_FAULTS[109])
             else:
                 self.clear_fault(PREDEFINED_FAULTS[109].code)
