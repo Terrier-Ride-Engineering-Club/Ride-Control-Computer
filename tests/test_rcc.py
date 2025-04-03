@@ -78,13 +78,19 @@ class TestRideControlComputer(unittest.TestCase):
         self.rcc.update()
         self.assertIsInstance(self.rcc.state, ResettingState)
 
-    # def test_reset_logic_to_idle(self):
-    # TODO: Update with expected behavior
-    #     # From RESETTING, when Reset is no longer active, the state should go to IDLE.
-    #     self.rcc.state = ResettingState()
-    #     self.rcc.io.read_restart.return_value = False
-    #     self.rcc.update()
-    #     self.assertIsInstance(self.rcc.state, IdleState)
+    def test_reset_logic_to_idle(self):
+        # From RESETTING, when Reset is no longer active, the state should go to IDLE.
+        self.rcc.state = ResettingState()
+        self.rcc.state._on_enter()
+
+        # Test assumes estop conditions don't exist
+        self.rcc.is_estop_active = MagicMock()
+        self.rcc.is_estop_active.return_value = False
+
+        self.rcc.update()
+        time.sleep(2.1)
+        self.rcc.update()
+        self.assertIsInstance(self.rcc.state, IdleState)
 
 
     def test_ride_off_transitions_idle(self):
@@ -109,6 +115,19 @@ class TestRideControlComputer(unittest.TestCase):
         self.rcc.is_estop_active.return_value = False
 
         self.rcc.io.ride_onoff_button.when_deactivated()
+
+        self.rcc.update()
+        self.assertIsInstance(self.rcc.state, OffState)
+
+    def test_ride_off_transitions_to_off_when_power_off(self):
+        # The state should transition to OFF after resetting if power is set to the off pos.
+        self.rcc.io.ride_onoff_button.when_deactivated()
+
+        self.rcc.state = IdleState()
+
+        # Test assumes estop conditions don't exist
+        self.rcc.is_estop_active = MagicMock()
+        self.rcc.is_estop_active.return_value = False
 
         self.rcc.update()
         self.assertIsInstance(self.rcc.state, OffState)

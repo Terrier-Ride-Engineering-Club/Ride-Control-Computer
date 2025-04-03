@@ -190,7 +190,7 @@ class RideControlComputer():
     
     def create_event(self, event: Event):
         """Handles the creation of an Event by sending it to the appropriate parties."""
-        if isinstance(event, EStopPressed or RideOff): # Allows latching behavior for EStop/OnOff
+        if isinstance(event, (EStopPressed, RideOff)): # Allows latching behavior for EStop/OnOff
             self.eventList.append(event)
         self.state = self.state.on_event(event)
         self.log.info(f"Event {event.__class__.__name__} Created.")
