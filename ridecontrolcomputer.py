@@ -153,7 +153,8 @@ class RideControlComputer():
         # Required to update timer for resetting state
         if isinstance(self.state, ResettingState):
             self.state = self.state.on_event(None)
-            
+        
+        self.track_dt()
 
     def is_estop_active(self) -> bool:
         ''' Returns True if any ESTOP condition is active '''
@@ -230,6 +231,29 @@ class RideControlComputer():
             raise ValueError("Current IO controller is not recognized. Cannot toggle.")
         self.change_io_controller(self.ioControllerType)
         return self.ioControllerType
+    
+    def track_dt(self):
+        """
+        Tracks the delta time of the rcc & prints it to the console every second.
+        """
+        if not hasattr(self, '_last_update_time'):
+            self._last_update_time = time.time()
+            self._delta_times = []
+            self._last_avg_print_time = time.time()
+        current_time = time.time()
+        dt = current_time - self._last_update_time
+        self._delta_times.append(dt)
+        self._last_update_time = current_time
+
+        # Print average delta time every second
+        if current_time - self._last_avg_print_time >= 1.0:
+            avg_dt = sum(self._delta_times) / len(self._delta_times)
+            print(f"Average delta time: {avg_dt:.6f} seconds")
+            self._delta_times.clear()
+            self._last_avg_print_time = current_time
+
+            
+
     
     @property # State Getter
     def state(self) -> State:
