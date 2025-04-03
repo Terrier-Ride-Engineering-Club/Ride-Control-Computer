@@ -297,7 +297,6 @@ class HardwareIOController(IOController):
             self.log.critical("Creating a mock RoboClaw and ignoring any future calls.")
             class NullRoboClaw:
                 def __getattr__(self, name):
-                    # Return a lambda that does nothing for any attribute
                     return lambda *args, **kwargs: None
             self.mc = NullRoboClaw()
 

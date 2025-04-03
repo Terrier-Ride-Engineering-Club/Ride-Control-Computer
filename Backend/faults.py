@@ -74,14 +74,13 @@ class FaultManager:
         """
         # Read actual values using the provided methods
         try:
-            # status = io.read_status()
-            # current_position = io.read_position()
-            # actual_sensor_data = io.read_encoder()  # Returns int {encoder1 pos}
-            # actual_speed = io.read_speed()
-            # actual_temp1 = io.read_temp_sensor(1)
-            # actual_temp2 = io.read_temp_sensor(2)
-            # max_speed = MOTOR_MAX_SPEED
-            return
+            status = io.read_status()
+            current_position = io.read_position()
+            actual_sensor_data = io.read_encoder()  # Returns int {encoder1 pos}
+            actual_speed = io.read_speed()
+            actual_temp1 = io.read_temp_sensor(1)
+            actual_temp2 = io.read_temp_sensor(2)
+            max_speed = MOTOR_MAX_SPEED
         except Exception as e:
             self.raise_fault(PREDEFINED_FAULTS[108])
             return
@@ -125,8 +124,8 @@ class FaultManager:
             self.clear_fault(PREDEFINED_FAULTS[103].code)
 
         # Motor speed deviation detection   
-        if isinstance(actual_speed, tuple):         
-            speed_deviation = abs(actual_speed[0]) - max_speed
+        if isinstance(actual_speed, int):         
+            speed_deviation = abs(actual_speed) - max_speed
             if speed_deviation > 5:
                 self.raise_fault(PREDEFINED_FAULTS[104])
                 self.log.warning(f"Speed deviation: Expected at or below 3000. Got {actual_speed}.")
@@ -211,3 +210,5 @@ class FaultManager:
                 "severity": fault.severity.name
             }
         return faults_dict
+    
+    

@@ -89,7 +89,7 @@ class TestFaultManager(unittest.TestCase):
         io_mock = MagicMock()
         io_mock.read_position.return_value = None
         io_mock.read_encoder.return_value = 100
-        io_mock.read_speed.return_value = (4000, 4000)  # Actual speed
+        io_mock.read_speed.return_value = 4000  # Actual speed
         io_mock.read_max_speed.return_value = MOTOR_MAX_SPEED # Max speed (deviation = 10)
         io_mock.read_estop.return_value = False
         io_mock.read_status.return_value = "Normal"
