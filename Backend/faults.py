@@ -83,6 +83,7 @@ class FaultManager:
         except Exception as e:
             self.log.error(f"Lost communication with MC: {e}")
             self.raise_fault(PREDEFINED_FAULTS[108])
+            return
 
         # Fault Detection Logic
         
