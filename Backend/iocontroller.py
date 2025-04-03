@@ -256,7 +256,47 @@ class IOController(ABC):
         """
         pass
 
+import threading
+import queue
+from Backend.roboclaw import RoboClaw
 
+class RoboClawThread(threading.Thread):
+    def __init__(self, serial_port, serial_address, auto_recover=False, poll_interval=0.1):
+        super().__init__()
+        self._mc = RoboClaw(serial_port, serial_address, auto_recover=auto_recover)
+        self.poll_interval = poll_interval
+        self._stop_event = threading.Event()
+        self._command_queue = queue.Queue()
+    
+    def run(self):
+        while not self._stop_event.is_set():
+            try:
+                command, args, kwargs, result_queue = self._command_queue.get(timeout=self.poll_interval)
+                try:
+                    result = getattr(self._mc, command)(*args, **kwargs)
+                except Exception:
+                    result = None
+                if result_queue is not None:
+                    result_queue.put(result)
+            except queue.Empty:
+                continue
+
+    def stop(self):
+        self._stop_event.set()
+    
+    def send_command(self, command, *args, **kwargs):
+        result_queue = queue.Queue()
+        self._command_queue.put((command, args, kwargs, result_queue))
+        return result_queue.get()
+    
+    def __getattr__(self, name):
+        """
+        Intercept attribute access. If a method isn't found on the thread,
+        assume it's a method of the underlying RoboClaw and queue it.
+        """
+        def method(*args, **kwargs):
+            return self.send_command(name, *args, **kwargs)
+        return method
 
 # --- Hardware IO Controller ---
 class HardwareIOController(IOController):
@@ -287,17 +327,16 @@ class HardwareIOController(IOController):
                     # max_pulse_width=2400/1_000_000,  # 0.0024
                     # frame_width=20/1000)             # 0.02 (20 ms standard servo frame)
 
-        # Init RoboClaw
+        # Init RoboClaw Thread
         self.log.info(f"Starting Serial communication with RoboClaw on {ROBOCLAW_SERIAL_PORT}: {ROBOCLAW_SERIAL_ADDRESS}")
         try:
-            self.mc = RoboClaw(ROBOCLAW_SERIAL_PORT, ROBOCLAW_SERIAL_ADDRESS, auto_recover=False)
+            self.mc = RoboClawThread(ROBOCLAW_SERIAL_PORT, ROBOCLAW_SERIAL_ADDRESS, auto_recover=False)
+            self.mc.start()
         except (serial.serialutil.SerialException, FileNotFoundError, Exception) as e:
-            
-            self.log.critical(f"Failed to start RoboClaw: {e}")
+            self.log.critical(f"Failed to start RoboClawThread: {e}")
             self.log.critical("Creating a mock RoboClaw and ignoring any future calls.")
             class NullRoboClaw:
                 def __getattr__(self, name):
-                    # Return a lambda that does nothing for any attribute
                     return lambda *args, **kwargs: None
             self.mc = NullRoboClaw()
 

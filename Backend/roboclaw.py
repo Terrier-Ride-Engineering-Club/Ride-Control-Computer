@@ -602,8 +602,10 @@ class RoboClaw:
         return speed
 
     def read_raw_speed_m1(self):
-        speed_vals = self._read(Cmd.GETM1SPEED, '>IB')
-        return speed_vals
+        speed, direction = self._read(Cmd.GETM1SPEED, '>IB')
+        if direction == 1:
+            speed = -((~speed + 1) & 0xFFFFFFFF)  # Convert unsigned to signed
+        return speed
         
     def write_settings_to_eeprom(self):
         """

@@ -7,7 +7,7 @@ import logging
 from enum import Enum
 from typing import List
 from Backend.iocontroller import IOController, HardwareIOController, WebIOController, IOControllerFactory
-from Backend.faults import Fault, FaultManager, FaultSeverity
+from Backend.faults import Fault, FaultManager, FaultSeverity, FaultManagerThread
 from Backend.ridemotioncontroller import RideMotionController
 from Backend.faults import PREDEFINED_FAULTS
 from Backend.state import State
@@ -52,8 +52,6 @@ class RideControlComputer():
         if demoMode: self.log.warning("Demo Mode enabled: RCC Will ignore control logic.")
         self.eventList = []
 
-        # Initialize fault manager
-        self.fault_manager = FaultManager()
 
     def initialize(self):
         '''
@@ -63,6 +61,13 @@ class RideControlComputer():
         # Initialize I/O
         self.ioFactory = IOControllerFactory()
         self.io = self.ioFactory.get(self.ioControllerType)
+
+        # Initialize Ride Motion Controller
+        self.rmc = RideMotionController()
+
+        # Initialize fault manager
+        self.fault_manager = FaultManagerThread(self.io, self.rmc)
+        self.fault_manager.start()
 
         def attach_button_callbacks(io: IOController):
             # Attach callback methods to io events
@@ -91,9 +96,6 @@ class RideControlComputer():
         attach_button_callbacks(self.ioFactory.get('web'))
         attach_button_callbacks(self.ioFactory.get('hardware'))
 
-        # Initialize Ride Motion Controller
-        self.rmc = RideMotionController()
-
         self.initialized = True
         self.log.info(f"Ride Control Computer Initialized!")
 
@@ -117,7 +119,7 @@ class RideControlComputer():
         '''
 
         # **Check for faults using sensor and encoder comparisons**
-        self.fault_manager.check_faults(self.io, self.rmc)
+        # self.fault_manager.check_faults(self.io, self.rmc)
 
         # Process non-io events.
         if self.is_estop_active():
@@ -128,13 +130,6 @@ class RideControlComputer():
 
         # **Execute state-specific actions**
         self.state.run()
-
-        # Execute specific actions if in idle state:
-        # if isinstance(self.state, IdleState):
-        #     # If the ride on action is not active,
-        #     if any(isinstance(event, RideOn) for event in self.eventList):
-        #         # Transition to off state
-        #         self.state = self.state.on_event(RideOn())
 
         # Execute specific actions if in running state:
         if isinstance(self.state, RunningState) or self.demoMode:
