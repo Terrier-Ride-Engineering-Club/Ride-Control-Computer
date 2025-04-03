@@ -81,7 +81,6 @@ class FaultManager:
             actual_temp2 = io.read_temp_sensor(2)
             max_speed = MOTOR_MAX_SPEED
         except Exception as e:
-            self.log.error(f"Lost communication with MC: {e}")
             self.raise_fault(PREDEFINED_FAULTS[108])
             return
 
