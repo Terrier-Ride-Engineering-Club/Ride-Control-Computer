@@ -35,6 +35,7 @@ class RoboClaw:
         try:
             with self.serial_lock:
                 self.port.reset_input_buffer()
+                self.port.reset_output_buffer()
                 # self.port.reset_input_buffer()
                 self.port.write(cmd_bytes)
                 response = bytearray()
