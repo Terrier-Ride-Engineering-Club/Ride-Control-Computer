@@ -148,7 +148,7 @@ class RoboClaw:
         else:
             raise ValueError(f"Motor #{motor} is not valid!")
         
-        print(f"Setting speed {speed} w/ accel {acceleration}")
+        # print(f"Setting speed {speed} w/ accel {acceleration}")
         
         # The format string '>Ii' means:
         #   - 'I' for a 4-byte unsigned acceleration value
