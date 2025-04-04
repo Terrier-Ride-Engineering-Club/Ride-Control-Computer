@@ -570,13 +570,16 @@ if __name__ == "__main__":
         # io.send_motor_command({"name": "Position", "duration": 5, "pos": "home"})
         io.send_motor_command({"name": "Move", "duration": 5, "speed": "fast", "direction": "bwd", "accel": "fast"})
 
-    io.stop_motor()
 
-    del io
+    start_time = time.time()
+    while time.time() - start_time < 5:
+        io.stop_motor()
+
+    # del io
     time.sleep(1)
     print("POS TEST")
 
-    io = HardwareIOController()
+    # io = HardwareIOController()
 
     start_time = time.time()
     while time.time() - start_time < 5:
