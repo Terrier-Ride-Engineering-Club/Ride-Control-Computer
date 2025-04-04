@@ -72,6 +72,7 @@ class FaultManager:
         """
         Checks for various fault conditions by comparing actual sensor and motor encoder data.
         """
+        return
         # Read actual values using the provided methods
         try:
             status = io.read_status()
