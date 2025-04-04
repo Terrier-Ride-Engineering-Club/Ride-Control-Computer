@@ -120,7 +120,7 @@ class RoboClaw:
             # print(f"[_write] verification byte: {verification.hex()}")
             
             if 0xff != struct.unpack('>B', verification)[0]:
-                logger.error(f'ACK failed: ACK expected: 0xFF, recieved: {struct.unpack('>B', verification)[0]}')
+                logger.error(f"ACK failed: ACK expected: 0xFF, recieved: {struct.unpack('>B', verification)[0]}")
                 raise CRCException('CRC failed')
         except serial.serialutil.SerialException:
             if self.auto_recover:
