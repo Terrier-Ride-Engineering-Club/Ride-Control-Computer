@@ -370,7 +370,6 @@ class HardwareIOController(IOController):
             accel = ACCEL_MAP.get(accel_str, ACCEL_MAP['med'])
 
             # self.mc.print_telemetry()
-            print(f"Setting speed {speed} w/ accel {accel}")
             self.mc.set_speed_with_acceleration(1, speed, accel)
         elif command.get('name') == "Position":
             position_str = command.get('pos', 'home').lower()
