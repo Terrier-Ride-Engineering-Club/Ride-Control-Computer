@@ -61,6 +61,7 @@ class RoboClaw:
             if crc_actual != crc_expect:
                 # print(f"[_read] CRC computed: {crc_actual:04x}, expected: {crc_expect:04x}")
                 logger.error(f'CRC failed: CRC computed: {crc_actual:04x}, expected: {crc_expect:04x}')
+                self._read(cmd, fmt)
                 raise CRCException('CRC failed')
             return struct.unpack(fmt, response[:-2])
         except serial.serialutil.SerialException:
