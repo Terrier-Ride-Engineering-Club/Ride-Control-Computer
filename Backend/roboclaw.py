@@ -59,9 +59,30 @@ class RoboClaw:
             
             
             if crc_actual != crc_expect:
-                # print(f"[_read] CRC computed: {crc_actual:04x}, expected: {crc_expect:04x}")
-                logger.error(f'CRC failed: CRC computed: {crc_actual:04x}, expected: {crc_expect:04x}')
-                raise CRCException('CRC failed')
+                logger.warning(f'First CRC failed: computed {crc_actual:04x}, expected {crc_expect:04x}, retrying...')
+                
+                # Retry once
+                self.port.reset_input_buffer()
+                self.port.write(cmd_bytes)
+                response = bytearray()
+                start_time = time.time()
+                while len(response) < expected_length + 2:
+                    byte = self.port.read(1)
+                    if not byte:
+                        if time.time() - start_time > self.port.timeout:
+                            break
+                        continue
+                    response.extend(byte)
+                if len(response) < expected_length + 2:
+                    raise Exception("Incomplete read on retry")
+                
+                crc_actual = CRCCCITT().calculate(cmd_bytes + response[:-2])
+                crc_expect = struct.unpack('>H', response[-2:])[0]
+                
+                if crc_actual != crc_expect:
+                    logger.error(f'Second CRC failed: computed {crc_actual:04x}, expected {crc_expect:04x}')
+                    raise CRCException('CRC failed')
+            
             return struct.unpack(fmt, response[:-2])
         except serial.serialutil.SerialException:
             if self.auto_recover:
@@ -99,7 +120,7 @@ class RoboClaw:
             # print(f"[_write] verification byte: {verification.hex()}")
             
             if 0xff != struct.unpack('>B', verification)[0]:
-                logger.error('write crc failed')
+                logger.error(f'ACK failed: ACK expected: 0xFF, recieved: {struct.unpack('>B', verification)[0]}')
                 raise CRCException('CRC failed')
         except serial.serialutil.SerialException:
             if self.auto_recover:
