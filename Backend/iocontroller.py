@@ -582,8 +582,10 @@ if __name__ == "__main__":
     # io = HardwareIOController()
 
     start_time = time.time()
-    while time.time() - start_time < 5:
+    # while time.time() - start_time < 5:
+    while io.read_position().get("encoder") != 0:
         io.send_motor_command({"name": "Position", "duration": 5, "pos": "home"})
+        time.sleep(0.01)
 
     io.stop_motor()
 
