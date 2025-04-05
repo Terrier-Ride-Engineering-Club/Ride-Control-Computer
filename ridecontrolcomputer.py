@@ -128,7 +128,9 @@ class RideControlComputer():
             self.state = self.state.on_event(EStopPressed())
         
         if isinstance(self.state, EstoppedState):
-            self.io.stop_motor()
+            # Will stop motor through timeout
+            pass
+            # self.io.stop_motor()
 
         # **Execute state-specific actions**
         self.state.run()

@@ -185,9 +185,10 @@ class TestRideControlComputer(unittest.TestCase):
         self.rcc.io.read_estop.return_value = True
         self.rcc.update()
 
-        # Ensure state is Estopped and motor command was sent
+        # Ensure state is Estopped and motor timeout executed
         self.assertIsInstance(self.rcc.state, EstoppedState)
-        self.rcc.io.stop_motor.assert_called()
+        self.rcc.io.stop_motor.assert_not_called()
+        self.rcc.io.send_motor_command.assert_not_called()
         
 
     # def test_io_actions_on_estopped(self):
