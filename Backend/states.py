@@ -44,7 +44,7 @@ class StoppingState(State):
     Happens when the stop button is pressed and the motor needs to home
     """
     def _on_enter(self):
-        
+        self.reset_timeout = False
         def reset_exit_timer_thread():
             enter_time = time.time()
             timeout_time = 5
