@@ -20,6 +20,10 @@ SELECTED_MOTOR = 1
 POSITION_MODE_ACTIVE = False
 MOTOR_STATIONARY_TIME_THRESHOLD_FOR_POSITION_MODE = 1
 
+# SERVO CONSTANTS
+SERVO_IN_POSITION = 0
+SERVO_OUT_POSITION = 0
+
 # MOTOR CONSTANTS
 # NOTE: GoBilda 5303 series motor encoders have a resolution of 1425.1 PPR @ Output shaft
 MOTOR_PPR = 1425.1
@@ -261,6 +265,14 @@ class IOController(ABC):
         """
         pass
 
+    @abstractmethod
+    def extend_servos(self):
+        pass
+
+    @abstractmethod
+    def retract_servos(self):
+        pass
+
 
 
 # --- Hardware IO Controller ---
@@ -415,6 +427,14 @@ class HardwareIOController(IOController):
                 self.stop_motor()
         except Exception as e:
             self.log.error(f"Can't communicate with MC: {e}")
+
+    def extend_servos(self):
+        self.servo1.value = SERVO_OUT_POSITION
+        self.servo2.value = SERVO_OUT_POSITION
+
+    def retract_servos(self):
+        self.servo1.value = SERVO_IN_POSITION
+        self.servo2.value = SERVO_IN_POSITION
     
     def set_speed(self, speed): self.mc.set_speed(SELECTED_MOTOR, speed)
 
@@ -567,6 +587,12 @@ class WebIOController(IOController):
 
     def send_motor_command(self, command): return None
 
+    def extend_servos(self):
+        pass
+
+    def retract_servos(self):
+        pass
+
 class IOControllerFactory():
     """Class to dispatch IOController objects at runtime without duplication"""
     hardware: HardwareIOController
@@ -608,44 +634,52 @@ class IOControllerFactory():
 #     button.pin.drive_high()  # simulate release
 #     print("Button state after release simulation:", button.is_pressed)
 
+# if __name__ == "__main__":
+
+#     print("V>P TEST")
+#     io = HardwareIOController()
+
+
+#     start_time = time.time()
+#     while time.time() - start_time < 5:
+#         io.send_motor_command({"name": "Move", "duration": 5, "speed": "slow", "direction": "fwd", "accel": "slow"})
+
+#     # start_time = time.time()
+#     # while time.time() - start_time < 2:
+#     #     io.stop_motor()
+
+#     # start_time = time.time()
+#     # while time.time() - start_time < 2:
+#     #     # io.send_motor_command({"name": "Position", "duration": 5, "pos": "home"})
+#     #     io.send_motor_command({"name": "Move", "duration": 5, "speed": "fast", "direction": "bwd", "accel": "fast"})
+
+
+#     # start_time = time.time()
+#     while io.read_speed() != 0:
+#         io.stop_motor()
+
+#     # del io
+#     start_time = time.time()
+#     while time.time() - start_time < 0.2:
+#         pass
+#     # time.sleep(1)
+#     print("POS TEST")
+
+#     # io = HardwareIOController()
+
+#     start_time = time.time()
+#     # while time.time() - start_time < 5:
+#     while io.read_position().get("encoder") != 0:
+#         io.send_motor_command({"name": "Position", "duration": 5, "pos": "home"})
+#         time.sleep(0.01)
+
+#     io.stop_motor()
+
 if __name__ == "__main__":
 
-    print("V>P TEST")
+
     io = HardwareIOController()
 
-
-    start_time = time.time()
-    while time.time() - start_time < 5:
-        io.send_motor_command({"name": "Move", "duration": 5, "speed": "slow", "direction": "fwd", "accel": "slow"})
-
-    # start_time = time.time()
-    # while time.time() - start_time < 2:
-    #     io.stop_motor()
-
-    # start_time = time.time()
-    # while time.time() - start_time < 2:
-    #     # io.send_motor_command({"name": "Position", "duration": 5, "pos": "home"})
-    #     io.send_motor_command({"name": "Move", "duration": 5, "speed": "fast", "direction": "bwd", "accel": "fast"})
-
-
-    # start_time = time.time()
-    while io.read_speed() != 0:
-        io.stop_motor()
-
-    # del io
-    start_time = time.time()
-    while time.time() - start_time < 0.2:
-        pass
-    # time.sleep(1)
-    print("POS TEST")
-
-    # io = HardwareIOController()
-
-    start_time = time.time()
-    # while time.time() - start_time < 5:
-    while io.read_position().get("encoder") != 0:
-        io.send_motor_command({"name": "Position", "duration": 5, "pos": "home"})
-        time.sleep(0.01)
-
-    io.stop_motor()
-
+    io.extend_servos()
+    time.sleep(1)
+    io.retract_servos()
