@@ -351,7 +351,7 @@ class HardwareIOController(IOController):
             if command == None:
                 self.mc.set_speed_with_acceleration(1,0, FAST_SPEED_QPPS)
                 return
-            if command.get('name') == "Move":
+            elif command.get('name') == "Move":
                 self._position_mode_active = False
                 # Parse command
                 speed_str = command.get('speed', 'med').lower()
@@ -376,6 +376,7 @@ class HardwareIOController(IOController):
                     self._stationary_start_time = None
 
                 if not self._position_mode_active:
+                    self.stop_motor()
                     # If the motor has any speed, reset the stationary timer and return early
                     if abs(speed) > 0:
                         self._stationary_start_time = time.time()
