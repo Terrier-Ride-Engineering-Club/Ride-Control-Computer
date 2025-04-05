@@ -27,10 +27,10 @@ QUAD_COUNTS_PER_REVOLUTION = MOTOR_PPR * 4
 # All speeds in Quad Pulses per Second (QPS)
 SLOW_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 10)     # 1 revolution every 20 seconds
 MED_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 7)    # 1 revolution every 10 seconds
-FAST_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 5)     # 1 revolution every 5 seconds
+FAST_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 4)     # 1 revolution every 5 seconds
 SLOW_ACCLE_QPPS = 500
 MED_ACCL_QPPS = 1000
-FAST_ACCL_QPPS = 2500
+FAST_ACCL_QPPS = 3000
 HOME_POSITION = 0
 STOP_DECEL = 500
 STOP_ACCEL = 500
