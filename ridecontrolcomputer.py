@@ -149,7 +149,7 @@ class RideControlComputer():
                 self.current_motor_instruction.get('name') == 'Move' or
                 (self.current_motor_instruction.get('name') == 'Position' and self.motor_command_finished)
             ):
-                new_motor_instr = self.rmc.update(self.motor_command_finished)
+                new_motor_instr = self.rmc.update()
                 if new_motor_instr != self.current_motor_instruction:
                     self.current_motor_instruction = new_motor_instr
                     self.log.info(f"New Motor Instruction: {new_motor_instr}")
