@@ -69,9 +69,9 @@ if __name__ == "__main__":
             #     sleep(0.1)
 
             print("Forward - Fast/Fast")
-            print(f"STATUS: {mc.read_status()}")
-            print(f"ENC POS: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
-            print(f"alt enc: {mc.read_encoder_m1()}")
+            # print(f"STATUS: {mc.read_status()}")
+            # print(f"ENC POS: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
+            # print(f"alt enc: {mc.read_encoder_m1()}")
             start_time = time()
             while time() - start_time < 2:
                 mc.print_telemetry()
