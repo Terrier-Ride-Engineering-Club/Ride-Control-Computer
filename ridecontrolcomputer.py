@@ -142,20 +142,6 @@ class RideControlComputer():
 
         # Execute specific actions if in running state:
         if isinstance(self.state, RunningState) or self.demoMode:
-            # Start cycle if not running
-            if not self.rmc.is_running:
-                self.current_motor_instruction = self.rmc.start_cycle()
-            
-             # Update RMC only if current instruction is Move OR Position & finished
-            if (
-                self.current_motor_instruction is None or
-                self.current_motor_instruction.get('name') == 'Move' or
-                (self.current_motor_instruction.get('name') == 'Position' and self.position_command_finished)
-            ):
-                new_motor_instr = self.rmc.update(self.position_command_finished)
-                if new_motor_instr != self.current_motor_instruction:
-                    self.current_motor_instruction = new_motor_instr
-                    self.log.info(f"New Motor Instruction: {new_motor_instr}")
 
             # Servo commands
             if self.rmc.in_parked_position:
@@ -173,6 +159,23 @@ class RideControlComputer():
             
             # Give the servos some buffer to retract
             if time.time() - self.servos_retracted_timer > 2:
+
+                # Start cycle if not running
+                if not self.rmc.is_running:
+                    self.log.info("Ride Cycle Started")
+                    self.current_motor_instruction = self.rmc.start_cycle()
+                
+                # Update RMC only if current instruction is Move OR Position & finished
+                if (
+                    self.current_motor_instruction is None or
+                    self.current_motor_instruction.get('name') == 'Move' or
+                    (self.current_motor_instruction.get('name') == 'Position' and self.position_command_finished)
+                ):
+                    new_motor_instr = self.rmc.update(self.position_command_finished)
+                    if new_motor_instr != self.current_motor_instruction:
+                        self.current_motor_instruction = new_motor_instr
+                        self.log.info(f"New Motor Instruction: {new_motor_instr}")
+
                 # With position commands, we must wait till it is finished for us to move to the next one.
                 # That is what the position_command_finished does.
                 self.position_command_finished = self.io.send_motor_command(self.current_motor_instruction)
