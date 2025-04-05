@@ -680,6 +680,9 @@ if __name__ == "__main__":
 
     io = HardwareIOController()
 
-    io.extend_servos()
-    time.sleep(1)
-    io.retract_servos()
+    while True:
+        io.extend_servos()
+        time.sleep(2)
+        io.retract_servos()
+        time.sleep(2)
+
