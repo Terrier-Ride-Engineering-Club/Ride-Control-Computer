@@ -403,7 +403,7 @@ class HardwareIOController(IOController):
                 # Print telemetry
                 # Im1 = f"{self.mc.read_currents()[0]}A"
                 # enc = self.mc.read_encoder_m1().get("encoder")
-                print(f"Current: {Im1}, Enc: {enc}")
+                print(f"Current: {Im1}, Enc: {enc}, Spd {speed}")
 
                 self.mc.drive_to_position_with_speed_acceleration_deceleration(1, position, 1000, 100, 100, 0)
 
