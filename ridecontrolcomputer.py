@@ -52,6 +52,7 @@ class RideControlComputer():
         if demoMode: self.log.warning("Demo Mode enabled: RCC Will ignore control logic.")
         self.eventList = []
         self.position_command_finished = False
+        self.servos_extended = False
 
         # Initialize fault manager
         self.fault_manager = FaultManager()
@@ -156,8 +157,14 @@ class RideControlComputer():
 
             # Servo commands
             if self.rmc.in_parked_position:
+                if not self.servos_extended:
+                    self.log.info(f"Servos Extending!")
+                    self.servos_extended = True
                 self.io.extend_servos()
             else:
+                if self.servos_extended:
+                    self.log.info(f"Servos Retracting!")
+                    self.servos_extended = False
                 self.io.retract_servos()
             
             # With position commands, we must wait till it is finished for us to move to the next one.
