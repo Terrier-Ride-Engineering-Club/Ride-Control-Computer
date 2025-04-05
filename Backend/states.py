@@ -60,7 +60,8 @@ class StoppingState(State):
         if type(event) is RideFinishedHoming:
             return self._transition(IdleState())
         elif self.reset_timeout:
-            return self._transition(IdleState())
+            self.log.error("Stop Timed out.")
+            return self._transition(EstoppedState())
         return self
     
 class EstoppedState(State):
