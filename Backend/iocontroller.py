@@ -294,7 +294,7 @@ class HardwareIOController(IOController):
             factory = LGPIOFactory()
 
         # Initialize GPIO inputs as buttons (pull-down enabled by default)
-        self.estop_button = Button(ESTOP_PIN, pull_up=False, pin_factory=factory)
+        self.estop_button = Button(ESTOP_PIN, pull_up=False, pin_factory=factory, active_state=False)
         self.stop_button = Button(STOP_PIN, pull_up=False, pin_factory=factory)
         self.dispatch_button = Button(DISPATCH_PIN, pull_up=False, pin_factory=factory)
         self.ride_onoff_button = Button(RIDE_ONOFF_PIN, pull_up=False, pin_factory=factory)
