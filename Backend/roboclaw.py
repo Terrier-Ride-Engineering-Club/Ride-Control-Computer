@@ -56,10 +56,12 @@ class RoboClaw:
             
             crc_actual = CRCCCITT().calculate(cmd_bytes + response[:-2])
             crc_expect = struct.unpack('>H', response[-2:])[0]
-            # print(f"[_read] CRC computed: {crc_actual:04x}, expected: {crc_expect:04x}")
+            
             
             if crc_actual != crc_expect:
-                logger.error('read crc failed')
+                # print(f"[_read] CRC computed: {crc_actual:04x}, expected: {crc_expect:04x}")
+                logger.error(f'CRC failed: CRC computed: {crc_actual:04x}, expected: {crc_expect:04x}')
+                
                 raise CRCException('CRC failed')
             return struct.unpack(fmt, response[:-2])
         except serial.serialutil.SerialException:
@@ -98,7 +100,7 @@ class RoboClaw:
             # print(f"[_write] verification byte: {verification.hex()}")
             
             if 0xff != struct.unpack('>B', verification)[0]:
-                logger.error('write crc failed')
+                logger.error(f"ACK failed: ACK expected: 0xFF, recieved: {struct.unpack('>B', verification)[0]}")
                 raise CRCException('CRC failed')
         except serial.serialutil.SerialException:
             if self.auto_recover:
@@ -145,6 +147,8 @@ class RoboClaw:
             cmd = Cmd.M2SPEEDACCEL
         else:
             raise ValueError(f"Motor #{motor} is not valid!")
+        
+        # print(f"Setting speed {speed} w/ accel {acceleration}")
         
         # The format string '>Ii' means:
         #   - 'I' for a 4-byte unsigned acceleration value
@@ -209,8 +213,6 @@ class RoboClaw:
             cmd = Cmd.M2SPEEDACCELDECCELPOS
         else:
             raise ValueError(f"Motor #{motor} is not valid!")
-        
-        print(f"spd: {speed}, acc: {acceleration}, dec: {deceleration}, pos: {position}")
         
         if speed > 2000 or acceleration > 500 or deceleration > 500:
             raise ValueError(f"Value to great! spd: {speed}, acc: {acceleration}, dec: {deceleration}")
@@ -602,9 +604,7 @@ class RoboClaw:
         return speed
 
     def read_raw_speed_m1(self):
-        speed, direction = self._read(Cmd.GETM1SPEED, '>IB')
-        if direction == 1:
-            speed = -((~speed + 1) & 0xFFFFFFFF)  # Convert unsigned to signed
+        speed, _ = self._read(Cmd.GETM1SPEED, '>iB')
         return speed
         
     def write_settings_to_eeprom(self):
