@@ -19,6 +19,8 @@ ROBOCLAW_SERIAL_BAUD_RATE = 38400
 SELECTED_MOTOR = 1
 POSITION_MODE_ACTIVE = False
 MOTOR_STATIONARY_TIME_THRESHOLD_FOR_POSITION_MODE = 1
+ENCODER_ABS_STOP_THRESHOLD = 10
+SPEED_ABS_STOP_THRESHOLD = 50
 
 # SERVO CONSTANTS
 SERVO_1_IN_POSITION = 0.1
@@ -422,7 +424,7 @@ class HardwareIOController(IOController):
 
                 self.mc.drive_to_position_with_speed_acceleration_deceleration(1, position, 1000, STOP_ACCEL, STOP_DECEL, 0)
 
-                if abs(enc) < 10 and abs(speed) < 10:
+                if abs(enc) < ENCODER_ABS_STOP_THRESHOLD and abs(speed) < SPEED_ABS_STOP_THRESHOLD:
                     return True
             else:
                 self._position_mode_active = False
