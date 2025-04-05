@@ -17,6 +17,8 @@ ROBOCLAW_SERIAL_PORT = "/dev/ttyAMA0"
 ROBOCLAW_SERIAL_ADDRESS = 0x80
 ROBOCLAW_SERIAL_BAUD_RATE = 38400
 SELECTED_MOTOR = 1
+POSITION_MODE_ACTIVE = False
+MOTOR_STATIONARY_TIME_THRESHOLD_FOR_POSITION_MODE = 1
 
 # MOTOR CONSTANTS
 # NOTE: GoBilda 5303 series motor encoders have a resolution of 1425.1 PPR @ Output shaft
@@ -337,8 +339,6 @@ class HardwareIOController(IOController):
 
     # --- Motor Control Methods ---
     def send_motor_command(self, command):
-        POSITION_MODE_ACTIVE = False
-        MOTOR_STATIONARY_TIME_THRESHOLD_FOR_POSITION_MODE = 1
         if command == None:
             self.mc.set_speed_with_acceleration(1,0, FAST_SPEED_QPPS)
             return
