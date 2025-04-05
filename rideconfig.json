@@ -5,7 +5,7 @@
             {"name": "Move", "duration": 3, "speed": "fast", "direction": "bwd", "accel": "fast"},
             {"name": "Move", "duration": 1, "speed": "fast", "direction": "fwd", "accel": "fast"},
             {"name": "Move", "duration": 2, "speed": "fast", "direction": "bwd", "accel": "fast"},
-            {"name": "Move", "duration": 1, "speed": "fast", "direction": "fwd", "accel": "fast"},
+            {"name": "Move", "duration": 1, "speed": "slow", "direction": "fwd", "accel": "fast"},
             {"name": "Move", "duration": 3, "speed": "fast", "direction": "bwd", "accel": "fast"},
             {"name": "Position", "duration": 10, "pos": "home"}
         ],
