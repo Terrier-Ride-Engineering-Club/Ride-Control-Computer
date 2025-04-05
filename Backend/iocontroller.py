@@ -377,7 +377,7 @@ class HardwareIOController(IOController):
 
                 if not self._position_mode_active:
                     # If the motor has any speed, reset the stationary timer and return early
-                    if abs(speed) > 0:
+                    if speed != 0:
                         self.stop_motor()
                         self._stationary_start_time = time.time()
                         return
@@ -391,7 +391,7 @@ class HardwareIOController(IOController):
                             return
                         else:
                             # Motor has been stationary for 1 second; enable position mode
-                            time.sleep(1)
+                            time.sleep(0.2)
                             self._position_mode_active = True
 
                         
