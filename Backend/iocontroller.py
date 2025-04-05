@@ -403,7 +403,7 @@ class HardwareIOController(IOController):
                 # enc = self.mc.read_encoder_m1().get("encoder")
                 print(f"Current: {Im1}, Enc: {enc}, Spd {speed}")
 
-                self.mc.drive_to_position_with_speed_acceleration_deceleration(1, position, 1000, 100, 100, 0)
+                self.mc.drive_to_position_with_speed_acceleration_deceleration(1, position, 1000, 500, 500, 0)
 
                 if abs(enc) < 10 and abs(speed) < 10:
                     return True
