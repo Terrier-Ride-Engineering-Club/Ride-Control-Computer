@@ -70,6 +70,7 @@ class FaultManager:
     def check_faults(self, io: IOController, rmc):
         """
         Checks for various fault conditions by executing one IO check per call in a round-robin manner.
+        Must check in round robin because of how long io calls take
         """
         # Initialize round-robin mechanism if not already set up
         if not hasattr(self, 'current_check'):
@@ -121,6 +122,8 @@ class FaultManager:
             if not status:
                 self.raise_fault(PREDEFINED_FAULTS[108])
                 return
+            else:
+                self.clear_fault(PREDEFINED_FAULTS[108].code)
             if "fault" in status.lower() or "error" in status.lower():
                 self.raise_fault(PREDEFINED_FAULTS[102])
                 self.log.warning(f"Motor controller status indicates fault: {status}")
