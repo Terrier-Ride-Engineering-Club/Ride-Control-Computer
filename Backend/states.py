@@ -43,8 +43,23 @@ class StoppingState(State):
     """
     Happens when the stop button is pressed and the motor needs to home
     """
+    def _on_enter(self):
+        
+        def reset_exit_timer_thread():
+            enter_time = time.time()
+            timeout_time = 5
+            while True:
+                if time.time() - enter_time >= timeout_time:
+                    self.reset_timeout = True
+                else:
+                    time.sleep(0.1)
+        threading.Thread(target=reset_exit_timer_thread, daemon=True).start()
+
+
     def on_event(self, event):
         if type(event) is RideFinishedHoming:
+            return self._transition(IdleState())
+        elif self.reset_timeout:
             return self._transition(IdleState())
         return self
     

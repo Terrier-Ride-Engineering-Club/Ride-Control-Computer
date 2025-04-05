@@ -196,6 +196,9 @@ class RideControlComputer():
             
             if time.time() - self.stopped_timer < 2:
                 self.create_event(RideFinishedHoming())
+
+            # Update timeout timer
+            self.state = self.state.on_event(None)
         
         # Required to update timer for resetting state
         if isinstance(self.state, ResettingState):
