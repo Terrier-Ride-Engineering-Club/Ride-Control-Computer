@@ -391,6 +391,7 @@ class HardwareIOController(IOController):
                             return
                         else:
                             # Motor has been stationary for 1 second; enable position mode
+                            time.sleep(1)
                             self._position_mode_active = True
 
                         
