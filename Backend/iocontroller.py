@@ -32,6 +32,9 @@ SLOW_ACCLE_QPPS = 100
 MED_ACCL_QPPS = 150
 FAST_ACCL_QPPS = 200
 HOME_POSITION = 0
+STOP_DECEL = 500
+STOP_ACCEL = 500
+STATIONARY_POS_THRESHOLD_TIME = 0.1
 SPEED_MAP = {
     "slow": SLOW_SPEED_QPPS,
     "med": MED_SPEED_QPPS,
@@ -387,7 +390,7 @@ class HardwareIOController(IOController):
                             self._stationary_start_time = time.time()
                             return
                         # If motor hasn't been stationary for 1 second, return early
-                        elif time.time() - self._stationary_start_time < 0.1:
+                        elif time.time() - self._stationary_start_time < STATIONARY_POS_THRESHOLD_TIME:
                             return
                         else:
                             # Motor has been stationary for 1 second; enable position mode
@@ -403,7 +406,7 @@ class HardwareIOController(IOController):
                 # enc = self.mc.read_encoder_m1().get("encoder")
                 print(f"Current: {Im1}, Enc: {enc}, Spd {speed}")
 
-                self.mc.drive_to_position_with_speed_acceleration_deceleration(1, position, 1000, 500, 500, 0)
+                self.mc.drive_to_position_with_speed_acceleration_deceleration(1, position, 1000, STOP_ACCEL, STOP_DECEL, 0)
 
                 if abs(enc) < 10 and abs(speed) < 10:
                     return True
