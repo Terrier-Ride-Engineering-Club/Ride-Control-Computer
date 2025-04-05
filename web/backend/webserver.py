@@ -160,5 +160,5 @@ class RideWebServer:
                 "motorControllerStatus": self.rcc.io.read_status()
             }
         except Exception as e:
-            return None, 500
+            return {"message": "Error fetching data"}, 500
         return jsonify(motor_status)
