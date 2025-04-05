@@ -74,7 +74,7 @@ if __name__ == "__main__":
             # print(f"alt enc: {mc.read_encoder_m1()}")
             start_time = time()
             while time() - start_time < 2:
-                mc.print_telemetry()
+                # mc.print_telemetry()
                 mc.set_speed_with_acceleration(1, FAST_SPEED_QPPS, FAST_SPEED_QPPS)
                 sleep(0.05)
 
