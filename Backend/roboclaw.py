@@ -49,8 +49,9 @@ class RoboClaw:
                         continue
                     response.extend(byte)
                 if len(response) < expected_length + 2:
-                    # logger.error(f"Incomplete read: expected {expected_length + 2} bytes, got {len(response)} bytes")
-                    raise Exception("Incomplete read")
+                    logger.error(f"Incomplete read: expected {expected_length + 2} bytes, got {len(response)} bytes")
+                    # raise Exception("Incomplete read")
+                    return
             
             # print(f"[_read] cmd_bytes: {cmd_bytes.hex()} response: {response.hex()}")
             
