@@ -347,6 +347,7 @@ class HardwareIOController(IOController):
             Im1 = f"{self.mc.read_currents()[0]}A"
             enc = self.mc.read_encoder_m1().get("encoder")
             speed = self.mc.read_raw_speed_m1()
+            print(f"exec cmd: {command}")
             if command == None:
                 self.mc.set_speed_with_acceleration(1,0, FAST_SPEED_QPPS)
                 return
@@ -398,8 +399,8 @@ class HardwareIOController(IOController):
                 position = POSITION_MAP.get(position_str, 'home')
 
                 # Print telemetry
-                Im1 = f"{self.mc.read_currents()[0]}A"
-                enc = self.mc.read_encoder_m1().get("encoder")
+                # Im1 = f"{self.mc.read_currents()[0]}A"
+                # enc = self.mc.read_encoder_m1().get("encoder")
                 print(f"Current: {Im1}, Enc: {enc}")
 
                 self.mc.drive_to_position_with_speed_acceleration_deceleration(1, position, 1000, 100, 100, 0)
