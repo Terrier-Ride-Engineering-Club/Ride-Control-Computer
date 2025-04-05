@@ -343,10 +343,10 @@ class HardwareIOController(IOController):
         Returns:
             Bool: Returns true if the ride is in a stopped home position
         """
-        Im1 = f"{self.mc.read_currents()[0]}A"
-        enc = self.mc.read_encoder_m1().get("encoder")
-        speed = self.mc.read_raw_speed_m1()
         try:
+            Im1 = f"{self.mc.read_currents()[0]}A"
+            enc = self.mc.read_encoder_m1().get("encoder")
+            speed = self.mc.read_raw_speed_m1()
             if command == None:
                 self.mc.set_speed_with_acceleration(1,0, FAST_SPEED_QPPS)
                 return

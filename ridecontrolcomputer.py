@@ -144,7 +144,6 @@ class RideControlComputer():
                 self.current_motor_instruction = self.rmc.start_cycle()
             
              # Update RMC only if current instruction is Move OR Position & finished
-            print(f"instr: {self.current_motor_instruction}")
             if (
                 self.current_motor_instruction is None or
                 self.current_motor_instruction.get('name') == 'Move' or
