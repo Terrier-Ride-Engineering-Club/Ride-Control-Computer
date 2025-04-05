@@ -153,6 +153,12 @@ class RideControlComputer():
                 if new_motor_instr != self.current_motor_instruction:
                     self.current_motor_instruction = new_motor_instr
                     self.log.info(f"New Motor Instruction: {new_motor_instr}")
+
+            # Servo commands
+            if self.rmc.in_parked_position:
+                self.io.extend_servos()
+            else:
+                self.io.retract_servos()
             
             # With position commands, we must wait till it is finished for us to move to the next one.
             self.position_command_finished = self.io.send_motor_command(self.current_motor_instruction)

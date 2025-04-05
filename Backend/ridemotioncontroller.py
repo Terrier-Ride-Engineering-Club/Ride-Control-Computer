@@ -96,11 +96,17 @@ class RideMotionController:
         if self.current_instr.get("name") == "Position" and self.instr_start_time is None:
             if position_command_finished:
                 self.instr_start_time = time.time()
+                # Used so the rcc can extend servos
+                self.in_parked_position = True
             else:
                 return self.current_instr
         
         # Check if the duration for the current instruction has passed
         elapsed_time = time.time() - self.instr_start_time
+
+        # Remove the in_parked_pos flag 2 sec before motion starts
+        if elapsed_time >= self.current_instr.get("duration", 0) - 2:
+            self.in_parked_position = False
         if elapsed_time >= self.current_instr.get("duration", 0):
             # Move to the next instruction in cycle 1
             self.current_instr_index += 1
