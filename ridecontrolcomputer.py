@@ -54,6 +54,7 @@ class RideControlComputer():
         self.position_command_finished = False
         self.servos_extended = False
         self.stopped_timer = 0
+        self.servos_retracted_timer = 0
 
         # Initialize fault manager
         self.fault_manager = FaultManager()
@@ -166,12 +167,15 @@ class RideControlComputer():
                 if self.servos_extended:
                     self.log.info(f"Servos Retracting!")
                     self.servos_extended = False
+                    self.servos_retracted_timer = time.time()
                 self.io.retract_servos()
-                time.sleep(1)
                 
             
-            # With position commands, we must wait till it is finished for us to move to the next one.
-            self.position_command_finished = self.io.send_motor_command(self.current_motor_instruction)
+            # Give the servos some buffer to retract
+            if time.time() - self.servos_retracted_timer > 2:
+                # With position commands, we must wait till it is finished for us to move to the next one.
+                # That is what the position_command_finished does.
+                self.position_command_finished = self.io.send_motor_command(self.current_motor_instruction)
         
         if isinstance(self.state, StoppingState):
             self.position_command_finished = self.io.send_motor_command({"name": "Position", "duration": 999, "pos": "home"})
@@ -186,8 +190,8 @@ class RideControlComputer():
                 if self.servos_extended:
                     self.log.info(f"Servos Retracting!")
                     self.servos_extended = False
+                    self.servos_retracted_timer = time.time()
                 self.io.retract_servos()
-                time.sleep(1)
 
             
             if time.time() - self.stopped_timer < 2:
