@@ -51,7 +51,7 @@ class RideControlComputer():
         self.demoMode = demoMode
         if demoMode: self.log.warning("Demo Mode enabled: RCC Will ignore control logic.")
         self.eventList = []
-        self.motor_command_finished = False
+        self.position_command_finished = False
 
         # Initialize fault manager
         self.fault_manager = FaultManager()
@@ -147,15 +147,15 @@ class RideControlComputer():
             if (
                 self.current_motor_instruction is None or
                 self.current_motor_instruction.get('name') == 'Move' or
-                (self.current_motor_instruction.get('name') == 'Position' and self.motor_command_finished)
+                (self.current_motor_instruction.get('name') == 'Position' and self.position_command_finished)
             ):
-                new_motor_instr = self.rmc.update()
+                new_motor_instr = self.rmc.update(self.position_command_finished)
                 if new_motor_instr != self.current_motor_instruction:
                     self.current_motor_instruction = new_motor_instr
                     self.log.info(f"New Motor Instruction: {new_motor_instr}")
             
             # With position commands, we must wait till it is finished for us to move to the next one.
-            self.motor_command_finished = self.io.send_motor_command(self.current_motor_instruction)
+            self.position_command_finished = self.io.send_motor_command(self.current_motor_instruction)
             
         
         # Required to update timer for resetting state

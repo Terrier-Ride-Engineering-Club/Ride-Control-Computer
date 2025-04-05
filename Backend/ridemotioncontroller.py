@@ -12,7 +12,7 @@ class RideMotionController:
         self.config = self.load_config()
         self.current_instr_index = None
         self.current_instr = None
-        self.cycle_start_time = 0
+        self.instr_start_time = 0
         self.is_running = False
 
 
@@ -74,11 +74,14 @@ class RideMotionController:
             return None
         self.current_instr_index = 0
         self.current_instr = cycle[self.current_instr_index]
-        self.cycle_start_time = time.time()
+        if self.current_instr.get("name") == "Position":
+            self.instr_start_time = None
+        else:
+            self.instr_start_time = time.time()
         self.is_running = True
         return self.current_instr
 
-    def update(self):
+    def update(self, position_command_finished):
         """
         Updates the Ride Motion Controller. If a cycle is currently active,
         this function will return an instruction for the motor when a new one
@@ -86,12 +89,20 @@ class RideMotionController:
         """
         if self.current_instr is None:
             return self.start_cycle()
-
+        
+        cycle = self.get_cycle(1)
+        
+        # For Position instructions, delay starting the timer until the command is finished
+        if self.current_instr.get("name") == "Position" and self.instr_start_time is None:
+            if position_command_finished:
+                self.instr_start_time = time.time()
+            else:
+                return self.current_instr
+        
         # Check if the duration for the current instruction has passed
-        elapsed_time = time.time() - self.cycle_start_time
+        elapsed_time = time.time() - self.instr_start_time
         if elapsed_time >= self.current_instr.get("duration", 0):
             # Move to the next instruction in cycle 1
-            cycle = self.get_cycle(1)
             self.current_instr_index += 1
             if self.current_instr_index >= len(cycle):
                 # End of cycle: finish the cycle and return None
@@ -99,9 +110,13 @@ class RideMotionController:
                 return None
             else:
                 self.current_instr = cycle[self.current_instr_index]
-                self.cycle_start_time = time.time()
+                # For a new Position instruction, wait for the position_command_finished flag before starting the timer
+                if self.current_instr.get("name") == "Position":
+                    self.instr_start_time = None
+                else:
+                    self.instr_start_time = time.time()
                 return self.current_instr
-
+        
         # Not yet time for a new instruction, return current
         return self.current_instr
 
