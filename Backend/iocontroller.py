@@ -21,8 +21,10 @@ POSITION_MODE_ACTIVE = False
 MOTOR_STATIONARY_TIME_THRESHOLD_FOR_POSITION_MODE = 1
 
 # SERVO CONSTANTS
-SERVO_IN_POSITION = 0
-SERVO_OUT_POSITION = 1
+SERVO_1_IN_POSITION = 0
+SERVO_1_OUT_POSITION = 1
+SERVO_2_IN_POSITION = 1
+SERVO_2_OUT_POSITION = 1
 
 # MOTOR CONSTANTS
 # NOTE: GoBilda 5303 series motor encoders have a resolution of 1425.1 PPR @ Output shaft
@@ -429,12 +431,12 @@ class HardwareIOController(IOController):
             self.log.error(f"Can't communicate with MC: {e}")
 
     def extend_servos(self):
-        self.servo1.value = SERVO_OUT_POSITION
-        self.servo2.value = SERVO_OUT_POSITION
+        self.servo1.value = SERVO_1_OUT_POSITION
+        self.servo2.value = SERVO_2_OUT_POSITION
 
     def retract_servos(self):
-        self.servo1.value = SERVO_IN_POSITION
-        self.servo2.value = SERVO_IN_POSITION
+        self.servo1.value = SERVO_1_IN_POSITION
+        self.servo2.value = SERVO_2_IN_POSITION
     
     def set_speed(self, speed): self.mc.set_speed(SELECTED_MOTOR, speed)
 
