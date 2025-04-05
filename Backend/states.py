@@ -51,9 +51,12 @@ class StoppingState(State):
             while True:
                 if time.time() - enter_time >= timeout_time:
                     self.reset_timeout = True
+                    break
                 else:
                     time.sleep(0.1)
-        threading.Thread(target=reset_exit_timer_thread, daemon=True).start()
+            self.log.info("Thread Stopped")
+        self.thread = threading.Thread(target=reset_exit_timer_thread, daemon=True)
+        self.thread.start()
 
 
     def on_event(self, event):
@@ -90,8 +93,10 @@ class ResettingState(State):
             while True:
                 if time.time() - enter_time >= reset_time:
                     self.done_resetting = True
+                    break
                 else:
                     time.sleep(0.1)
+            self.log.info("Thread stopped")
         threading.Thread(target=reset_exit_timer_thread, daemon=True).start()
         
     def on_event(self, event):
