@@ -407,7 +407,7 @@ class HardwareIOController(IOController):
 
                 self.mc.drive_to_position_with_speed_acceleration_deceleration(1, position, 1000, 100, 100, 0)
 
-                if enc == 0 and speed == 0:
+                if abs(enc) < 2 and abs(speed) < 2:
                     return True
             else:
                 self._position_mode_active = False
