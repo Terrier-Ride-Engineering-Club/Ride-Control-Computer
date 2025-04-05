@@ -47,7 +47,7 @@ class StoppingState(State):
         self.reset_timeout = False
         def reset_exit_timer_thread():
             enter_time = time.time()
-            timeout_time = 5
+            timeout_time = 8
             while True:
                 if time.time() - enter_time >= timeout_time:
                     self.reset_timeout = True
