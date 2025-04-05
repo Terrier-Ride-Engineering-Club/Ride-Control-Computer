@@ -334,12 +334,16 @@ class HardwareIOController(IOController):
         # self.log.info("Motors disabled.")
         # Insert hardware-specific logic here
 
+
     # --- Motor Control Methods ---
     def send_motor_command(self, command):
+        POSITION_MODE_ACTIVE = False
+        MOTOR_STATIONARY_TIME_THRESHOLD_FOR_POSITION_MODE = 1
         if command == None:
             self.mc.set_speed_with_acceleration(1,0, FAST_SPEED_QPPS)
             return
         if command.get('name') == "Move":
+            self._position_mode_active = False
             # Parse command
             speed_str = command.get('speed', 'med').lower()
             speed = SPEED_MAP.get(speed_str, MED_SPEED_QPPS)
@@ -355,6 +359,33 @@ class HardwareIOController(IOController):
 
             self.mc.set_speed_with_acceleration(1, speed, accel)
         elif command.get('name') == "Position":
+            # In order for a position command to be executed, the motor must be stationary for a period of time.
+            # Non-blocking check: ensure the motor has been stationary for 1 second
+            if not hasattr(self, '_position_mode_active'):
+                self._position_mode_active = False
+            if not hasattr(self, '_stationary_start_time'):
+                self._stationary_start_time = None
+
+            if not self._position_mode_active:
+                # If the motor has any speed, reset the stationary timer and return early
+                if abs(self.mc.read_raw_speed_m1()) > 0:
+                    self._stationary_start_time = time.time()
+                    return
+                else:
+                    # Start timer if not already started
+                    if self._stationary_start_time is None:
+                        self._stationary_start_time = time.time()
+                        return
+                    # If motor hasn't been stationary for 1 second, return early
+                    elif time.time() - self._stationary_start_time < 1.0:
+                        return
+                    else:
+                        # Motor has been stationary for 1 second; enable position mode
+                        self._position_mode_active = True
+
+                    
+            
+            
             position_str = command.get('pos', 'home').lower()
             position = POSITION_MAP.get(position_str, 'home')
 
@@ -365,6 +396,7 @@ class HardwareIOController(IOController):
 
             self.mc.drive_to_position_with_speed_acceleration_deceleration(1, position, 1000, 100, 100, 0)
         else:
+            self._position_mode_active = False
             self.stop_motor()
     
     def set_speed(self, speed): self.mc.set_speed(SELECTED_MOTOR, speed)
