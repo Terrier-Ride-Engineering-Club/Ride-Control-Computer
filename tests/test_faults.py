@@ -96,7 +96,8 @@ class TestFaultManager(unittest.TestCase):
 
         rmc_mock = MagicMock()
 
-        self.fm.check_faults(io=io_mock, rmc=rmc_mock)
+        for i in range(10):
+            self.fm.check_faults(io=io_mock, rmc=rmc_mock)
 
         fault_codes = [fault.code for fault in self.fm.active_faults]
         self.assertIn(104, fault_codes)  # 104 is the code for "Motor Overspeed"

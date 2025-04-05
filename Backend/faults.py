@@ -1,7 +1,6 @@
 # Fault Framework for TREC's REC Ride Control Computer
     # Made by Aryan Kumar 
 
-
 from enum import Enum
 import logging
 from typing import List
@@ -70,104 +69,101 @@ class FaultManager:
 
     def check_faults(self, io: IOController, rmc):
         """
-        Checks for various fault conditions by comparing actual sensor and motor encoder data.
+        Checks for various fault conditions by executing one IO check per call in a round-robin manner.
         """
-        return
-        # Read actual values using the provided methods
+        # Initialize round-robin mechanism if not already set up
+        if not hasattr(self, 'current_check'):
+            self.current_check = 0
+            self.io_checks = [
+                self.check_estop,
+                self.check_motor_controller_status,
+                self.check_sensor_failure,
+                self.check_motor_speed,
+                self.check_motor_overheat
+            ]
+        
+        # Determine which check to run based on the current round-robin index
+        check_to_run = self.io_checks[self.current_check]
+        
         try:
-            status = io.read_status()
-            current_position = io.read_position()
-            actual_sensor_data = io.read_encoder()  # Returns int {encoder1 pos}
-            actual_speed = io.read_speed()
-            actual_temp1 = io.read_temp_sensor(1)
-            actual_temp2 = io.read_temp_sensor(2)
-            max_speed = MOTOR_MAX_SPEED
+            if check_to_run == self.check_estop:
+                check_to_run(io)
+            elif check_to_run == self.check_motor_controller_status:
+                status = io.read_status()
+                check_to_run(status)
+            elif check_to_run == self.check_sensor_failure:
+                actual_sensor_data = io.read_encoder()
+                check_to_run(actual_sensor_data)
+            elif check_to_run == self.check_motor_speed:
+                actual_speed = io.read_speed()
+                check_to_run(actual_speed, MOTOR_MAX_SPEED)
+            elif check_to_run == self.check_motor_overheat:
+                actual_temp1 = io.read_temp_sensor(1)
+                actual_temp2 = io.read_temp_sensor(2)
+                check_to_run(actual_temp1, actual_temp2)
         except Exception as e:
             self.raise_fault(PREDEFINED_FAULTS[108])
             return
         else:
             self.clear_fault(PREDEFINED_FAULTS[108].code)
-
-        # Fault Detection Logic
         
-        # Emergency stop detection
+        # Update round-robin index for the next call
+        self.current_check = (self.current_check + 1) % len(self.io_checks)
+
+    def check_estop(self, io: IOController):
         if io.read_estop():
             self.raise_fault(PREDEFINED_FAULTS[101])
         else:
             self.clear_fault(PREDEFINED_FAULTS[101].code)
 
-        # Motor controller status check
+    def check_motor_controller_status(self, status):
         if isinstance(status, str):
             if not status:
                 self.raise_fault(PREDEFINED_FAULTS[108])
                 return
-            
-            # MC has Fault/Error status
             if "fault" in status.lower() or "error" in status.lower():
                 self.raise_fault(PREDEFINED_FAULTS[102])
                 self.log.warning(f"Motor controller status indicates fault: {status}")
             else:
                 self.clear_fault(PREDEFINED_FAULTS[102].code)
-            
-            # MC has ESTOP status
             if "e-stop" in status.lower():
                 self.raise_fault(PREDEFINED_FAULTS[109])
             else:
                 self.clear_fault(PREDEFINED_FAULTS[109].code)
 
-         
-
-        # Sensor failure detection (Assumes None means failure)
+    def check_sensor_failure(self, actual_sensor_data):
         if actual_sensor_data == "None":
             self.raise_fault(PREDEFINED_FAULTS[103])
-            self.log.warning(f"There is a sensor failure")
+            self.log.warning("There is a sensor failure")
         else:
             self.clear_fault(PREDEFINED_FAULTS[103].code)
 
-        # Motor speed deviation detection   
-        if isinstance(actual_speed, int):         
+    def check_motor_speed(self, actual_speed, max_speed):
+        if isinstance(actual_speed, int):
             speed_deviation = abs(actual_speed) - max_speed
             if speed_deviation > 5:
                 self.raise_fault(PREDEFINED_FAULTS[104])
-                self.log.warning(f"Speed deviation: Expected at or below 3000. Got {actual_speed}.")
+                self.log.warning(f"Speed deviation: Expected at or below {max_speed}. Got {actual_speed}.")
             else:
                 self.clear_fault(PREDEFINED_FAULTS[104].code)
         else:
             self.raise_fault(PREDEFINED_FAULTS[107])
 
-
-        # Position mismatch detection
-        # NOTE: CURRENTLY, THIS DOESNT MAKE SENSE.
-        # if current_position:
-        #     if isinstance(current_position, dict):
-        #         deviation = abs(current_position.get('encoder') - 50)
-
-        #         if deviation > 5:
-        #             self.raise_fault(PREDEFINED_FAULTS[105])
-        #             self.log.warning(f"Position mismatch detected! Expected: 50, Actual: {current_position}, Deviation: {deviation}")
-        #         else:
-        #             self.clear_fault(PREDEFINED_FAULTS[105].code)
-
-
-        # Motor Overheat
-        if actual_temp1:
-            if isinstance(actual_temp1, (float, int)):
-                temp1_dev = actual_temp1 - 80
-                if actual_temp1 > 80:
-                    self.raise_fault(PREDEFINED_FAULTS[106])
-                    self.log.warning(f"Motor 1 is Overheating by {temp1_dev}. Should be below 80.")
-                else:
-                    self.clear_fault(PREDEFINED_FAULTS[106].code)
-
-        if actual_temp2:
-            if isinstance(actual_temp1, (float, int)):
-                temp2_dev = actual_temp2 - 80
-                if actual_temp2 > 80:
-                    self.raise_fault(PREDEFINED_FAULTS[106])
-                    self.log.warning(f"Motor 2 is Overheating by {temp2_dev}. Should be below 80.")
-                else:
-                    self.clear_fault(PREDEFINED_FAULTS[106].code)
-
+    def check_motor_overheat(self, actual_temp1, actual_temp2):
+        if actual_temp1 and isinstance(actual_temp1, (float, int)):
+            temp1_dev = actual_temp1 - 80
+            if actual_temp1 > 80:
+                self.raise_fault(PREDEFINED_FAULTS[106])
+                self.log.warning(f"Motor 1 is Overheating by {temp1_dev}. Should be below 80.")
+            else:
+                self.clear_fault(PREDEFINED_FAULTS[106].code)
+        if actual_temp2 and isinstance(actual_temp2, (float, int)):
+            temp2_dev = actual_temp2 - 80
+            if actual_temp2 > 80:
+                self.raise_fault(PREDEFINED_FAULTS[106])
+                self.log.warning(f"Motor 2 is Overheating by {temp2_dev}. Should be below 80.")
+            else:
+                self.clear_fault(PREDEFINED_FAULTS[106].code)
 
     def log_fault(self, fault: Fault):
         if fault.severity == FaultSeverity.LOW:
@@ -211,5 +207,3 @@ class FaultManager:
                 "severity": fault.severity.name
             }
         return faults_dict
-    
-    
