@@ -167,6 +167,8 @@ class RideControlComputer():
                     self.log.info(f"Servos Retracting!")
                     self.servos_extended = False
                 self.io.retract_servos()
+                time.sleep(1)
+                
             
             # With position commands, we must wait till it is finished for us to move to the next one.
             self.position_command_finished = self.io.send_motor_command(self.current_motor_instruction)
@@ -185,6 +187,7 @@ class RideControlComputer():
                     self.log.info(f"Servos Retracting!")
                     self.servos_extended = False
                 self.io.retract_servos()
+                time.sleep(1)
 
             
             if time.time() - self.stopped_timer < 2:
