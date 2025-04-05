@@ -57,6 +57,8 @@ class StoppingState(State):
 
 
     def on_event(self, event):
+        if type(event) is EStopPressed:
+            return self._transition(EstoppedState())
         if type(event) is RideFinishedHoming:
             return self._transition(IdleState())
         elif self.reset_timeout:
