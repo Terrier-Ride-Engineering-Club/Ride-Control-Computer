@@ -395,8 +395,6 @@ class HardwareIOController(IOController):
                             self._position_mode_active = True
 
                         
-                
-                
                 position_str = command.get('pos', 'home').lower()
                 position = POSITION_MAP.get(position_str, 'home')
 
