@@ -354,9 +354,9 @@ class HardwareIOController(IOController):
                 accel = ACCEL_MAP.get(accel_str, ACCEL_MAP['med'])
 
                 # Print telemetry
-                Im1 = f"{self.mc.read_currents()[0]}A"
-                enc = self.mc.read_raw_speed_m1()
-                print(f"Current: {Im1}, Spd: {enc}")
+                # Im1 = f"{self.mc.read_currents()[0]}A"
+                # enc = self.mc.read_raw_speed_m1()
+                # print(f"Current: {Im1}, Spd: {enc}")
 
                 self.mc.set_speed_with_acceleration(1, speed, accel)
             elif command.get('name') == "Position":
