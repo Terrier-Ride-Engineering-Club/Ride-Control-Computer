@@ -1,10 +1,9 @@
 {
     "ride_cycles": {
         "cycle_1": [
-            {"name": "Move", "duration": 5, "speed": "slow", "direction": "fwd", "accel": "slow"},
-            {"name": "Position", "duration": 5, "pos": "home"},
-            {"name": "Move", "duration": 10, "speed": "fast", "direction": "bwd", "accel": "med"},
-            {"name": "Move", "duration": 10, "speed": "fast", "direction": "fwd", "accel": "slow"}
+            {"name": "Move", "duration": 5, "speed": "fast", "direction": "fwd", "accel": "slow"},
+            {"name": "Move", "duration": 7, "speed": "fast", "direction": "bwd", "accel": "fast"},
+            {"name": "Position", "pos": "home"}
         ],
         "cycle_2": [
             {"name": "Move", "duration": 5, "speed": "slow", "direction": "fwd", "accel": "slow"},
