@@ -53,6 +53,7 @@ class RideControlComputer():
         self.eventList = []
         self.position_command_finished = False
         self.servos_extended = False
+        self.stopped_timer = 0
 
         # Initialize fault manager
         self.fault_manager = FaultManager()
@@ -169,7 +170,25 @@ class RideControlComputer():
             
             # With position commands, we must wait till it is finished for us to move to the next one.
             self.position_command_finished = self.io.send_motor_command(self.current_motor_instruction)
+        
+        if isinstance(self.state, StoppingState):
+            self.position_command_finished = self.io.send_motor_command({"name": "Position", "duration": 999, "pos": "home"})
+
+            if self.position_command_finished:
+                if not self.servos_extended:
+                    self.stopped_timer = time.time()
+                    self.log.info(f"Servos Extending!")
+                    self.servos_extended = True
+                self.io.extend_servos()
+            else:
+                if self.servos_extended:
+                    self.log.info(f"Servos Retracting!")
+                    self.servos_extended = False
+                self.io.retract_servos()
+
             
+            if time.time() - self.stopped_timer < 2:
+                self.create_event(RideFinishedHoming())
         
         # Required to update timer for resetting state
         if isinstance(self.state, ResettingState):

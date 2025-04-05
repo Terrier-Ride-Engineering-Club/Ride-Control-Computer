@@ -188,6 +188,7 @@ class TestRideControlComputer(unittest.TestCase):
         # Ensure state is Estopped and motor command was sent
         self.assertIsInstance(self.rcc.state, EstoppedState)
         self.rcc.io.stop_motor.assert_called()
+        
 
     # def test_io_actions_on_estopped(self):
         # TODO: Update with expected behavior
