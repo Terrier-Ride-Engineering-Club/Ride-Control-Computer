@@ -25,9 +25,9 @@ MOTOR_STATIONARY_TIME_THRESHOLD_FOR_POSITION_MODE = 1
 MOTOR_PPR = 1425.1
 QUAD_COUNTS_PER_REVOLUTION = MOTOR_PPR * 4
 # All speeds in Quad Pulses per Second (QPS)
-SLOW_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 15)     # 1 revolution every 20 seconds
-MED_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 10)    # 1 revolution every 10 seconds
-FAST_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 5)     # 1 revolution every 5 seconds
+SLOW_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 10)     # 1 revolution every 20 seconds
+MED_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 7)    # 1 revolution every 10 seconds
+FAST_SPEED_QPPS = int(QUAD_COUNTS_PER_REVOLUTION / 3)     # 1 revolution every 5 seconds
 SLOW_ACCLE_QPPS = 500
 MED_ACCL_QPPS = 1000
 FAST_ACCL_QPPS = 2500
