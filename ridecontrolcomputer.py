@@ -147,8 +147,8 @@ class RideControlComputer():
             print(f"instr: {self.current_motor_instruction}")
             if (
                 self.current_motor_instruction is None or
-                self.current_motor_instruction.get('type') == 'move' or
-                (self.current_motor_instruction.get('type') == 'position' and self.motor_command_finished)
+                self.current_motor_instruction.get('name') == 'Move' or
+                (self.current_motor_instruction.get('name') == 'Position' and self.motor_command_finished)
             ):
                 new_motor_instr = self.rmc.update()
                 if new_motor_instr != self.current_motor_instruction:
