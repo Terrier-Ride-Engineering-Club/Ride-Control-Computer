@@ -338,7 +338,14 @@ class HardwareIOController(IOController):
 
 
     # --- Motor Control Methods ---
-    def send_motor_command(self, command):
+    def send_motor_command(self, command) -> bool:
+        """
+        Returns:
+            Bool: Returns true if the ride is in a stopped home position
+        """
+        Im1 = f"{self.mc.read_currents()[0]}A"
+        enc = self.mc.read_encoder_m1().get("encoder")
+        speed = self.mc.read_raw_speed_m1()
         try:
             if command == None:
                 self.mc.set_speed_with_acceleration(1,0, FAST_SPEED_QPPS)
@@ -369,7 +376,7 @@ class HardwareIOController(IOController):
 
                 if not self._position_mode_active:
                     # If the motor has any speed, reset the stationary timer and return early
-                    if abs(self.mc.read_raw_speed_m1()) > 0:
+                    if abs(speed) > 0:
                         self._stationary_start_time = time.time()
                         return
                     else:
@@ -396,6 +403,9 @@ class HardwareIOController(IOController):
                 print(f"Current: {Im1}, Enc: {enc}")
 
                 self.mc.drive_to_position_with_speed_acceleration_deceleration(1, position, 1000, 100, 100, 0)
+
+                if enc == 0 and speed == 0:
+                    return True
             else:
                 self._position_mode_active = False
                 self.stop_motor()
