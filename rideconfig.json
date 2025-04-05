@@ -3,7 +3,7 @@
         "cycle_1": [
             {"name": "Move", "duration": 5, "speed": "fast", "direction": "fwd", "accel": "slow"},
             {"name": "Move", "duration": 7, "speed": "fast", "direction": "bwd", "accel": "fast"},
-            {"name": "Position", "duration": 2, "pos": "home"}
+            {"name": "Position", "duration": 10, "pos": "home"}
         ],
         "cycle_2": [
             {"name": "Move", "duration": 5, "speed": "slow", "direction": "fwd", "accel": "slow"},
