@@ -632,7 +632,10 @@ if __name__ == "__main__":
         io.stop_motor()
 
     # del io
-    time.sleep(1)
+    start_time = time.time()
+    while time.time() - start_time < 1:
+        pass
+    # time.sleep(1)
     print("POS TEST")
 
     # io = HardwareIOController()
