@@ -14,6 +14,7 @@ class RideMotionController:
         self.current_instr = None
         self.instr_start_time = 0
         self.is_running = False
+        self.in_parked_position = False
 
 
     def load_config(self) -> dict:
