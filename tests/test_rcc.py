@@ -64,6 +64,11 @@ class TestRideControlComputer(unittest.TestCase):
 
         self.rcc.io.stop_button.when_activated()
         self.rcc.update()
+        self.assertIsInstance(self.rcc.state, StoppingState)
+
+        self.rcc.create_event(RideFinishedHoming())
+
+        self.rcc.update()
         self.assertIsInstance(self.rcc.state, IdleState)
 
     def test_reset_logic_from_estopped(self):
@@ -145,18 +150,6 @@ class TestRideControlComputer(unittest.TestCase):
         self.rcc.io.dispatch_button.when_activated()
         self.rcc.update()
         self.assertIsInstance(self.rcc.state, RunningState)
-
-    def test_running_to_idle_on_stop(self):
-        # In RUNNING state, if Stop is activated, the state should revert to IDLE.
-        self.rcc.state = RunningState()
-
-        # Test assumes estop conditions don't exist
-        self.rcc.is_estop_active = MagicMock()
-        self.rcc.is_estop_active.return_value = False
-
-        self.rcc.io.stop_button.when_activated()
-        self.rcc.update()
-        self.assertIsInstance(self.rcc.state, IdleState)
 
     def test_latched_estop_in_state_transition(self):
         self.rcc.io.estop_button.pin.drive_high()

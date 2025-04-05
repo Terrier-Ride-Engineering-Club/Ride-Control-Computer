@@ -3,7 +3,7 @@ from time import sleep
 from unittest.mock import patch, call, MagicMock
 
 # Import states and events
-from Backend.states import OffState, IdleState, EstoppedState, ResettingState, RunningState
+from Backend.states import OffState, IdleState, EstoppedState, ResettingState, RunningState, StoppingState
 from Backend.event import RideOn, EStopPressed, DispatchedPressed, ResetPressed, StopPressed, RideOff
 
 class TestStateTransitions(unittest.TestCase):
@@ -52,7 +52,7 @@ class TestStateTransitions(unittest.TestCase):
         originalState = RunningState()
         self.assertIsInstance(originalState.on_event(EStopPressed()), EstoppedState)
         originalState = RunningState()
-        self.assertIsInstance(originalState.on_event(StopPressed()), IdleState)
+        self.assertIsInstance(originalState.on_event(StopPressed()), StoppingState)
         originalState = RunningState()
         self.assertIsInstance(originalState.on_event(ResetPressed()), RunningState)
 

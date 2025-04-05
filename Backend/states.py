@@ -39,6 +39,15 @@ class IdleState(State):
             return self._transition(RunningState())
         return self
     
+class StoppingState(State):
+    """
+    Happens when the stop button is pressed and the motor needs to home
+    """
+    def on_event(self, event):
+        if type(event) is RideFinishedHoming:
+            return self._transition(IdleState())
+        return self
+    
 class EstoppedState(State):
     """
     EStopped State
@@ -80,7 +89,7 @@ class RunningState(State):
     """
     def on_event(self, event):
         if type(event) is StopPressed:
-            return self._transition(IdleState())
+            return self._transition(StoppingState())
         if type(event) is EStopPressed:
             return self._transition(EstoppedState())
         return self

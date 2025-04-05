@@ -40,3 +40,6 @@ class EStopPressed(Event):
 class ResetPressed(Event):
     """Happens when the Reset button is pressed."""
     pass
+
+class RideFinishedHoming(Event):
+    pass
