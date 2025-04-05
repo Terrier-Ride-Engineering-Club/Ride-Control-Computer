@@ -387,7 +387,7 @@ class HardwareIOController(IOController):
                             self._stationary_start_time = time.time()
                             return
                         # If motor hasn't been stationary for 1 second, return early
-                        elif time.time() - self._stationary_start_time < 1.0:
+                        elif time.time() - self._stationary_start_time < 0.1:
                             return
                         else:
                             # Motor has been stationary for 1 second; enable position mode
