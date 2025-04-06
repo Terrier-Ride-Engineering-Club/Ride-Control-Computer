@@ -189,7 +189,7 @@ class RideWebServer:
 
             # Actually move the motor
             dir = "fwd" if self.creep_direction_forward else "bwd"
-            self.rcc.io.send_motor_command({"name": "Move", "speed": "slow", "direction": dir, "accel": "slow"})
+            self.rcc.io.send_motor_command({"name": "Move", "speed": "sslow", "direction": dir, "accel": "slow"})
             time.sleep(0.05)  # Adjust loop frequency as needed
 
     def creep_motor(self, forward=True):
