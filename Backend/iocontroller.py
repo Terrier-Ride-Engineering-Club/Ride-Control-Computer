@@ -318,6 +318,8 @@ class HardwareIOController(IOController):
                     min_pulse_width=600/1_000_000,   # 0.0006
                     max_pulse_width=2400/1_000_000,  # 0.0024
                     frame_width=20/1000)             # 0.02 (20 ms standard servo frame)
+        self.audio_start = LED(AUDIO_A0, pin_factory=factory)
+        self.audio_enabled = LED(AUDIO_A1, pin_factory=factory)
         
         self.servos_enabled = True
 
