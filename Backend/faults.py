@@ -72,7 +72,6 @@ class FaultManager:
         Checks for various fault conditions by executing one IO check per call in a round-robin manner.
         Must check in round robin because of how long io calls take
         """
-        return
         # Initialize round-robin mechanism if not already set up
         if not hasattr(self, 'current_check'):
             self.current_check = 0
