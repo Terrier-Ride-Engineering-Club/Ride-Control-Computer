@@ -646,55 +646,55 @@ class IOControllerFactory():
 #     button.pin.drive_high()  # simulate release
 #     print("Button state after release simulation:", button.is_pressed)
 
-# if __name__ == "__main__":
-
-#     print("V>P TEST")
-#     io = HardwareIOController()
-
-
-#     start_time = time.time()
-#     while time.time() - start_time < 5:
-#         io.send_motor_command({"name": "Move", "duration": 5, "speed": "slow", "direction": "fwd", "accel": "slow"})
-
-#     # start_time = time.time()
-#     # while time.time() - start_time < 2:
-#     #     io.stop_motor()
-
-#     # start_time = time.time()
-#     # while time.time() - start_time < 2:
-#     #     # io.send_motor_command({"name": "Position", "duration": 5, "pos": "home"})
-#     #     io.send_motor_command({"name": "Move", "duration": 5, "speed": "fast", "direction": "bwd", "accel": "fast"})
-
-
-#     # start_time = time.time()
-#     while io.read_speed() != 0:
-#         io.stop_motor()
-
-#     # del io
-#     start_time = time.time()
-#     while time.time() - start_time < 0.2:
-#         pass
-#     # time.sleep(1)
-#     print("POS TEST")
-
-#     # io = HardwareIOController()
-
-#     start_time = time.time()
-#     # while time.time() - start_time < 5:
-#     while io.read_position().get("encoder") != 0:
-#         io.send_motor_command({"name": "Position", "duration": 5, "pos": "home"})
-#         time.sleep(0.01)
-
-#     io.stop_motor()
-
 if __name__ == "__main__":
 
-
+    print("V>P TEST")
     io = HardwareIOController()
 
-    while True:
-        io.extend_servos()
-        time.sleep(2)
-        io.retract_servos()
-        time.sleep(2)
+
+    start_time = time.time()
+    while time.time() - start_time < 5:
+        io.send_motor_command({"name": "Move", "duration": 5, "speed": "slow", "direction": "fwd", "accel": "slow"})
+
+    # start_time = time.time()
+    # while time.time() - start_time < 2:
+    #     io.stop_motor()
+
+    # start_time = time.time()
+    # while time.time() - start_time < 2:
+    #     # io.send_motor_command({"name": "Position", "duration": 5, "pos": "home"})
+    #     io.send_motor_command({"name": "Move", "duration": 5, "speed": "fast", "direction": "bwd", "accel": "fast"})
+
+
+    # start_time = time.time()
+    while io.read_speed() != 0:
+        io.stop_motor()
+
+    # del io
+    start_time = time.time()
+    while time.time() - start_time < 0.2:
+        pass
+    # time.sleep(1)
+    print("POS TEST")
+
+    # io = HardwareIOController()
+
+    start_time = time.time()
+    # while time.time() - start_time < 5:
+    while io.read_position().get("encoder") != 0:
+        io.send_motor_command({"name": "Position", "duration": 5, "pos": "home"})
+        time.sleep(0.01)
+
+    io.stop_motor()
+
+# if __name__ == "__main__":
+
+
+#     io = HardwareIOController()
+
+#     while True:
+#         io.extend_servos()
+#         time.sleep(2)
+#         io.retract_servos()
+#         time.sleep(2)
 
