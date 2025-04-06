@@ -277,6 +277,9 @@ class IOController(ABC):
     def retract_servos(self):
         pass
 
+    def get_motor_home(self):
+        return HOME_POSITION
+
 
 
 # --- Hardware IO Controller ---

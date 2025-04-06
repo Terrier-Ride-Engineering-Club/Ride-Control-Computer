@@ -153,10 +153,10 @@ class RideWebServer:
         try:
             motor_status = {
                 "encoderPosition": self.rcc.io.read_encoder(),
-                "encoderHomePosition": "NOT IMPL", # TODO: IMPLEMENT
+                "encoderHomePosition": self.rcc.io.get_motor_home(),
                 "motorSpeed": self.rcc.io.read_speed(),
                 "motorCurrent": self.rcc.io.read_motor_current(),
-                "powerSupplyVoltage": self.rcc.io.read_voltages()[0], # TODO: IMPLEMENT
+                "powerSupplyVoltage": self.rcc.io.read_voltages()[0],
                 "motorControllerStatus": self.rcc.io.read_status()
             }
         except Exception as e:
