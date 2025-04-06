@@ -281,12 +281,34 @@
       }
     }
 
+    function fetchFaults() {
+      fetch(`${apiBase}/faults`)
+        .then(response => response.json())
+        .then(data => {
+          var activeWarnings = document.getElementById('activeWarnings');
+          activeWarnings.innerHTML = '';
+          Object.keys(data).forEach(function(faultCode) {
+            var fault = data[faultCode];
+            var warningDiv = document.createElement('div');
+            warningDiv.textContent = 'Fault ' + faultCode + ': ' + fault.message + ' (Severity: ' + fault.severity + ')';
+            activeWarnings.appendChild(warningDiv);
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching faults:', error);
+        });
+    }
+
+    // Fetch faults immediately and then every 100ms
+    fetchFaults();
+    setInterval(fetchFaults, 100);
+
 
     // Event listener for refresh button
     document.getElementById('refreshStatus').addEventListener('click', updateStatus);
 
     // Update status automatically every .1 seconds
-    setInterval(updateStatus, 1000);
+    setInterval(updateStatus, 100);
     updateStatus();
   </script>
 
