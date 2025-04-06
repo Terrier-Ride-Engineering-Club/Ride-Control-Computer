@@ -21,20 +21,26 @@
   <div class="container my-0">
     <div class="row">
       <!-- Status Card -->
-      <div class="col-md-6 mb-4">
+      <div class="col-md-6 mb-0">
         <div class="card border-primary shadow">
           <div class="card-header bg-primary text-white">
             <h5 class="mb-0">System Status</h5>
           </div>
           <div class="card-body">
-            <h5 class="card-title">
-              Ride State: <span id="statusState" class="badge bg-secondary">Unknown</span>
-            </h5>
-            <p class="card-text">
-              Connection Status: <span id="connectionStatus" class="badge bg-warning">Unknown</span>
-            </p>
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="me-3">
+                <h5 class="card-title">
+                  Ride State: <span id="statusState" class="badge bg-secondary">Unknown</span>
+                </h5>
+              </div>
+              <div>
+                <p class="card-text align-items-center">
+                  Connection Status: <span id="connectionStatus" class="badge bg-warning">Unknown</span>
+                </p>
+              </div>
+            </div>
 
-            <table class="table table-bordered mt-3">
+            <table class="table table-bordered mt-0">
               <thead class="table-light">
                 <tr>
                   <th>Input Name</th>
