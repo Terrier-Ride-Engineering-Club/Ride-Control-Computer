@@ -66,6 +66,22 @@
     }
   }
 
+  function postMotorAction(action) {
+    fetch('/api/motor/' + action, {
+      method: 'POST'
+    })
+    .then(response => {
+      if (response.ok) {
+        console.log('Motor action ' + action + ' executed successfully.');
+      } else {
+        console.error('Motor action ' + action + ' failed.');
+      }
+    })
+    .catch(error => {
+      console.error('Error executing motor action:', error);
+    });
+  }
+
   function fetchLogs() {
     fetch('/api/logs')
       .then(response => response.json())
