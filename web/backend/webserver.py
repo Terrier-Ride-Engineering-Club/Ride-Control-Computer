@@ -84,6 +84,8 @@ class RideWebServer:
         self.app.add_url_rule('/api/motor/creep_fwd', 'creep_fwd', lambda: self.creep_motor(forward=True), methods=['POST'])
         self.app.add_url_rule('/api/motor/creep_bwd', 'creep_bwd', lambda: self.creep_motor(forward=False), methods=['POST'])
         self.app.add_url_rule('/api/motor/reset_encoder', 'reset_encoder', self.reset_encoder, methods=['POST'])
+        self.app.add_url_rule('/api/motor/drop_loading', 'drop_loading', self.drop_loading_platform, methods=['POST'])
+        self.app.add_url_rule('/api/motor/rasie_loading', 'rasie_loading', self.raise_loading_platform, methods=['POST'])
         
     # --- Run Methods ---
     def run(self):
@@ -213,4 +215,16 @@ class RideWebServer:
     def reset_encoder(self):
         self.log.info("Resetting Encoder")
         self.rcc.io.reset_quad_encoders()
+        return {"message": "ok"}, 200
+    
+    def drop_loading_platform(self):
+        if not isinstance(self.rcc.state, IdleState):
+            return {"message": "Action forbidden: Ride not in Idle."}, 403
+        self.rcc.io.retract_servos()
+        return {"message": "ok"}, 200
+    
+    def raise_loading_platform(self):
+        if not isinstance(self.rcc.state, IdleState):
+            return {"message": "Action forbidden: Ride not in Idle."}, 403
+        self.rcc.io.extend_servos()
         return {"message": "ok"}, 200
