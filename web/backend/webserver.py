@@ -210,5 +210,6 @@ class RideWebServer:
         return {"message": "Motor creeping"}, 200
     
     def reset_encoder(self):
+        self.log.info("Resetting Encoder")
         self.rcc.io.reset_quad_encoders()
         return {"message": "ok"}, 200
