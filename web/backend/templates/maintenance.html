@@ -111,11 +111,8 @@
       .then(response => response.json())
       .then(data => {
          var logContainer = document.getElementById('logContainer');
-         var shouldScroll = logContainer.scrollTop + logContainer.clientHeight >= logContainer.scrollHeight - 50;
          logContainer.textContent = data.logs.join('\n');
-         if (shouldScroll) {
-           logContainer.scrollTop = logContainer.scrollHeight;
-         }
+         logContainer.scrollTop = logContainer.scrollHeight;
       })
       .catch(error => {
          console.error('Error fetching logs:', error);
