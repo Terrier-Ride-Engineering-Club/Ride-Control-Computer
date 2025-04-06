@@ -78,7 +78,6 @@ from gpiozero.pins.mock import MockFactory, MockPWMPin
 # On non RPi platforms, use a mock factory to emulate functionality.
 try:
     from gpiozero.pins.lgpio import LGPIOFactory
-    from gpiozero.pins.pigpio import PiGPIOFactory
     Device.pin_factory = LGPIOFactory()
 except ModuleNotFoundError as e:
     log = logging.getLogger("IOControllerSetup")
@@ -296,7 +295,6 @@ class HardwareIOController(IOController):
             factory = MockFactory(pin_class=MockPWMPin)
         else:
             factory = LGPIOFactory()
-            pwmfactory = PiGPIOFactory()
 
 
         # Initialize GPIO inputs as buttons (pull-down enabled by default)
@@ -305,11 +303,11 @@ class HardwareIOController(IOController):
         self.dispatch_button = Button(DISPATCH_PIN, pull_up=False, pin_factory=factory)
         self.ride_onoff_button = Button(RIDE_ONOFF_PIN, pull_up=False, pin_factory=factory)
         self.reset_button = Button(RESTART_PIN, pull_up=False, pin_factory=factory)
-        self.servo1 = Servo(pin=SERVO1_PIN, pin_factory=pwmfactory)
+        self.servo1 = Servo(pin=SERVO1_PIN, pin_factory=factory)
                     # min_pulse_width=600/1_000_000,   # 0.0006
                     # max_pulse_width=2400/1_000_000,  # 0.0024
                     # frame_width=20/1000)             # 0.02 (20 ms standard servo frame)
-        self.servo2 = Servo(pin=SERVO2_PIN, pin_factory=pwmfactory)
+        self.servo2 = Servo(pin=SERVO2_PIN, pin_factory=factory)
                     # min_pulse_width=600/1_000_000,   # 0.0006
                     # max_pulse_width=2400/1_000_000,  # 0.0024
                     # frame_width=20/1000)             # 0.02 (20 ms standard servo frame)
