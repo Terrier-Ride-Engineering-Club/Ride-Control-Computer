@@ -11,8 +11,8 @@
       <h2>Manual Motor Control</h2>
       <div id="troubleshootingMotors" style="background-color: #f8f9fa; padding: 1em; border: 1px solid #dee2e6; height: 150px; overflow-y: scroll;">
         <div id="motorControls" style="margin-bottom: 1em;">
-          <button onclick="postMotorAction('creep_fwd')">Creep Fwd</button>
-          <button onclick="postMotorAction('creep_bwd')">Creep Bwd</button>
+          <button onmousedown="startMotorAction('creep_fwd')" onmouseup="stopMotorAction()" onmouseleave="stopMotorAction()">Creep Fwd</button>
+          <button onmousedown="startMotorAction('creep_bwd')" onmouseup="stopMotorAction()" onmouseleave="stopMotorAction()">Creep Bwd</button>
           <button onclick="postMotorAction('reset_encoder')">Reset Encoder</button>
           <button onclick="postMotorAction('save_home_position')">Save Home Position</button>
         </div>
@@ -40,6 +40,33 @@
 </div>
 
 <script>
+  let motorInterval;
+
+  function startMotorAction(action) {
+    motorInterval = setInterval(() => {
+      fetch('/api/motor/' + action, {
+        method: 'POST'
+      })
+      .then(response => {
+        if (response.ok) {
+          console.log('Motor action ' + action + ' executed successfully.');
+        } else {
+          console.error('Motor action ' + action + ' failed.');
+        }
+      })
+      .catch(error => {
+        console.error('Error executing motor action:', error);
+      });
+    }, 100); // Sends POST every 100ms; adjust interval as needed
+  }
+
+  function stopMotorAction() {
+    if (motorInterval) {
+      clearInterval(motorInterval);
+      motorInterval = null;
+    }
+  }
+
   function fetchLogs() {
     fetch('/api/logs')
       .then(response => response.json())
@@ -79,22 +106,6 @@
   // Fetch faults immediately and then every 100ms
   fetchFaults();
   setInterval(fetchFaults, 100);
-
-  function postMotorAction(action) {
-    fetch('/api/motor/' + action, {
-      method: 'POST'
-    })
-    .then(response => {
-      if (response.ok) {
-        console.log('Motor action ' + action + ' executed successfully.');
-      } else {
-        console.error('Motor action ' + action + ' failed.');
-      }
-    })
-    .catch(error => {
-      console.error('Error executing motor action:', error);
-    });
-  }
 
   function fetchMotorStatus() {
     fetch('/api/motor/status')
