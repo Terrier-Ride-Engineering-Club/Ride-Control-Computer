@@ -260,19 +260,19 @@
           webControlFlag.classList.add(webControlEnabled ? "alert-success" : "alert-danger");
         }
         // Disable or enable ride control buttons based on webControlEnabled flag
-        const controlButtons = [
-          'triggerEstop',
-          'stopRide',
-          'dispatchRide',
-          'rideOff',
-          'restartRide'
-        ];
-        controlButtons.forEach(id => {
-          const button = document.getElementById(id);
-          if (button) {
-            button.disabled = !webControlEnabled;
-          }
-        });
+        // const controlButtons = [
+        //   'triggerEstop',
+        //   'stopRide',
+        //   'dispatchRide',
+        //   'rideOff',
+        //   'restartRide'
+        // ];
+        // controlButtons.forEach(id => {
+        //   const button = document.getElementById(id);
+        //   if (button) {
+        //     button.disabled = !webControlEnabled;
+        //   }
+        // });
       } catch (error) {
         console.error('Error updating status:', error);
         connectionStatus.innerText = "Disconnected";
