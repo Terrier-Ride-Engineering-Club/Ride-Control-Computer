@@ -7,8 +7,10 @@ import sys
 from flask import Flask, jsonify, request, render_template, redirect, url_for
 from flask_cors import CORS  # Import the extension
 from ridecontrolcomputer import RideControlComputer, State
+from Backend.states import *
 from Backend.iocontroller import HardwareIOController
 
+CREEP_TIMEOUT_THRESHOLD = 0.2
 LOG_FORMAT = "%(asctime)s %(levelname)s [%(name)s]: %(message)s"
 
 # Used to suppress webserver logs to the debug level
@@ -55,6 +57,13 @@ class RideWebServer:
         self.host = host
         self.port = port
         self.web_thread = None
+        self.log = logging.getLogger("WebApp")
+
+        # Attributes for motor creep control
+        self.creep_active = False
+        self.creep_thread = None
+        self.creep_direction_forward = True
+        self.creep_last_signal_time = 0
 
         # Define routes
         self.app.add_url_rule('/', 'index', self.index, methods=['GET']) # Redirect to control
@@ -71,7 +80,11 @@ class RideWebServer:
         self.app.add_url_rule('/api/logs', 'logs', self.get_logs, methods=['GET'])
         self.app.add_url_rule('/api/faults','faults', self.get_faults, methods=['GET'])
         self.app.add_url_rule('/api/motor/status', 'motor_status', self.get_motor_status, methods=['GET'])
-
+        self.app.add_url_rule('/api/motor/creep_fwd', 'creep_fwd', lambda: self.creep_motor(forward=True), methods=['POST'])
+        self.app.add_url_rule('/api/motor/creep_bwd', 'creep_bwd', lambda: self.creep_motor(forward=False), methods=['POST'])
+        self.app.add_url_rule('/api/motor/reset_encoder', 'motor_status', self.get_motor_status, methods=['POST'])
+        self.app.add_url_rule('/api/motor/save_home_position', 'motor_status', self.get_motor_status, methods=['POST'])
+        
     # --- Run Methods ---
     def run(self):
         """Run the Flask app in a separate thread."""
@@ -162,3 +175,37 @@ class RideWebServer:
         except Exception as e:
             return {"message": "Error fetching data"}, 500
         return jsonify(motor_status)
+
+    def _creep_loop(self):
+        import time
+        while self.creep_active:
+            now = time.time()
+            # If no new creep signal in 0.5 seconds, stop creeping
+            if now - self.creep_last_signal_time > CREEP_TIMEOUT_THRESHOLD:
+                self.log.info("Motor stopped creeping.")
+                self.creep_active = False
+                break
+
+            # Actually move the motor
+            dir = "fwd" if self.creep_direction_forward else "bwd"
+            self.rcc.io.send_motor_command({"name": "Move", "speed": "slow", "direction": dir, "accel": "slow"})
+            time.sleep(0.05)  # Adjust loop frequency as needed
+
+    def creep_motor(self, forward=True):
+        if not isinstance(self.rcc.state, IdleState):
+            return {"message": "Action forbidden: Ride not in Idle."}, 403
+
+        # Update motor direction and refresh the last signal time
+        self.creep_direction_forward = forward
+        import time
+        self.creep_last_signal_time = time.time()
+
+        # Start the creep loop if it's not already active
+        if not self.creep_active:
+            self.log.info("Motor starting to creep!")
+            self.creep_active = True
+            import threading
+            self.creep_thread = threading.Thread(target=self._creep_loop, daemon=True)
+            self.creep_thread.start()
+
+        return {"message": "Motor creeping"}, 200
