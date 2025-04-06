@@ -280,6 +280,10 @@ class IOController(ABC):
 
     def get_motor_home(self):
         return HOME_POSITION
+    
+    @abstractmethod
+    def disable_servos(self):
+        pass
 
 
 
@@ -312,6 +316,8 @@ class HardwareIOController(IOController):
                     min_pulse_width=600/1_000_000,   # 0.0006
                     max_pulse_width=2400/1_000_000,  # 0.0024
                     frame_width=20/1000)             # 0.02 (20 ms standard servo frame)
+        
+        self.servos_enabled = True
 
         # Init RoboClaw
         self.log.info(f"Starting Serial communication with RoboClaw on {ROBOCLAW_SERIAL_PORT}: {ROBOCLAW_SERIAL_ADDRESS}")
@@ -441,8 +447,11 @@ class HardwareIOController(IOController):
             self.log.error(f"Can't communicate with MC: {e}")
 
     def extend_servos(self):
-        self.servo1.value = SERVO_1_OUT_POSITION
-        self.servo2.value = SERVO_2_OUT_POSITION
+        if self.servos_enabled:
+            self.servo1.value = SERVO_1_OUT_POSITION
+            self.servo2.value = SERVO_2_OUT_POSITION
+        else:
+            self.retract_servos()
 
     def retract_servos(self):
         self.servo1.value = SERVO_1_IN_POSITION
@@ -480,6 +489,9 @@ class HardwareIOController(IOController):
 
     def read_speed(self): return self.mc.read_raw_speed_m1()
 
+    def disable_servos(self):
+        self.servos_enabled = False
+
 
 
 
@@ -515,6 +527,9 @@ class WebIOController(IOController):
         pass
 
     def terminate_power(self):
+        pass
+
+    def disable_servos(self):
         pass
 
     # --- Simulation Methods ---
