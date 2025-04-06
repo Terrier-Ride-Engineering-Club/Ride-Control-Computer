@@ -110,12 +110,15 @@
     fetch('/api/logs')
       .then(response => response.json())
       .then(data => {
-         var logContainer = document.getElementById('logContainer');
-         logContainer.textContent = data.logs.join('\n');
-         logContainer.scrollTop = logContainer.scrollHeight;
+        var logContainer = document.getElementById('logContainer');
+        logContainer.textContent = data.logs.join('\n');
+        // Use a timeout to ensure the DOM has updated before scrolling
+        setTimeout(function() {
+          logContainer.scrollTop = logContainer.scrollHeight;
+        }, 0);
       })
       .catch(error => {
-         console.error('Error fetching logs:', error);
+        console.error('Error fetching logs:', error);
       });
   }
   // Fetch logs immediately and then every 100ms
