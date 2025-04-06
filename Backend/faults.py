@@ -112,7 +112,8 @@ class FaultManager:
                 check_to_run(actual_temp1, actual_temp2)
         except Exception as e:
             self.raise_fault(PREDEFINED_FAULTS[108])
-            self.log.error(f"Error: {e}")
+            if not PREDEFINED_FAULTS[108] in self.active_faults:
+                self.log.error(f"Error: {e}")
             return
         else:
             self.clear_fault(PREDEFINED_FAULTS[108].code)
