@@ -182,42 +182,42 @@
     }
 
     // Button Event Listeners
-    document.getElementById('triggerEstop').addEventListener('click', () => {
-      sendRideCommand("estop");
-    });
+    // document.getElementById('triggerEstop').addEventListener('click', () => {
+    //   sendRideCommand("estop");
+    // });
 
-    document.getElementById('stopRide').addEventListener('click', () => {
-      sendRideCommand("stop");
-    });
+    // document.getElementById('stopRide').addEventListener('click', () => {
+    //   sendRideCommand("stop");
+    // });
 
-    document.getElementById('dispatchRide').addEventListener('click', () => {
-      sendRideCommand("dispatch");
-    });
+    // document.getElementById('dispatchRide').addEventListener('click', () => {
+    //   sendRideCommand("dispatch");
+    // });
 
-    document.getElementById('rideOff').addEventListener('click', () => {
-      sendRideCommand("ride_off");
-    });
+    // document.getElementById('rideOff').addEventListener('click', () => {
+    //   sendRideCommand("ride_off");
+    // });
 
-    document.getElementById('restartRide').addEventListener('click', () => {
-      sendRideCommand("restart");
-    });
+    // document.getElementById('restartRide').addEventListener('click', () => {
+    //   sendRideCommand("restart");
+    // });
 
-    document.getElementById('toggleWebControls').addEventListener('click', async () => {
-      try {
-        const response = await fetch(`${apiBase}/toggle_webcontrols`, { method: 'POST' });
-        const data = await response.json();
-        if (!response.ok) {
-          console.error('Error toggling web controls:', data.error);
-        }
-        updateStatus();
-      } catch (error) {
-        console.error('Error toggling web controls:', error);
-      }
-    });
+    // document.getElementById('toggleWebControls').addEventListener('click', async () => {
+    //   try {
+    //     const response = await fetch(`${apiBase}/toggle_webcontrols`, { method: 'POST' });
+    //     const data = await response.json();
+    //     if (!response.ok) {
+    //       console.error('Error toggling web controls:', data.error);
+    //     }
+    //     updateStatus();
+    //   } catch (error) {
+    //     console.error('Error toggling web controls:', error);
+    //   }
+    // });
 
-    document.getElementById('maintenanceButton').addEventListener('click', async () => {
-      console.log("Maintenance button clicked");
-    });
+    // document.getElementById('maintenanceButton').addEventListener('click', async () => {
+    //   console.log("Maintenance button clicked");
+    // });
 
     // Function to update status by fetching from /status endpoint
     async function updateStatus() {
