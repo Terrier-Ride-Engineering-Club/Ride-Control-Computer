@@ -98,6 +98,9 @@ class RideControlComputer():
         # Initialize Ride Motion Controller
         self.rmc = RideMotionController()
 
+        # Init audio
+        self.io.enable_audio()
+
         self.initialized = True
         self.log.info(f"Ride Control Computer Initialized!")
 
@@ -135,13 +138,6 @@ class RideControlComputer():
         # **Execute state-specific actions**
         self.state.run()
 
-        # Execute specific actions if in idle state:
-        # if isinstance(self.state, IdleState):
-        #     # If the ride on action is not active,
-        #     if any(isinstance(event, RideOn) for event in self.eventList):
-        #         # Transition to off state
-        #         self.state = self.state.on_event(RideOn())
-
         # Execute specific actions if in running state:
         if isinstance(self.state, RunningState) or self.demoMode:
 
@@ -166,6 +162,7 @@ class RideControlComputer():
                 if not self.rmc.is_running:
                     self.log.info("Ride Cycle Started")
                     self.current_motor_instruction = self.rmc.start_cycle()
+                    self.io.start_audio()
                 
                 # Update RMC only if current instruction is Move OR Position & finished
                 if (
@@ -177,6 +174,7 @@ class RideControlComputer():
                     if new_motor_instr != self.current_motor_instruction:
                         self.current_motor_instruction = new_motor_instr
                         self.log.info(f"New Motor Instruction: {new_motor_instr}")
+                    self.io.stop_audio()
 
                 # With position commands, we must wait till it is finished for us to move to the next one.
                 # That is what the position_command_finished does.

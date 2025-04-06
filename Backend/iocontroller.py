@@ -9,6 +9,8 @@ RIDE_ONOFF_PIN = 17
 RESTART_PIN = 19
 SERVO1_PIN = "GPIO12"
 SERVO2_PIN = "GPIO13"
+AUDIO_A0 = 26
+AUDIO_A1 = 27
 #UART_TX = 14
 #UART_RX = 15
 
@@ -72,7 +74,7 @@ import threading
 import time
 from abc import ABC, abstractmethod
 from Backend.roboclaw import RoboClaw
-from gpiozero import Device, Servo, Button
+from gpiozero import Device, Servo, Button, LED
 from gpiozero.pins.mock import MockFactory, MockPWMPin
 
 # Configures gpiozero by making a pin factory using the lgpio library.
@@ -491,6 +493,15 @@ class HardwareIOController(IOController):
 
     def disable_servos(self):
         self.servos_enabled = False
+
+    def start_audio(self):
+        self.audio_start.on()
+
+    def stop_audio(self):
+        self.audio_start.off()
+    
+    def enable_audio(self):
+        self.audio_enabled.on()
 
 
 
