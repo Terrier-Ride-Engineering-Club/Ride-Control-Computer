@@ -183,13 +183,13 @@ class RideWebServer:
             # If no new creep signal in 0.5 seconds, stop creeping
             if now - self.creep_last_signal_time > CREEP_TIMEOUT_THRESHOLD:
                 self.log.info("Motor stopped creeping.")
-                self.rcc.io.stop_motor()
+                # self.rcc.io.stop_motor()
                 self.creep_active = False
                 return
 
             # Actually move the motor
             dir = "fwd" if self.creep_direction_forward else "bwd"
-            self.rcc.io.send_motor_command({"name": "Move", "speed": "sslow", "direction": dir, "accel": "slow"})
+            # self.rcc.io.send_motor_command({"name": "Move", "speed": "sslow", "direction": dir, "accel": "slow"})
             time.sleep(0.05)  # Adjust loop frequency as needed
 
     def creep_motor(self, forward=True):
