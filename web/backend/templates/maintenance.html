@@ -56,7 +56,7 @@
     <div class="card-header bg-secondary text-white">
       <h5 class="mb-0">RCC Server Logs</h5>
     </div>
-    <div class="card-body" style="background-color: #f8f9fa; padding: 1em; border: 1px solid #dee2e6; height: 120px; overflow-y: scroll;">
+    <div id='logconcon' class="card-body" style="background-color: #f8f9fa; padding: 1em; border: 1px solid #dee2e6; height: 120px; overflow-y: scroll;">
       <pre id="logContainer" style="margin: 0;"></pre>
     </div>
   </div>
@@ -110,15 +110,13 @@
     fetch('/api/logs')
       .then(response => response.json())
       .then(data => {
-        var logContainer = document.getElementById('logContainer');
-        logContainer.textContent = data.logs.join('\n');
-        // Use a timeout to ensure the DOM has updated before scrolling
-        setTimeout(function() {
-          logContainer.scrollTop = logContainer.scrollHeight;
-        }, 0);
+         var logContainer = document.getElementById('logContainer');
+         logContainer.textContent = data.logs.join('\n');
+         var logconcon = document.getElementById('logconcon')
+         logconcon.scrollTop = logconcon.scrollHeight;
       })
       .catch(error => {
-        console.error('Error fetching logs:', error);
+         console.error('Error fetching logs:', error);
       });
   }
   // Fetch logs immediately and then every 100ms
