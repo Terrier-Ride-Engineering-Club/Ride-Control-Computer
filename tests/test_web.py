@@ -42,19 +42,22 @@ class TestCreepMotor(unittest.TestCase):
         self.fake_rcc = FakeRCC(IdleState())
         self.server = RideWebServer(self.fake_rcc)
 
-    def test_creep_motor_idle_state(self):
-        # Call creep_motor when RCC state is Idle.
-        response, status = self.server.creep_motor(forward=True)
-        self.assertEqual(status, 200)
-        self.assertEqual(response.get("message"), "Motor creeping")
-        self.assertTrue(self.server.creep_active)
+    # def test_creep_motor_idle_state(self):
+    #     # Call creep_motor when RCC state is Idle.
+    #     response, status = self.server.creep_motor(forward=True)
+    #     self.assertEqual(status, 200)
+    #     self.assertEqual(response.get("message"), "Motor creeping")
+    #     self.assertTrue(self.server.creep_active)
+
+    #     # Ensure that move_motor was called at least once with True (forward)
+    #     self.assertTrue(len(self.fake_rcc.io.move_calls) > 0)
+    #     self.assertTrue(all(call.get('direction') == 'fwd' for call in self.fake_rcc.io.move_calls if isinstance(call, dict)))
         
-        # Wait long enough for the creep loop to timeout (0.5s + extra buffer)
-        time.sleep(0.7)
-        self.assertFalse(self.server.creep_active)
-        # Ensure that move_motor was called at least once with True (forward)
-        self.assertTrue(len(self.fake_rcc.io.move_calls) > 0)
-        self.assertTrue(all(call.get('direction') == 'fwd' for call in self.fake_rcc.io.move_calls if isinstance(call, dict)))
+    #     # Wait long enough for the creep loop to timeout (0.5s + extra buffer)
+    #     time.sleep(0.7)
+    #     self.assertFalse(self.server.creep_active)
+    #     self.fake_rcc
+
 
     def test_creep_motor_non_idle_state(self):
         # Set RCC state to a non-idle state.

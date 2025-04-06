@@ -287,6 +287,17 @@ class IOController(ABC):
     def disable_servos(self):
         pass
 
+    @abstractmethod
+    def start_audio(self):
+        pass
+
+    @abstractmethod 
+    def stop_audio(self):
+        pass
+    @abstractmethod
+    def enable_audio(self):
+        pass
+
 
 
 # --- Hardware IO Controller ---
@@ -631,6 +642,18 @@ class WebIOController(IOController):
         pass
 
     def retract_servos(self):
+        pass
+
+    def disable_servos(self):
+        pass
+
+    def start_audio(self):
+        pass
+
+    def stop_audio(self):
+        pass
+
+    def enable_audio(self):
         pass
 
 class IOControllerFactory():
