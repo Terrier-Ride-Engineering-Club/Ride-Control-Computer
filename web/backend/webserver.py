@@ -154,7 +154,7 @@ class RideWebServer:
             motor_status = {
                 "encoderPosition": self.rcc.io.read_encoder(),
                 "encoderHomePosition": "NOT IMPL", # TODO: IMPLEMENT
-                "motorSpeed": self.rcc.io.read_max_speed(),
+                "motorSpeed": self.rcc.io.read_speed(),
                 "motorCurrent": self.rcc.io.read_motor_current(),
                 "powerSupplyVoltage": "NOT IMPL", # TODO: IMPLEMENT
                 "motorControllerStatus": self.rcc.io.read_status()
