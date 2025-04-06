@@ -139,7 +139,7 @@
         .then(response => response.json())
         .then(data => {
           document.getElementById('encoderPosition').innerHTML = `<strong>${data.encoderPosition}</strong>`;
-          document.getElementById('encoderHomePosition').innerHTML = `<strong>${data.encoderHomePosition}</strong>`;
+          // document.getElementById('encoderHomePosition').innerHTML = `<strong>${data.encoderHomePosition}</strong>`;
           document.getElementById('motorSpeed').innerHTML = `<strong>${data.motorSpeed}</strong>`;
           document.getElementById('motorCurrent').innerHTML = `<strong>${data.motorCurrent}</strong>`;
           document.getElementById('powerSupplyVoltage').innerHTML = `<strong>${data.powerSupplyVoltage}</strong>`;
