@@ -15,7 +15,7 @@ if __name__ == "__main__":
     address = 0x80
     mc = RoboClaw(port='/dev/ttyAMA1',address=0x80)
     
-    MODE = "MOTOR TEST"
+    MODE = "PID TEST"
     while True:
         if MODE == "DIAGNOSTIC":
             print(f"VER: {mc.read_version()}")
