@@ -671,9 +671,9 @@ if __name__ == "__main__":
         io.stop_motor()
 
     # del io
-    start_time = time.time()
-    while time.time() - start_time < 0.2:
-        pass
+    # start_time = time.time()
+    # while time.time() - start_time < 0.2:
+    #     pass
     # time.sleep(1)
     print("POS TEST")
 
