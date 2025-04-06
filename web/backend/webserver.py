@@ -82,8 +82,7 @@ class RideWebServer:
         self.app.add_url_rule('/api/motor/status', 'motor_status', self.get_motor_status, methods=['GET'])
         self.app.add_url_rule('/api/motor/creep_fwd', 'creep_fwd', lambda: self.creep_motor(forward=True), methods=['POST'])
         self.app.add_url_rule('/api/motor/creep_bwd', 'creep_bwd', lambda: self.creep_motor(forward=False), methods=['POST'])
-        self.app.add_url_rule('/api/motor/reset_encoder', 'motor_status', self.get_motor_status, methods=['POST'])
-        self.app.add_url_rule('/api/motor/save_home_position', 'motor_status', self.get_motor_status, methods=['POST'])
+        self.app.add_url_rule('/api/motor/reset_encoder', 'motor_status', self.reset_encoder, methods=['POST'])
         
     # --- Run Methods ---
     def run(self):
@@ -209,3 +208,7 @@ class RideWebServer:
             self.creep_thread.start()
 
         return {"message": "Motor creeping"}, 200
+    
+    def reset_encoder(self):
+        self.rcc.io.reset_quad_encoders()
+        return {"message": "ok"}, 200
