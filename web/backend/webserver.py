@@ -9,6 +9,7 @@ from flask_cors import CORS  # Import the extension
 from ridecontrolcomputer import RideControlComputer, State
 from Backend.states import *
 from Backend.iocontroller import HardwareIOController
+import time
 
 CREEP_TIMEOUT_THRESHOLD = 0.2
 LOG_FORMAT = "%(asctime)s %(levelname)s [%(name)s]: %(message)s"
@@ -183,7 +184,7 @@ class RideWebServer:
             if now - self.creep_last_signal_time > CREEP_TIMEOUT_THRESHOLD:
                 self.log.info("Motor stopped creeping.")
                 self.creep_active = False
-                break
+                return
 
             # Actually move the motor
             dir = "fwd" if self.creep_direction_forward else "bwd"
@@ -196,7 +197,6 @@ class RideWebServer:
 
         # Update motor direction and refresh the last signal time
         self.creep_direction_forward = forward
-        import time
         self.creep_last_signal_time = time.time()
 
         # Start the creep loop if it's not already active
