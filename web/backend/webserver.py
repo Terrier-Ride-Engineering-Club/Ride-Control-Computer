@@ -183,6 +183,7 @@ class RideWebServer:
             # If no new creep signal in 0.5 seconds, stop creeping
             if now - self.creep_last_signal_time > CREEP_TIMEOUT_THRESHOLD:
                 self.log.info("Motor stopped creeping.")
+                self.rcc.io.stop_motor()
                 self.creep_active = False
                 return
 
