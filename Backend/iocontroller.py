@@ -415,9 +415,11 @@ class HardwareIOController(IOController):
                             return
                         else:
                             # Motor has been stationary for 1 second; enable position mode
-                            self.log.info("Transitioning to position mode.")
-                            time.sleep(0.2)
-                            self._position_mode_active = True
+                            # This forces timout on the motor
+                            with self.mc.serial_lock:
+                                self.log.info("Transitioning to position mode.")
+                                time.sleep(0.2)
+                                self._position_mode_active = True
 
                         
                 position_str = command.get('pos', 'home').lower()
