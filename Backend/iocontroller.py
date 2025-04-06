@@ -691,7 +691,7 @@ if __name__ == "__main__":
 
     while True:
         io.extend_servos()
-        time.sleep(2)
-        io.retract_servos()
-        time.sleep(2)
+        time.sleep(0.1)
+        # io.retract_servos()
+        # time.sleep(2)
 
