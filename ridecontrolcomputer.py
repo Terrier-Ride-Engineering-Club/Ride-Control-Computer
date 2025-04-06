@@ -217,18 +217,6 @@ class RideControlComputer():
             self.io.read_estop() or  # Hardware ESTOP
             self.fault_manager.faultRequiresEStop # Faults requiring an ESTOP
         )
-    
-    def run_ride(self):
-        '''
-        This will run the ride under normal conditions.
-        TODO: Implement
-        '''
-
-        dt = 0.1  # time delta, for example
-        instruction = self.rmc.update(dt)
-        if instruction is not None:
-            # Pass the instruction to the IO controller for execution.
-            ...
 
     def delete_event(self, event: Event):
         """Handles the creation of an Event by sending it to the appropriate parties."""
@@ -303,7 +291,7 @@ class RideControlComputer():
         # Print average delta time every second
         if current_time - self._last_avg_print_time >= 1.0:
             avg_dt = sum(self._delta_times) / len(self._delta_times)
-            print(f"Average delta time: {avg_dt:.6f} seconds")
+            self.log.info(f"Average delta time: {avg_dt:.6f} seconds")
             self._delta_times.clear()
             self._last_avg_print_time = current_time
 
