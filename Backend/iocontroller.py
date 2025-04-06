@@ -309,8 +309,8 @@ class HardwareIOController(IOController):
                     max_pulse_width=2400/1_000_000,  # 0.0024
                     frame_width=20/1000)             # 0.02 (20 ms standard servo frame)
         self.servo2 = Servo(pin=SERVO2_PIN, pin_factory=factory,
-                    # min_pulse_width=600/1_000_000,   # 0.0006
-                    # max_pulse_width=2400/1_000_000,  # 0.0024
+                    min_pulse_width=600/1_000_000,   # 0.0006
+                    max_pulse_width=2400/1_000_000,  # 0.0024
                     frame_width=20/1000)             # 0.02 (20 ms standard servo frame)
 
         # Init RoboClaw
