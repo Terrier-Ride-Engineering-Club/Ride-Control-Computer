@@ -9,6 +9,8 @@ RIDE_ONOFF_PIN = 17
 RESTART_PIN = 19
 SERVO1_PIN = "GPIO12"
 SERVO2_PIN = "GPIO13"
+AUDIO_A0 = 26
+AUDIO_A1 = 27
 #UART_TX = 14
 #UART_RX = 15
 
@@ -72,7 +74,7 @@ import threading
 import time
 from abc import ABC, abstractmethod
 from Backend.roboclaw import RoboClaw
-from gpiozero import Device, Servo, Button
+from gpiozero import Device, Servo, Button, LED
 from gpiozero.pins.mock import MockFactory, MockPWMPin
 
 # Configures gpiozero by making a pin factory using the lgpio library.
@@ -280,6 +282,18 @@ class IOController(ABC):
 
     def get_motor_home(self):
         return HOME_POSITION
+    
+    @abstractmethod
+    def start_audio(self):
+        pass
+
+    @abstractmethod
+    def stop_audio(self):
+        pass
+    
+    @abstractmethod
+    def enable_audio(self):
+        pass
 
 
 
@@ -312,6 +326,9 @@ class HardwareIOController(IOController):
                     # min_pulse_width=600/1_000_000,   # 0.0006
                     # max_pulse_width=2400/1_000_000,  # 0.0024
                     # frame_width=20/1000)             # 0.02 (20 ms standard servo frame)
+
+        self.audio_start = LED(AUDIO_A0)
+        self.audio_enabled = LED(AUDIO_A1)
 
         # Init RoboClaw
         self.log.info(f"Starting Serial communication with RoboClaw on {ROBOCLAW_SERIAL_PORT}: {ROBOCLAW_SERIAL_ADDRESS}")
@@ -479,6 +496,15 @@ class HardwareIOController(IOController):
     def read_max_speed(self): return self.mc.read_max_speed(SELECTED_MOTOR)
 
     def read_speed(self): return self.mc.read_raw_speed_m1()
+
+    def start_audio(self):
+        self.audio_start.on()
+
+    def stop_audio(self):
+        self.audio_start.off()
+    
+    def enable_audio(self):
+        self.audio_enabled.on()
 
 
 
