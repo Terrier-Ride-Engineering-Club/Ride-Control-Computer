@@ -2,7 +2,7 @@ import serial
 import time
 
 port = '/dev/ttyAMA0'
-baud = 9600
+baud = 38400
 
 try:
     ser = serial.Serial(port, baud, timeout=1)
