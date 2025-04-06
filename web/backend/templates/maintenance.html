@@ -13,7 +13,7 @@
         <div id="motorControls" style="margin-bottom: 1em;">
           <button onmousedown="startMotorAction('creep_fwd')" onmouseup="stopMotorAction()" onmouseleave="stopMotorAction()">Creep Fwd</button>
           <button onmousedown="startMotorAction('creep_bwd')" onmouseup="stopMotorAction()" onmouseleave="stopMotorAction()">Creep Bwd</button>
-          <button onclick="postMotorAction('reset_encoder')">Save Home Position</button>
+          <button onmousedown="postMotorAction('reset_encoder')">Save Home Position</button>
         </div>
         <div id="motorStatus">
           <div class="row">
