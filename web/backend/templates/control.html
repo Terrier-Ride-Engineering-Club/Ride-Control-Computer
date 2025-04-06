@@ -71,53 +71,59 @@
         </div>
       </div>
         <!-- Control Card -->
-        <div class="col-md-6 mb-4">
+        <div class="col-md-6 mb-2">
           <div class="card border-secondary shadow">
             <div class="card-header bg-secondary text-white">
-              <h5 class="mb-0">Virtual Ride Controls</h5>
+              <h5 class="mb-0">Ride Overview</h5>
             </div>
-            <div class="card-body text-center">
-              <div class="container text-center">
-                <div class="row">
-                  <div class="col-6">
-                    <div id="webControlFlag" class="alert alert-info text-center me-3" role="alert">
-                      Web Controls: Unknown
-                    </div>
+            <div class="container">
+              <div class="row">
+                <div class="col-sm p-2">
+                  <!-- Live data -->
+                  
+                  <div class="card-body text-center border-secondary p-0">
+                    <h3 class="text-center">Live Data</h3>
+                    <table class="table table-striped table-bordered table-hover table-sm">
+                      <thead>
+                        <tr>
+                          <th scope="col">Name</th>
+                          <th scope="col">Value</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th scope="row">MC Status</th>
+                          <td id="motorControllerStatus">Normal</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Motor Speed</th>
+                          <td id="motorSpeed">0</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Motor Current</th>
+                          <td id="motorCurrent">0</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">PSU Voltage</th>
+                          <td id="powerSupplyVoltage">0</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Enc Pos</th>
+                          <td id="encoderPosition">0</td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
-                  <div class="col">
-                    <button id="toggleWebControls" type="button" class="btn btn-outline-primary me-3">Toggle Web Controls</button>
+                </div>
+                <div class="col-sm p-2">
+                  <div class="card-body text-center border-secondary p-0">
+                    <h3 class="text-center">Faults List</h3>
+                    <div id="activeWarnings" style="background-color: #f8f9fa; border: 1px solid #dee2e6; height: 200px; overflow-y: scroll;"></div>
                   </div>
                 </div>
               </div>
-              <div class="row g-3">
-                <div class="col-6">
-                  <button id="triggerEstop" type="button" class="btn btn-danger btn-lg w-100 py-3">
-                    <i class="fas fa-exclamation-triangle me-2"></i> Emergency Stop
-                  </button>
-                </div>
-                <div class="col-6">
-                  <button id="stopRide" type="button" class="btn btn-warning btn-lg w-100 py-3">
-                    <i class="fas fa-hand-paper me-2"></i> Stop Ride
-                  </button>
-                </div>
-                <div class="col-6">
-                  <button id="dispatchRide" type="button" class="btn btn-success btn-lg w-100 py-3">
-                    <i class="fas fa-flag-checkered me-2"></i> Dispatch Ride
-                  </button>
-                </div>
-                <div class="col-6">
-                  <button id="rideOff" type="button" class="btn btn-dark btn-lg w-100 py-3">
-                    <i class="fas fa-power-off me-2"></i> Ride On/Off
-                  </button>
-                </div>
-                <div class="col-12">
-                  <button id="restartRide" type="button" class="btn btn-primary btn-lg w-100 py-3">
-                    <i class="fas fa-sync me-2"></i> Restart Ride
-                  </button>
-                </div>
-              </div>
-              <div id="controlMessage" class="mt-4"></div>
             </div>
+            
           </div>
         </div>
       </div>
@@ -127,6 +133,25 @@
   <!-- JavaScript to interact with the API -->
   <script>
     const apiBase = `${window.location.protocol}//${window.location.hostname}:23843/api`;
+
+    function fetchMotorStatus() {
+      fetch(`${apiBase}/motor/status`)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('encoderPosition').innerHTML = `<strong>${data.encoderPosition}</strong>`;
+          document.getElementById('encoderHomePosition').innerHTML = `<strong>${data.encoderHomePosition}</strong>`;
+          document.getElementById('motorSpeed').innerHTML = `<strong>${data.motorSpeed}</strong>`;
+          document.getElementById('motorCurrent').innerHTML = `<strong>${data.motorCurrent}</strong>`;
+          document.getElementById('powerSupplyVoltage').innerHTML = `<strong>${data.powerSupplyVoltage}</strong>`;
+          document.getElementById('motorControllerStatus').innerHTML = `<strong>${data.motorControllerStatus}</strong>`;
+        })
+        .catch(error => {
+          console.error('Error fetching motor status:', error);
+        });
+    }
+    // Fetch motor status immediately and then every 100ms
+    fetchMotorStatus();
+    setInterval(fetchMotorStatus, 100);
 
     // Function to send POST requests to the backend for ride control actions
     async function sendRideCommand(endpoint) {
