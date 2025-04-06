@@ -13,7 +13,7 @@ from time import sleep, time
 if __name__ == "__main__":
     
     address = 0x80
-    mc = RoboClaw(port='/dev/ttyAMA0',address=0x80)
+    mc = RoboClaw(port='/dev/ttyAMA1',address=0x80)
     
     MODE = "MOTOR TEST"
     while True:
@@ -69,9 +69,9 @@ if __name__ == "__main__":
             #     sleep(0.1)
 
             print("Forward - Fast/Fast")
-            print(f"STATUS: {mc.read_status()}")
-            print(f"ENC POS: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
-            print(f"alt enc: {mc.read_encoder_m1()}")
+            # print(f"STATUS: {mc.read_status()}")
+            # print(f"ENC POS: {mc.read_encoder(1)}, HOME: {HOME_POSITION}")
+            # print(f"alt enc: {mc.read_encoder_m1()}")
             start_time = time()
             while time() - start_time < 2:
                 mc.print_telemetry()
