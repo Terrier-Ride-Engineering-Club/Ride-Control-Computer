@@ -1,5 +1,5 @@
-# Ride Control Computer (RCC)
-This repo hosts all of the code and files related to Terrier Ride Engineering Club's (TREC) Ride Control Computer (RCC) project. This was made as a control system and Human Machine Interface (HMI) for TREC's Ride Engineering Competition (REC) entry, Poseidon's Wrath. It This repository is no longer maintained, as the 2024-2025 REC season has concluded. It exists for archive purposes. 
+# Ride Control Computer (RCC) 2024-2025
+This repo hosts all of the code and files related to Terrier Ride Engineering Club's (TREC) Ride Control Computer (RCC) project. This was made as a control system and Human Machine Interface (HMI) for TREC's Ride Engineering Competition (REC) entry, Poseidon's Wrath. This repository is no longer maintained, as the 2024-2025 REC season has concluded. It exists for archive purposes. 
 
 ## About the Project
 The Ride Control Computer (RCC) is a control and operator interface meant for controlling TREC's Poseidon's Wrath ride. This project uses a state machine for control logic, as well as a Flask webserver to serve as a Human Machine Interface. This project complies with all of ASTM F2291-24 Standards, minus operator access control. This code is open source, and other entities are encouraged to use it in any way they please. Attribution is required. 
